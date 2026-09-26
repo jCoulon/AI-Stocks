@@ -151,7 +151,8 @@ def price_factors(bars: list[Bar], index_bars: list[Bar]) -> dict[str, Optional[
         vol_ann = (stdev(rets[-126:]) or 0.01) * math.sqrt(252)
         # Rendement 12 mois divisé par la volatilité : momentum « à risque constant ».
         r12 = ret(252)
-        out["tsmom"] = r12 / vol_ann if r12 is not None else None
+        # Rendement logarithmique : score symétrique (un aller-retour ne crée pas de biais).
+        out["tsmom"] = math.log1p(r12) / vol_ann if r12 is not None else None
     if n >= 252:
         out["high52"] = closes[-1] / max(b.high for b in bars[-252:])
     if n > 22:
@@ -397,7 +398,7 @@ class ResearchView:
 
 def _fmt(key: str, v: float) -> str:
     if key == "tsmom":
-        return f"rendement 12 mois = {v:+.2f} x la volatilité annuelle"
+        return f"rendement 12 mois (log) = {v:+.2f} x la volatilité annuelle"
     if key == "beta":
         return f"bêta {v:.2f}"
     if key == "high52":

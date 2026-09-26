@@ -137,6 +137,53 @@ class StatisticsAuditTests(unittest.TestCase):
         self.assertLess(false_regimes / n, 0.09)
 
 
+def mirror(bars, k=100.0 ** 2):
+    """Trajectoire miroir en log autour de 100 : chaque hausse devient une baisse identique."""
+    return [Bar(b.day, k / b.open, k / b.low, k / b.high, k / b.close, b.volume) for b in bars]
+
+
+class SymmetryAndContinuityAuditTests(unittest.TestCase):
+    def setUp(self):
+        rng = random.Random(9)
+        self.days = weekdays(300)
+        self.index = bars_from_returns([rng.gauss(0, 0.009) for _ in self.days], self.days)
+        self.paths = [bars_from_returns([rng.gauss(0, 0.015) for _ in self.days], self.days) for _ in range(12)]
+
+    def test_time_series_momentum_is_symmetric(self):
+        from sp500_analyzer.analysis.research import price_factors
+        for bars in self.paths:
+            a = price_factors(bars, self.index)["tsmom"]
+            b = price_factors(mirror(bars), mirror(self.index))["tsmom"]
+            self.assertAlmostEqual(a + b, 0.0, delta=0.05)
+
+    def test_scored_returns_are_symmetric(self):
+        for bars in self.paths:
+            a, _, _ = analyze_technical(bars, self.index)
+            b, _, _ = analyze_technical(mirror(bars), mirror(self.index))
+            sa = {x.name: x.score for x in a.signals}
+            sb = {x.name: x.score for x in b.signals}
+            self.assertAlmostEqual(sa["Perf. 5 séances"] + sb["Perf. 5 séances"], 0.0, delta=0.01)
+
+    def test_biased_duplicate_signal_removed(self):
+        _, medium, _ = analyze_technical(self.paths[0], self.index)
+        self.assertNotIn("Distance plus haut 52s", {s.name for s in medium.signals})
+
+    def test_signals_are_continuous_in_price(self):
+        from dataclasses import replace
+        for bars in self.paths[:6]:
+            prev = None
+            for k in range(-20, 21):
+                last = bars[-1]
+                c = last.close * (1 + k * 0.001)
+                shifted = bars[:-1] + [replace(last, close=c, high=max(last.high, c), low=min(last.low, c))]
+                sh, md, _ = analyze_technical(shifted, self.index)
+                cur = {x.name: x.score for x in sh.signals + md.signals}
+                if prev:
+                    for name, v in cur.items():
+                        self.assertLess(abs(v - prev[name]), 0.2, name)
+                prev = cur
+
+
 class MethodologyAuditTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

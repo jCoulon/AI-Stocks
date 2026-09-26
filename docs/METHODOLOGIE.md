@@ -100,7 +100,19 @@ disponibles) : 71 % à 5 séances et 65 % à 63 séances, pour une cible de 68 %
    ne garde que les anomalies indépendantes (corrélation résiduelle ≈ −0,06). Sans cela,
    la tendance aurait pesé environ 60 % de l'avis et gonflé l'accord apparent entre piliers.
 
-## 5. Validation : backtest point-in-time
+## 5. Contrôles de neutralité et de stabilité
+
+- **Absence de biais structurel** : sur 40 marchés simulés sans tendance (marches
+  aléatoires, chacune doublée de sa trajectoire miroir où chaque hausse devient une baisse
+  identique), le score moyen vaut −0,0005 ± 0,0008 à court et à moyen terme. Les scores
+  fondés sur des rendements utilisent des **rendements logarithmiques**, symétriques
+  (le rendement arithmétique, +50 % puis −33 %, biaisait le momentum temporel vers la
+  hausse). Les asymétries résiduelles (≤ 0,03) proviennent des moyennes mobiles
+  arithmétiques standard.
+- **Continuité** : une variation de 0,1 % du cours ne fait pas varier un signal de plus de
+  0,2 (auparavant jusqu'à 0,7 au franchissement d'une bande de Bollinger).
+
+## 6. Validation : backtest point-in-time
 
 `python -m sp500_analyzer --backtest` (`analysis/backtest.py`) :
 
@@ -120,7 +132,7 @@ des news et des réseaux sociaux n'est pas disponible dans les sources actuelles
 marche aléatoire) : il valide la mécanique. La validation des facteurs exige de vraies
 données historiques, idéalement sur plusieurs décennies et un univers large.
 
-## 6. Références
+## 7. Références
 
 - Ang, A., Hodrick, R., Xing, Y. & Zhang, X. (2006). The Cross-Section of Volatility and Expected Returns. *Journal of Finance*.
 - Bali, T., Cakici, N. & Whitelaw, R. (2011). Maxing Out: Stocks as Lotteries and the Cross-Section of Expected Returns. *Journal of Financial Economics*, 99, 427–446.

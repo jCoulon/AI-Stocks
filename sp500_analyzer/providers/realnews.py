@@ -181,7 +181,7 @@ def gdelt_articles(query: str, start: datetime, end: datetime, sleep=time.sleep)
     params = {"query": f"{query} sourcelang:english", "mode": "artlist", "format": "json",
               "maxrecords": "250", "sort": "datedesc",
               "startdatetime": _gdelt_time(start), "enddatetime": _gdelt_time(end)}
-    body = http_get(f"{GDELT_URL}?{urllib.parse.urlencode(params)}", timeout=60,
+    body = http_get(f"{GDELT_URL}?{urllib.parse.urlencode(params)}", timeout=45, retries=3,
                     retry_if=lambda b: b.lstrip().lower().startswith("please limit"), sleep=sleep)
     return parse_gdelt(body)
 
@@ -206,16 +206,29 @@ def to_news_rows(articles: list[dict]) -> list[tuple[datetime, str, str, str, st
     return sorted(rows.values())
 
 
-def download_news(out_dir: Path, tickers: list[str], start: date, end: date, window_days: int = 7,
-                  pause: float = GDELT_PAUSE, log=print) -> list[str]:
-    """News GDELT par fenêtres de `window_days` jours (250 articles au plus par requête)."""
+class SourceUnavailable(RuntimeError):
+    """Trop d'échecs consécutifs : la source est considérée comme inaccessible."""
+
+
+def download_news(out_dir: Path, tickers: list[str], start: date, end: date, window_days: int = 14,
+                  pause: float = GDELT_PAUSE, resume: bool = False, max_consecutive_failures: int = 4,
+                  log=print) -> list[str]:
+    """News GDELT par fenêtres de `window_days` jours (250 articles au plus par requête).
+
+    `resume` : ne retélécharge pas les titres dont le fichier existe déjà. Après
+    `max_consecutive_failures` requêtes en échec d'affilée, GDELT est jugé inaccessible et
+    le téléchargement s'arrête (les fichiers déjà écrits sont conservés)."""
     folder = out_dir / "news"
     folder.mkdir(parents=True, exist_ok=True)
     errors = []
+    streak = 0
     for ticker in tickers:
         query = GDELT_QUERIES.get(ticker)
         if not query:
             errors.append(f"news {ticker} : pas de requête GDELT définie")
+            continue
+        if resume and (folder / f"{ticker}.csv").exists():
+            log(f"  news {ticker:6} déjà présent, ignoré")
             continue
         articles, failed = [], 0
         day = start
@@ -224,9 +237,15 @@ def download_news(out_dir: Path, tickers: list[str], start: date, end: date, win
             try:
                 articles += gdelt_articles(query, datetime.combine(day, datetime.min.time()),
                                            datetime.combine(stop, datetime.min.time()))
+                streak = 0
             except Exception as e:  # noqa: BLE001 — on garde les autres fenêtres
                 failed += 1
+                streak += 1
                 errors.append(f"news {ticker} {day} : {type(e).__name__}: {str(e)[:160]}")
+                log(f"  ✗ news {ticker} {day} : {type(e).__name__}: {str(e)[:160]}")
+                if streak >= max_consecutive_failures:
+                    errors.append(f"GDELT inaccessible après {streak} échecs consécutifs : arrêt")
+                    return errors
             time.sleep(pause)
             day = stop
         rows = to_news_rows(articles)
@@ -280,7 +299,7 @@ def download_sec(out_dir: Path, tickers: list[str], start: date, user_agent: str
     folder.mkdir(parents=True, exist_ok=True)
     headers = {"User-Agent": user_agent, "Accept-Encoding": "identity"}
     try:
-        mapping = json.loads(http_get(SEC_TICKERS_URL, headers=headers))
+        mapping = json.loads(http_get(SEC_TICKERS_URL, headers=headers, retries=2))
     except Exception as e:  # noqa: BLE001
         return [f"SEC : liste des sociétés inaccessible ({type(e).__name__}: {e})"]
     cik_of = {v["ticker"].upper().replace("-", "."): int(v["cik_str"]) for v in mapping.values()}
@@ -294,6 +313,10 @@ def download_sec(out_dir: Path, tickers: list[str], start: date, user_agent: str
             rows = sec_rows(json.loads(http_get(SEC_SUBMISSIONS_URL.format(cik=cik), headers=headers)), cik, start)
         except Exception as e:  # noqa: BLE001
             errors.append(f"SEC {ticker} : {type(e).__name__}: {e}")
+            log(f"  ✗ SEC {ticker} : {type(e).__name__}: {e}")
+            if isinstance(e, urllib.error.HTTPError) and e.code == 403:
+                errors.append("SEC : accès refusé (403) — renseigner le secret SEC_USER_AGENT")
+                return errors
             continue
         with open(folder / f"{ticker}.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
@@ -346,9 +369,11 @@ def download_macro(out_dir: Path, start: date, log=print) -> list[str]:
     fetch_from = date(start.year - 2, 1, 1)  # historique pour les glissements annuels / trimestriels
     for key, (series, transform, timing) in FRED_SERIES.items():
         try:
-            obs = parse_fred_csv(http_get(FRED_URL.format(series=series, start=fetch_from.isoformat())))
+            obs = parse_fred_csv(http_get(FRED_URL.format(series=series, start=fetch_from.isoformat()),
+                                          retries=2, timeout=30))
         except Exception as e:  # noqa: BLE001
             errors.append(f"FRED {series} : {type(e).__name__}: {e}")
+            log(f"  ✗ FRED {series} : {type(e).__name__}: {e}")
             continue
         points = publication_dated(obs, transform, timing)
         if not points:

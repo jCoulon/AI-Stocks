@@ -23,6 +23,7 @@ from sp500_analyzer.universe import SP500_SAMPLE  # noqa: E402
 
 
 def main() -> int:
+    sys.stdout.reconfigure(line_buffering=True)  # progression visible dans les logs du workflow
     today = datetime.now(ZoneInfo("America/New_York")).date()
     p = argparse.ArgumentParser()
     p.add_argument("--start", type=date.fromisoformat, default=date(2026, 1, 1))
@@ -30,6 +31,7 @@ def main() -> int:
     p.add_argument("--out", default="data")
     p.add_argument("--extra", default="", help="Titres supplémentaires, séparés par des virgules (ex. IREN)")
     p.add_argument("--only", default="news,sec,macro", help="Sources à télécharger (news, sec, macro)")
+    p.add_argument("--reprendre", action="store_true", help="News : ignorer les titres déjà téléchargés")
     args = p.parse_args()
     out = Path(args.out)
     tickers = [s.security.ticker for s in SP500_SAMPLE]
@@ -46,11 +48,11 @@ def main() -> int:
     if "news" in only:
         news_start = max(args.start, today - timedelta(days=GDELT_MAX_DAYS))
         print(f"News (GDELT) du {news_start} au {args.end}…")
-        errors += download_news(out, tickers + [MARKET], news_start, args.end)
+        errors += download_news(out, tickers + [MARKET], news_start, args.end, resume=args.reprendre)
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)
-    files = [f for d in ("news", "sec", "macro") for f in (out / d).glob("*.csv")] if out.exists() else []
-    print(f"{len(files)} fichiers écrits, {len(errors)} erreur(s).")
+    files = [f for d in only for f in (out / d).glob("*.csv")] if out.exists() else []
+    print(f"{len(files)} fichiers ({', '.join(sorted(only))}), {len(errors)} erreur(s).")
     return 0 if files else 1
 
 

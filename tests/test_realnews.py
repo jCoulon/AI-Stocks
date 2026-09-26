@@ -48,6 +48,29 @@ class GdeltTests(unittest.TestCase):
         published, source, _, title, _ = rows[0]
         self.assertEqual((source, published), ("CNBC", datetime(2026, 8, 26, 16, 30)))  # 20h30 UTC = 16h30 NY (été)
 
+    def test_download_stops_when_gdelt_is_down_and_resumes(self):
+        from unittest import mock
+        from sp500_analyzer.providers import realnews
+
+        calls = []
+
+        def down(query, start, end):
+            calls.append(query)
+            raise TimeoutError("timed out")
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(realnews, "gdelt_articles", down):
+            errors = realnews.download_news(Path(tmp), ["NVDA", "AAPL"], date(2026, 7, 1), date(2026, 9, 25),
+                                            pause=0, max_consecutive_failures=3, log=lambda *a: None)
+            self.assertEqual(len(calls), 3)  # arrêt après 3 échecs d'affilée, sans parcourir AAPL
+            self.assertIn("GDELT inaccessible", errors[-1])
+            write_news_csv(Path(tmp) / "news" / "NVDA.csv", [])
+            ok = []
+            with mock.patch.object(realnews, "gdelt_articles", lambda q, s, e: ok.append(q) or []):
+                realnews.download_news(Path(tmp), ["NVDA", "AAPL"], date(2026, 9, 1), date(2026, 9, 25),
+                                       pause=0, resume=True, log=lambda *a: None)
+            self.assertEqual(set(ok), {realnews.GDELT_QUERIES["AAPL"]})  # NVDA déjà présent : ignoré
+            self.assertTrue((Path(tmp) / "news" / "AAPL.csv").exists())
+
 
 class SecTests(unittest.TestCase):
     def test_filings_since_start_with_items(self):

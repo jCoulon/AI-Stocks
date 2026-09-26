@@ -30,7 +30,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@v4
 
@@ -38,15 +38,34 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Téléchargement (FRED, SEC EDGAR, GDELT)
+      # Une étape par source, chacune bornée dans le temps et non bloquante : ce qui a été
+      # téléchargé est enregistré même si une source est lente ou inaccessible.
+      - name: Macro (FRED)
+        timeout-minutes: 10
+        continue-on-error: true
+        if: contains(github.event.inputs.only || 'news,sec,macro', 'macro')
+        run: python -u scripts/fetch_news_macro.py --only macro --start "${{ github.event.inputs.start || '2026-01-01' }}" --out data
+
+      - name: Dépôts SEC (EDGAR)
+        timeout-minutes: 10
+        continue-on-error: true
+        if: contains(github.event.inputs.only || 'news,sec,macro', 'sec')
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: |
-          python scripts/fetch_news_macro.py --start "${{ github.event.inputs.start || '2026-01-01' }}" \
-            --extra "${{ github.event.inputs.extra || 'IREN' }}" \
-            --only "${{ github.event.inputs.only || 'news,sec,macro' }}" --out data
+          python -u scripts/fetch_news_macro.py --only sec --start "${{ github.event.inputs.start || '2026-01-01' }}" \
+            --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data
+
+      - name: News (GDELT)
+        timeout-minutes: 70
+        continue-on-error: true
+        if: contains(github.event.inputs.only || 'news,sec,macro', 'news')
+        run: |
+          python -u scripts/fetch_news_macro.py --only news --start "${{ github.event.inputs.start || '2026-01-01' }}" \
+            --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data --reprendre
 
       - name: Enregistrement dans la branche
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -60,8 +79,10 @@ jobs:
           fi
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: news-macro
+          if-no-files-found: ignore
           path: |
             data/news/
             data/sec/

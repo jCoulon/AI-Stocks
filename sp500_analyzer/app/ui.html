@@ -49,6 +49,22 @@ aside { border-right: 1px solid var(--border); display: flex; flex-direction: co
 #content main { max-width: 1100px; }
 .loading { opacity: .5; pointer-events: none; transition: opacity .15s; }
 .empty { color: var(--muted); padding: 24px; }
+[hidden] { display: none !important; }  /* l'attribut hidden l'emporte sur les display: flex */
+.advice { margin: 14px 0 6px; border-left: 3px solid var(--series-1); }
+.advice-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.advice-head strong { font-size: 15px; }
+.advice-body { margin: 6px 0 10px; }
+.advice-body:empty { display: none; }
+.advice-body h3 { font-size: 15px; margin: 10px 0 6px; }
+.advice-body h4 { font-size: 13px; margin: 12px 0 4px; color: var(--text-2); }
+.advice-body p { margin: 6px 0; }
+.advice-body ul { margin: 4px 0; padding-left: 20px; }
+.advice-body.streaming::after { content: "▍"; animation: blink 1s steps(2) infinite; color: var(--series-1); }
+@keyframes blink { to { visibility: hidden; } }
+.advice-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.advice-key { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.advice-key input { font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--text); min-width: 260px; }
 @media (max-width: 760px) {
   .layout { grid-template-columns: 1fr; grid-template-rows: 240px 1fr; }
   aside { border-right: none; border-bottom: 1px solid var(--border); }
@@ -60,7 +76,6 @@ aside { border-right: 1px solid var(--border); display: flex; flex-direction: co
   <span class="brand">S&amp;P 500 Analyzer</span>
   <label>Séance <input type="date" id="asof"></label>
   <label>Jeu de données <input type="number" id="seed" min="0" step="1" title="Graine des données simulées"></label>
-  <label title="Synthèse rédigée par Claude (appel payant à l'API Anthropic)"><input type="checkbox" id="llm"> Synthèse Claude</label>
   <button class="primary" id="run">Analyser</button>
   <span class="status" id="status" role="status" aria-live="polite"></span>
   <span class="spacer"></span>
@@ -157,6 +172,7 @@ async function show(ticker) {
     content.innerHTML = `<main>${head}${html}</main>`;
     content.scrollTop = 0;
     initCharts(content);
+    mountAdvice(ticker);
   } catch (e) {
     content.innerHTML = `<main><p class="empty">Erreur : ${esc(e.message)}</p></main>`;
   } finally {
@@ -168,12 +184,7 @@ function applySummary(s) {
   summary = s;
   $("asof").value = s.as_of;
   $("seed").value = s.seed;
-  $("llm").checked = s.llm;
-  let banner = s.disclaimer;
-  if (s.llm_status && s.llm_status.status !== "done") {
-    banner += ` — Synthèse Claude indisponible : ${s.llm_status.error || s.llm_status.status}`;
-  }
-  $("banner").textContent = banner;
+  $("banner").textContent = s.disclaimer;
   if (current !== "__market__" && !s.tickers.some(t => t.ticker === current)) current = "__market__";
 }
 
@@ -189,12 +200,12 @@ async function load() {
 async function runAnalysis() {
   const btn = $("run");
   btn.disabled = true;
-  setStatus($("llm").checked ? "Les agents analysent… (synthèse Claude en cours)" : "Les agents analysent…");
+  setStatus("Les agents analysent…");
   const t0 = performance.now();
   try {
     const res = await api("/api/refresh", {
       method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({as_of: $("asof").value, seed: $("seed").value, llm: $("llm").checked}),
+      body: JSON.stringify({as_of: $("asof").value, seed: $("seed").value}),
     });
     applySummary(await res.json());
     await show(current);
@@ -222,6 +233,134 @@ async function exportReport() {
     a.click();
     URL.revokeObjectURL(a.href);
   } catch (e) { setStatus(e.message, true); }
+}
+
+
+// ------------------------------------------------------------------ avis de Claude
+let adviceController = null;
+
+function renderMarkdown(md) {
+  // Rendu minimal et sûr : le texte est échappé AVANT toute mise en forme.
+  const lines = esc(md).split("\n");
+  const out = [];
+  let list = false;
+  const inline = (t) => t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    const item = line.match(/^\s*[-*]\s+(.*)/);
+    if (item) { if (!list) { out.push("<ul>"); list = true; } out.push(`<li>${inline(item[1])}</li>`); continue; }
+    if (list) { out.push("</ul>"); list = false; }
+    if (line.startsWith("### ")) out.push(`<h4>${inline(line.slice(4))}</h4>`);
+    else if (line.startsWith("## ")) out.push(`<h3>${inline(line.slice(3))}</h3>`);
+    else if (line.startsWith("# ")) out.push(`<h3>${inline(line.slice(2))}</h3>`);
+    else if (line.trim()) out.push(`<p>${inline(line)}</p>`);
+  }
+  if (list) out.push("</ul>");
+  return out.join("");
+}
+
+function adviceTicker(ticker) { return ticker === "__market__" ? "__MARKET__" : ticker; }
+
+async function mountAdvice(ticker) {
+  if (adviceController) { adviceController.abort(); adviceController = null; }
+  const main = $("content").querySelector("main");
+  if (!main) return;
+  const subject = ticker === "__market__" ? "le marché" : ticker;
+  const card = document.createElement("section");
+  card.className = "card advice";
+  card.innerHTML = `
+    <div class="advice-head"><strong>✦ Avis de Claude</strong>
+      <span class="muted small">Second regard de Claude sur ${esc(subject)}, rédigé à partir du dossier des agents
+      · appel payant à l'API Anthropic, uniquement sur demande</span></div>
+    <div class="advice-body" id="advice-body"></div>
+    <div class="advice-actions">
+      <button class="primary" id="advice-btn">Demander l'avis de Claude</button>
+      <button id="advice-stop" hidden>Arrêter</button>
+      <span class="status" id="advice-status" role="status" aria-live="polite"></span>
+    </div>
+    <form class="advice-key" id="advice-key" hidden>
+      <input type="password" id="advice-key-input" placeholder="Clé API Anthropic (sk-ant-…)" autocomplete="off" aria-label="Clé API Anthropic">
+      <button type="submit">Utiliser cette clé</button>
+      <span class="muted small">Gardée en mémoire le temps de la session, jamais écrite sur disque.</span>
+    </form>`;
+  const anchor = main.querySelector(".cards");
+  if (anchor) anchor.after(card); else main.prepend(card);
+  $("advice-btn").addEventListener("click", () => requestAdvice(ticker, $("advice-body").textContent.length > 0));
+  $("advice-stop").addEventListener("click", () => adviceController && adviceController.abort());
+  $("advice-key").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const key = $("advice-key-input").value.trim();
+    if (!key) return;
+    try {
+      await api("/api/credentials", {method: "POST", headers: {"Content-Type": "application/json"},
+                                      body: JSON.stringify({api_key: key})});
+      $("advice-key-input").value = "";
+      $("advice-key").hidden = true;
+      requestAdvice(ticker, true);
+    } catch (err) { $("advice-status").textContent = err.message; }
+  });
+  // Avis déjà obtenu pour cette analyse : affiché sans nouvel appel.
+  try {
+    const res = await fetch(`/api/advice/${encodeURIComponent(adviceTicker(ticker))}`, {headers: {"X-App-Token": TOKEN}});
+    if (res.ok && current === ticker) {
+      const data = await res.json();
+      $("advice-body").innerHTML = renderMarkdown(data.text);
+      $("advice-body").dataset.raw = data.text;
+      $("advice-btn").textContent = "Régénérer (nouvel appel payant)";
+      $("advice-status").textContent = "Avis en cache pour cette analyse.";
+    }
+  } catch (e) {}
+}
+
+async function requestAdvice(ticker, refresh) {
+  const body = $("advice-body"), btn = $("advice-btn"), stop = $("advice-stop"), status = $("advice-status");
+  const controller = new AbortController();
+  adviceController = controller;
+  btn.disabled = true; stop.hidden = false; $("advice-key").hidden = true;
+  status.classList.remove("error");
+  status.textContent = "Claude lit le dossier et réfléchit… (souvent 20 à 60 s)";
+  body.innerHTML = ""; body.classList.add("streaming");
+  const t0 = performance.now();
+  let text = "", pending = false;
+  const paint = () => { pending = false; body.innerHTML = renderMarkdown(text); };
+  try {
+    const res = await fetch("/api/advice", {
+      method: "POST", signal: controller.signal,
+      headers: {"X-App-Token": TOKEN, "Content-Type": "application/json"},
+      body: JSON.stringify({ticker: adviceTicker(ticker), refresh}),
+    });
+    if (!res.ok) {
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+      if (data.needs_key) $("advice-key").hidden = false;
+      throw new Error(data.error || res.statusText);
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    status.textContent = "Claude rédige…";
+    for (;;) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      text += decoder.decode(value, {stream: true});
+      if (!pending) { pending = true; requestAnimationFrame(paint); }
+    }
+    text += decoder.decode();
+    paint();
+    status.textContent = `Avis rédigé en ${((performance.now() - t0) / 1000).toFixed(0)} s.`;
+    btn.textContent = "Régénérer (nouvel appel payant)";
+  } catch (e) {
+    if (e.name === "AbortError") {
+      status.textContent = "Avis interrompu.";
+    } else {
+      status.textContent = e.message;
+      status.classList.add("error");
+    }
+    if (text) paint();
+  } finally {
+    body.classList.remove("streaming");
+    if (adviceController === controller) adviceController = null;
+    if ($("advice-btn")) { btn.disabled = false; stop.hidden = true; }
+  }
 }
 
 $("list").addEventListener("click", (e) => {

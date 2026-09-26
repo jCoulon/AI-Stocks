@@ -18,6 +18,7 @@ from importlib import resources
 from typing import Callable, Optional
 from urllib.parse import urlparse
 
+from ..agents.advisor import AdvisorError, AdvisorUnavailable, ClaudeAdvisor
 from ..models import MarketReport
 from ..orchestrator import Orchestrator
 from ..providers.base import DataProvider
@@ -28,17 +29,23 @@ from ..report import (
 )
 
 DEFAULT_AS_OF = date(2026, 9, 25)
+MARKET = "__MARKET__"  # identifiant de la vue marché pour les avis Claude
 ProviderFactory = Callable[[date, int], DataProvider]
 
 
 class AppState:
     """Rapport courant et paramètres de l'analyse ; recalcul à la demande."""
 
-    def __init__(self, provider_factory: ProviderFactory = None, as_of: date = DEFAULT_AS_OF, seed: int = 42):
+    def __init__(self, provider_factory: ProviderFactory = None, as_of: date = DEFAULT_AS_OF, seed: int = 42,
+                 advisor: Optional[ClaudeAdvisor] = None):
         self.provider_factory = provider_factory or (lambda d, s: MockDataProvider(as_of=d, seed=s))
         self.as_of, self.seed, self.use_llm = as_of, seed, False
         self.report: Optional[MarketReport] = None
         self.error = ""
+        self.simulated = True
+        self.generation = 0  # incrémenté à chaque analyse : invalide le cache des avis Claude
+        self.advisor = advisor or ClaudeAdvisor()
+        self.advice_cache: dict[tuple[int, str], str] = {}
         self._lock = threading.Lock()
 
     def refresh(self, as_of: date | None = None, seed: int | None = None, use_llm: bool | None = None) -> MarketReport:
@@ -50,8 +57,14 @@ class AppState:
             if use_llm is not None:
                 self.use_llm = use_llm
             provider = self.provider_factory(self.as_of, self.seed)
+            self.simulated = isinstance(provider, MockDataProvider)
             self.report = Orchestrator(provider, use_llm=self.use_llm).run()
+            self.generation += 1
             return self.report
+
+    def advice_key(self, ticker: str) -> tuple[int, str]:
+        self.current()
+        return self.generation, ticker
 
     def current(self) -> MarketReport:
         return self.report or self.refresh()
@@ -144,6 +157,12 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     if t is None:
                         return self._json({"error": f"titre inconnu : {ticker}"}, HTTPStatus.NOT_FOUND)
                     return self._send(200, html_stock_header(t) + html_stock_detail(t), "text/html; charset=utf-8")
+                if path.startswith("/api/advice/"):
+                    ticker = path.rsplit("/", 1)[-1].upper()
+                    cached = state.advice_cache.get(state.advice_key(ticker))
+                    if cached is None:
+                        return self._json({"error": "aucun avis en cache"}, HTTPStatus.NOT_FOUND)
+                    return self._json({"ticker": ticker, "text": cached})
                 if path == "/api/export":
                     r = state.current()
                     name = f"analyse-sp500-{r.as_of.isoformat()}.html"
@@ -153,14 +172,74 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
             except Exception as e:  # noqa: BLE001 — l'erreur est renvoyée à l'interface
                 return self._json({"error": f"{type(e).__name__}: {e}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
+        def _body(self) -> dict:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+            data = json.loads(self.rfile.read(length) or b"{}")
+            if not isinstance(data, dict):
+                raise ValueError("objet JSON attendu")
+            return data
+
+        def _advice(self) -> None:
+            """Avis de Claude diffusé en continu (texte brut, connexion fermée en fin de réponse)."""
+            try:
+                params = self._body()
+            except (ValueError, json.JSONDecodeError) as e:
+                return self._json({"error": f"paramètres invalides : {e}"}, HTTPStatus.BAD_REQUEST)
+            ticker = str(params.get("ticker", MARKET)).upper()
+            report = state.current()
+            if ticker != MARKET and not any(t.security.ticker == ticker for t in report.tickers):
+                return self._json({"error": f"titre inconnu : {ticker}"}, HTTPStatus.NOT_FOUND)
+            key = state.advice_key(ticker)
+            if not params.get("refresh") and key in state.advice_cache:
+                return self._send(200, state.advice_cache[key], "text/plain; charset=utf-8")
+            chunks = state.advisor.stream(report, None if ticker == MARKET else ticker, state.simulated)
+            try:  # erreurs avant le premier morceau : réponse JSON explicite
+                first = next(chunks, "")
+            except AdvisorUnavailable as e:
+                return self._json({"error": str(e), "needs_key": e.needs_key}, HTTPStatus.SERVICE_UNAVAILABLE)
+            except AdvisorError as e:
+                return self._json({"error": str(e)}, HTTPStatus.BAD_GATEWAY)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            self.close_connection = True
+            parts = [first]
+            try:
+                self.wfile.write(first.encode("utf-8"))
+                self.wfile.flush()
+                for chunk in chunks:
+                    parts.append(chunk)
+                    self.wfile.write(chunk.encode("utf-8"))
+                    self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                chunks.close()  # l'utilisateur a arrêté : on coupe l'appel, rien n'est mis en cache
+                return
+            except (AdvisorError, AdvisorUnavailable) as e:
+                self.wfile.write(f"\n\n⚠ Avis interrompu : {e}".encode("utf-8"))
+                return
+            state.advice_cache[key] = "".join(parts)
+
         def do_POST(self):
             if not self._authorized():
                 return self._json({"error": "jeton invalide"}, HTTPStatus.FORBIDDEN)
-            if urlparse(self.path).path != "/api/refresh":
+            path = urlparse(self.path).path
+            if path == "/api/advice":
+                return self._advice()
+            if path == "/api/credentials":
+                try:
+                    key = str(self._body().get("api_key", "")).strip()
+                except (ValueError, json.JSONDecodeError) as e:
+                    return self._json({"error": f"paramètres invalides : {e}"}, HTTPStatus.BAD_REQUEST)
+                if not key:
+                    return self._json({"error": "clé vide"}, HTTPStatus.BAD_REQUEST)
+                state.advisor.set_api_key(key)  # gardée en mémoire seulement, jamais écrite sur disque
+                return self._json({"ok": True})
+            if path != "/api/refresh":
                 return self._json({"error": "introuvable"}, HTTPStatus.NOT_FOUND)
             try:
-                length = int(self.headers.get("Content-Length", 0) or 0)
-                params = json.loads(self.rfile.read(length) or b"{}")
+                params = self._body()
                 as_of = date.fromisoformat(params["as_of"]) if params.get("as_of") else None
                 seed = int(params["seed"]) if params.get("seed") not in (None, "") else None
                 state.refresh(as_of, seed, bool(params.get("llm", False)))

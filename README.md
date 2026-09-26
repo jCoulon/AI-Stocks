@@ -41,8 +41,8 @@ Tests : `python -m unittest discover -s tests`
 
 L'analyseur existe aussi en **application de bureau** : fenêtre native macOS (WebKit),
 liste des 30 titres avec recherche et tri, vue marché, fiche détaillée de chaque action
-avec graphique interactif, relance de l'analyse (date, jeu de données, synthèse Claude)
-et export du rapport HTML. Navigation au clavier : `↑` / `↓` pour changer de titre,
+avec graphique interactif, avis de Claude à la demande, relance de l'analyse (date, jeu
+de données) et export du rapport HTML. Navigation au clavier : `↑` / `↓` pour changer de titre,
 `/` pour rechercher, `⌘R` pour relancer l'analyse.
 
 ### Installer la version construite
@@ -71,9 +71,25 @@ python -m sp500_analyzer.app         # fenêtre native
 python -m sp500_analyzer.app --browser   # ou dans le navigateur (tout système)
 ```
 
-Pour la synthèse Claude dans l'application : une application lancée depuis le Finder
-ne voit pas les variables du terminal ; se connecter plutôt avec `ant auth login`
-(profil lu automatiquement par le SDK Anthropic).
+### Avis de Claude (bouton)
+
+Chaque fiche d'action, ainsi que la vue marché, propose un bouton **« Demander l'avis de
+Claude »**. Claude reçoit le dossier complet produit par les agents (avis de l'outil, signaux
+de chaque pilier, facteurs de recherche, alertes de cohérence, niveaux clés, news, pairs,
+contexte de marché) et rédige un **second avis argumenté**, affiché au fil de l'eau :
+verdict court et moyen terme avec sa conviction, ce qui soutient le titre, ce qui inquiète,
+ce qu'il surveillerait, et s'il est d'accord ou non avec l'outil. Il ne dispose d'aucune
+autre source que ce dossier.
+
+- **Payant, uniquement sur demande** : un appel à l'API Anthropic (`claude-opus-5`) par clic,
+  de l'ordre de quelques centimes de dollar selon la longueur de la réflexion.
+- **Mis en cache** pour l'analyse en cours : revenir sur la fiche ne coûte rien ;
+  « Régénérer » relance un appel. Une nouvelle analyse invalide le cache.
+- **Arrêter** interrompt l'appel en cours.
+- **Clé API** : lue dans `ANTHROPIC_API_KEY` ou le profil `ant auth login`. Une application
+  lancée depuis le Finder ne voit pas les variables du terminal : si aucune clé n'est trouvée,
+  l'application propose de la coller ; elle est gardée en mémoire le temps de la session,
+  jamais écrite sur disque.
 
 Sécurité : l'interface est servie par un serveur interne qui n'écoute que sur
 `127.0.0.1`. L'API exige un jeton de session propre à chaque lancement et un en-tête
@@ -212,6 +228,7 @@ sp500_analyzer/
   agents/base.py        Contrat d'agent, tâche, tableau partagé
   agents/specialists.py Agents collecteur, économiste, contrôleur, technicien, sentiment, stratégistes
   agents/writer.py      Agent rédacteur (Claude, optionnel)
+  agents/advisor.py     Avis de Claude à la demande (dossier complet, réponse en continu)
   providers/base.py     Interface DataProvider (à implémenter pour de vraies données)
   providers/mock.py     Données simulées déterministes (cours, news, social, macro)
   analysis/indicators.py  Indicateurs techniques (pur Python)

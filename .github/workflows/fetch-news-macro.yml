@@ -32,7 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:
+      # Dernier état de la branche (et non le commit déclencheur) : un run mis en file
+      # d'attente repart des données enregistrées par le run précédent.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - uses: actions/setup-python@v5
         with:
@@ -40,7 +44,7 @@ jobs:
 
       # Une étape par source, chacune bornée dans le temps et non bloquante : ce qui a été
       # téléchargé est enregistré même si une source est lente ou inaccessible.
-      - name: Macro (FRED)
+      - name: Macro (FRED, sinon Trésor / Fed de New York / BLS / Yahoo)
         timeout-minutes: 10
         continue-on-error: true
         if: contains(github.event.inputs.only || 'news,sec,macro', 'macro')

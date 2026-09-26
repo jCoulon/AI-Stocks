@@ -362,25 +362,109 @@ def publication_dated(obs: list[tuple[date, float]], transform: str, timing: str
     return [(d + timedelta(days=int(n)), v) for d, v in obs]
 
 
-def download_macro(out_dir: Path, start: date, log=print) -> list[str]:
+# ------------------------------------------------- sources macro de repli (sans clé)
+# FRED peut être lent ou refuser certains serveurs : chaque série a une source officielle
+# (ou de marché) de secours, interrogée si FRED échoue.
+TREASURY_URL = ("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
+                "daily-treasury-rates.csv/{year}/all?type=daily_treasury_yield_curve"
+                "&field_tdr_date_value={year}&page&_format=csv")
+NYFED_EFFR_URL = "https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json?startDate={start}&endDate={end}"
+BLS_URL = "https://api.bls.gov/publicAPI/v1/timeseries/data/{series}?startyear={start}&endyear={end}"
+YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=5y&interval=1d"
+
+
+def parse_treasury_csv(body: str, column: str) -> list[tuple[date, float]]:
+    """Courbe des taux du Trésor américain (colonnes « Date » au format MM/JJ/AAAA, « 2 Yr »...)."""
+    rows = list(csv.DictReader(body.strip().splitlines()))
+    out = []
+    for r in rows:
+        try:
+            out.append((datetime.strptime(r["Date"], "%m/%d/%Y").date(), float(r[column])))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return sorted(out)
+
+
+def parse_nyfed_effr(body: str) -> list[tuple[date, float]]:
+    return sorted((date.fromisoformat(r["effectiveDate"]), float(r["percentRate"]))
+                  for r in json.loads(body).get("refRates", []) if r.get("percentRate") is not None)
+
+
+def parse_bls(body: str) -> list[tuple[date, float]]:
+    """Série mensuelle BLS : (premier jour du mois mesuré, valeur)."""
+    payload = json.loads(body)
+    if payload.get("status") != "REQUEST_SUCCEEDED":
+        raise ValueError(f"BLS : {payload.get('message') or payload.get('status')}")
+    out = []
+    for s in payload["Results"]["series"]:
+        for r in s["data"]:
+            if r["period"].startswith("M") and r["period"] != "M13" and r["value"] not in ("-", ""):
+                out.append((date(int(r["year"]), int(r["period"][1:]), 1), float(r["value"])))
+    return sorted(out)
+
+
+def parse_yahoo_closes(body: str) -> list[tuple[date, float]]:
+    result = (json.loads(body).get("chart", {}).get("result") or [None])[0]
+    if not result:
+        return []
+    closes = result["indicators"]["quote"][0]["close"]
+    return [(datetime.fromtimestamp(ts, NEW_YORK).date(), round(c, 4))
+            for ts, c in zip(result["timestamp"], closes) if c is not None]
+
+
+def _fallback(key: str, start: date, end: date) -> tuple[str, list[tuple[date, float]]]:
+    """(nom de la source, observations) de secours pour une clé macro."""
+    if key in ("us10y", "us2y"):
+        column = "10 Yr" if key == "us10y" else "2 Yr"
+        obs = []
+        for year in range(start.year, end.year + 1):
+            obs += parse_treasury_csv(http_get(TREASURY_URL.format(year=year), retries=1), column)
+            time.sleep(0.5)
+        return "Trésor américain", obs
+    if key == "fed_funds":
+        return "Fed de New York (EFFR)", parse_nyfed_effr(
+            http_get(NYFED_EFFR_URL.format(start=start.isoformat(), end=end.isoformat()), retries=1))
+    if key in ("cpi_yoy", "unemployment"):
+        series = "CUUR0000SA0" if key == "cpi_yoy" else "LNS14000000"
+        return "BLS", parse_bls(http_get(BLS_URL.format(series=series, start=start.year, end=end.year), retries=1))
+    if key in ("vix", "wti"):
+        symbol = "%5EVIX" if key == "vix" else "CL%3DF"
+        return "Yahoo Finance", parse_yahoo_closes(http_get(YAHOO_CHART_URL.format(symbol=symbol), retries=1))
+    raise KeyError(key)
+
+
+def download_macro(out_dir: Path, start: date, log=print, end: Optional[date] = None) -> list[str]:
+    """Séries macro depuis FRED, ou depuis la source de secours de chaque série si FRED échoue
+    (après un premier échec, FRED n'est plus interrogé pour gagner du temps)."""
     folder = out_dir / "macro"
     folder.mkdir(parents=True, exist_ok=True)
     errors = []
     fetch_from = date(start.year - 2, 1, 1)  # historique pour les glissements annuels / trimestriels
+    end = end or date.today()
+    fred_ok = True
     for key, (series, transform, timing) in FRED_SERIES.items():
-        try:
-            obs = parse_fred_csv(http_get(FRED_URL.format(series=series, start=fetch_from.isoformat()),
-                                          retries=2, timeout=30))
-        except Exception as e:  # noqa: BLE001
-            errors.append(f"FRED {series} : {type(e).__name__}: {e}")
-            log(f"  ✗ FRED {series} : {type(e).__name__}: {e}")
-            continue
+        obs, source = [], ""
+        if fred_ok:
+            try:
+                obs = parse_fred_csv(http_get(FRED_URL.format(series=series, start=fetch_from.isoformat()),
+                                              retries=1, timeout=20))
+                source = f"FRED {series}"
+            except Exception as e:  # noqa: BLE001
+                fred_ok = False
+                log(f"  ✗ FRED {series} : {type(e).__name__}: {e} — sources de secours utilisées")
+        if not obs:
+            try:
+                source, obs = _fallback(key, fetch_from, end)
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"macro {key} : FRED et source de secours en échec ({type(e).__name__}: {e})")
+                log(f"  ✗ {key} : {type(e).__name__}: {e}")
+                continue
         points = publication_dated(obs, transform, timing)
         if not points:
-            errors.append(f"FRED {series} : aucune observation")
+            errors.append(f"macro {key} : aucune observation ({source})")
             continue
         (folder / f"{key}.csv").write_text(
             "Date,Value\n" + "".join(f"{d.isoformat()},{v}\n" for d, v in points), encoding="utf-8")
-        log(f"  FRED {key:13} ({series}) {len(points)} points, dernier {points[-1][0]} = {points[-1][1]}")
+        log(f"  macro {key:13} ({source}) {len(points)} points, dernier {points[-1][0]} = {points[-1][1]}")
         time.sleep(0.5)
     return errors

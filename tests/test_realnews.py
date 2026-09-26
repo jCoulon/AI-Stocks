@@ -103,6 +103,21 @@ class FredTests(unittest.TestCase):
         ff = publication_dated([(date(2026, 9, 24), 3.88)], "level", "daily:1")
         self.assertEqual(ff, [(date(2026, 9, 25), 3.88)])
 
+    def test_fallback_macro_parsers(self):
+        from sp500_analyzer.providers.realnews import parse_bls, parse_nyfed_effr, parse_treasury_csv
+
+        treasury = 'Date,"1 Mo","2 Yr","10 Yr"\n09/25/2026,3.9,3.55,4.12\n09/24/2026,3.9,N/A,4.10\n'
+        self.assertEqual(parse_treasury_csv(treasury, "2 Yr"), [(date(2026, 9, 25), 3.55)])
+        self.assertEqual(parse_treasury_csv(treasury, "10 Yr")[0], (date(2026, 9, 24), 4.10))
+        effr = '{"refRates": [{"effectiveDate": "2026-09-25", "type": "EFFR", "percentRate": 3.88}]}'
+        self.assertEqual(parse_nyfed_effr(effr), [(date(2026, 9, 25), 3.88)])
+        bls = json.dumps({"status": "REQUEST_SUCCEEDED", "Results": {"series": [{"data": [
+            {"year": "2026", "period": "M08", "value": "4.3"}, {"year": "2026", "period": "M13", "value": "4.2"},
+            {"year": "2026", "period": "M07", "value": "4.2"}]}]}})
+        self.assertEqual(parse_bls(bls), [(date(2026, 7, 1), 4.2), (date(2026, 8, 1), 4.3)])
+        with self.assertRaises(ValueError):
+            parse_bls('{"status": "REQUEST_NOT_PROCESSED", "message": ["daily threshold"]}')
+
     def test_http_get_retries_on_rate_limit_message(self):
         calls = []
 

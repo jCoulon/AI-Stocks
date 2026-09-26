@@ -54,28 +54,55 @@ class GdeltTests(unittest.TestCase):
         published, source, _, title, _ = rows[0]
         self.assertEqual((source, published), ("CNBC", datetime(2026, 8, 26, 16, 30)))  # 20h30 UTC = 16h30 NY (été)
 
-    def test_download_stops_when_gdelt_is_down_and_resumes(self):
+    def test_windows_are_fixed_weeks(self):
+        from sp500_analyzer.providers.realnews import news_windows
+
+        ws = news_windows(date(2026, 7, 1), date(2026, 7, 20))
+        self.assertEqual(ws[0], (date(2026, 7, 6), date(2026, 7, 13)))  # 1re semaine commençant après le 1er
+        self.assertEqual(ws[-1], (date(2026, 7, 20), date(2026, 7, 27)))
+        self.assertEqual(news_windows(date(2026, 7, 6), date(2026, 7, 6)), [(date(2026, 7, 6), date(2026, 7, 13))])
+
+    def test_windows_are_cached_and_refused_ones_retried(self):
         from unittest import mock
         from sp500_analyzer.providers import realnews
 
-        calls = []
+        state = {"calls": 0}
 
-        def down(query, start, end):
-            calls.append(query)
-            raise TimeoutError("timed out")
+        def flaky(query, start, end, retries=0):
+            state["calls"] += 1
+            if state["calls"] % 2 == 0:  # une requête sur deux refusée (429)
+                raise TimeoutError("429")
+            return [article(f"Nvidia headline number {start:%m%d} for testing", "reuters.com",
+                            start.strftime("%Y%m%dT150000Z"))]
 
+        clock = iter(range(0, 10_000, 1))
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(realnews, "gdelt_articles", flaky):
+            root = Path(tmp)
+            errors = realnews.download_news(root, ["NVDA"], date(2026, 7, 6), date(2026, 7, 26), pause=0,
+                                            today=date(2026, 9, 26), log=lambda *a: None,
+                                            clock=lambda: next(clock), sleep=lambda s: None)
+            self.assertEqual(errors, [])  # les refus ont été retentés au passage suivant
+            self.assertEqual(len(list((root / "news" / "fenetres" / "NVDA").glob("*.csv"))), 3)
+            self.assertEqual(len(realnews.read_news_rows(root / "news" / "NVDA.csv")), 3)
+            self.assertIn("NVDA,3,3,3", (root / "news" / "couverture.csv").read_text())
+            before = state["calls"]
+            realnews.download_news(root, ["NVDA"], date(2026, 7, 6), date(2026, 7, 26), pause=0,
+                                   today=date(2026, 9, 26), log=lambda *a: None, sleep=lambda s: None)
+            self.assertEqual(state["calls"], before)  # tout est en cache : aucune requête
+
+    def test_budget_exhausted_reports_missing_windows(self):
+        from unittest import mock
+        from sp500_analyzer.providers import realnews
+
+        def down(query, start, end, retries=0):
+            raise TimeoutError("429")
+
+        ticks = iter(range(0, 100_000, 400))  # chaque appel à l'horloge avance de 400 s
         with tempfile.TemporaryDirectory() as tmp, mock.patch.object(realnews, "gdelt_articles", down):
-            errors = realnews.download_news(Path(tmp), ["NVDA", "AAPL"], date(2026, 7, 1), date(2026, 9, 25),
-                                            pause=0, max_consecutive_failures=3, log=lambda *a: None)
-            self.assertEqual(len(calls), 3)  # arrêt après 3 échecs d'affilée, sans parcourir AAPL
-            self.assertIn("GDELT inaccessible", errors[-1])
-            write_news_csv(Path(tmp) / "news" / "NVDA.csv", [])
-            ok = []
-            with mock.patch.object(realnews, "gdelt_articles", lambda q, s, e: ok.append(q) or []):
-                realnews.download_news(Path(tmp), ["NVDA", "AAPL"], date(2026, 9, 1), date(2026, 9, 25),
-                                       pause=0, resume=True, log=lambda *a: None)
-            self.assertEqual(set(ok), {realnews.GDELT_QUERIES["AAPL"]})  # NVDA déjà présent : ignoré
-            self.assertTrue((Path(tmp) / "news" / "AAPL.csv").exists())
+            errors = realnews.download_news(Path(tmp), ["NVDA"], date(2026, 7, 6), date(2026, 7, 26), pause=0,
+                                            budget_minutes=30, today=date(2026, 9, 26), log=lambda *a: None,
+                                            clock=lambda: next(ticks), sleep=lambda s: None)
+        self.assertIn("non obtenue", errors[-1])
 
 
 class SecTests(unittest.TestCase):

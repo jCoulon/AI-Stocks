@@ -178,11 +178,11 @@ def parse_gdelt(body: str) -> list[dict]:
     return json.loads(body).get("articles") or []
 
 
-def gdelt_articles(query: str, start: datetime, end: datetime, sleep=time.sleep) -> list[dict]:
+def gdelt_articles(query: str, start: datetime, end: datetime, sleep=time.sleep, retries: int = 3) -> list[dict]:
     params = {"query": f"{query} sourcelang:english", "mode": "artlist", "format": "json",
               "maxrecords": "250", "sort": "datedesc",
               "startdatetime": _gdelt_time(start), "enddatetime": _gdelt_time(end)}
-    body = http_get(f"{GDELT_URL}?{urllib.parse.urlencode(params)}", timeout=45, retries=3, backoff=20.0,
+    body = http_get(f"{GDELT_URL}?{urllib.parse.urlencode(params)}", timeout=45, retries=retries, backoff=20.0,
                     retry_if=lambda b: b.lstrip().lower().startswith("please limit"), sleep=sleep)
     return parse_gdelt(body)
 
@@ -207,57 +207,98 @@ def to_news_rows(articles: list[dict]) -> list[tuple[datetime, str, str, str, st
     return sorted(rows.values())
 
 
-class SourceUnavailable(RuntimeError):
-    """Trop d'échecs consécutifs : la source est considérée comme inaccessible."""
+WINDOW_ANCHOR = date(2026, 1, 5)  # lundi : fenêtres hebdomadaires fixes d'un lancement à l'autre
 
 
-def download_news(out_dir: Path, tickers: list[str], start: date, end: date, window_days: int = 14,
-                  pause: float = GDELT_PAUSE, resume: bool = False, max_consecutive_failures: int = 6,
-                  log=print) -> list[str]:
-    """News GDELT par fenêtres de `window_days` jours (250 articles au plus par requête).
+def news_windows(start: date, end: date, days: int = 7) -> list[tuple[date, date]]:
+    """Fenêtres [début, fin) de `days` jours alignées sur WINDOW_ANCHOR, de la première
+    commençant à `start` ou après (GDELT ne remonte pas plus loin) jusqu'à celle contenant `end`."""
+    first = WINDOW_ANCHOR + timedelta(days=days * -(-(start - WINDOW_ANCHOR).days // days))
+    out, day = [], first
+    while day <= end:
+        out.append((day, day + timedelta(days=days)))
+        day += timedelta(days=days)
+    return out
 
-    `resume` : ne retélécharge pas les titres dont le fichier existe déjà. Après
-    `max_consecutive_failures` requêtes en échec d'affilée, GDELT est jugé inaccessible et
-    le téléchargement s'arrête (les fichiers déjà écrits sont conservés)."""
+
+def read_news_rows(path: Path) -> list[tuple[datetime, str, str, str, str]]:
+    with open(path, newline="", encoding="utf-8") as f:
+        return [(datetime.fromisoformat(r["Published"]), r["Source"], r["Domain"], r["Title"], r["Url"])
+                for r in csv.DictReader(f)]
+
+
+def rebuild_ticker_file(folder: Path, ticker: str) -> int:
+    """Fusionne les fenêtres téléchargées d'un titre dans news/<TICKER>.csv (dédoublonné)."""
+    rows: dict[tuple, tuple] = {}
+    for path in sorted((folder / "fenetres" / ticker).glob("*.csv")):
+        for row in read_news_rows(path):
+            key = _TITLE_KEY.sub(" ", row[3].lower()).strip()
+            if key not in rows or row[0] < rows[key][0]:
+                rows[key] = row
+    write_news_csv(folder / f"{ticker}.csv", sorted(rows.values()))
+    return len(rows)
+
+
+def download_news(out_dir: Path, tickers: list[str], start: date, end: date, window_days: int = 7,
+                  pause: float = GDELT_PAUSE, budget_minutes: float = 60.0, today: Optional[date] = None,
+                  log=print, clock=time.monotonic, sleep=time.sleep) -> list[str]:
+    """News GDELT, fenêtre par fenêtre, jusqu'à épuisement du budget de temps.
+
+    Chaque fenêtre réussie est enregistrée (news/fenetres/<TICKER>/<début>.csv) et n'est plus
+    retéléchargée ; les fenêtres refusées (limite de débit, 429) sont retentées lors d'un
+    passage suivant ou d'un prochain lancement. La fenêtre en cours (pas encore close) est
+    toujours retéléchargée. Le fichier news/<TICKER>.csv rassemble les fenêtres disponibles et
+    news/couverture.csv indique, par titre, la part des fenêtres obtenues."""
     folder = out_dir / "news"
-    folder.mkdir(parents=True, exist_ok=True)
-    errors = []
-    streak = 0
-    for ticker in tickers:
-        query = GDELT_QUERIES.get(ticker)
-        if not query:
-            errors.append(f"news {ticker} : pas de requête GDELT définie")
-            continue
-        if resume and (folder / f"{ticker}.csv").exists():
-            log(f"  news {ticker:6} déjà présent, ignoré")
-            continue
-        articles, failed = [], 0
-        day = start
-        while day <= end:
-            stop = min(end + timedelta(days=1), day + timedelta(days=window_days))
+    today = today or date.today()
+    windows = news_windows(start, end, window_days)
+    deadline = clock() + budget_minutes * 60
+    errors: list[str] = []
+
+    def cached(ticker: str, w: tuple[date, date]) -> Path:
+        return folder / "fenetres" / ticker / f"{w[0].isoformat()}.csv"
+
+    todo = [(t, w) for t in tickers if t in GDELT_QUERIES for w in windows
+            if not cached(t, w).exists() or w[1] > today]
+    errors += [f"news {t} : pas de requête GDELT définie" for t in tickers if t not in GDELT_QUERIES]
+    log(f"  {len(todo)} fenêtre(s) à télécharger sur {len(windows) * len(tickers)}")
+    passes = 0
+    while todo and clock() < deadline:
+        passes += 1
+        failed = []
+        for ticker, w in todo:
+            if clock() >= deadline:
+                failed.append((ticker, w))
+                continue
             try:
-                articles += gdelt_articles(query, datetime.combine(day, datetime.min.time()),
-                                           datetime.combine(stop, datetime.min.time()))
-                streak = 0
-            except Exception as e:  # noqa: BLE001 — on garde les autres fenêtres
-                failed += 1
-                streak += 1
-                errors.append(f"news {ticker} {day} : {type(e).__name__}: {str(e)[:160]}")
-                log(f"  ✗ news {ticker} {day} : {type(e).__name__}: {str(e)[:160]}")
-                if streak >= max_consecutive_failures:
-                    errors.append(f"GDELT inaccessible après {streak} échecs consécutifs : arrêt")
-                    return errors
-            time.sleep(pause)
-            day = stop
-        rows = to_news_rows(articles)
-        if failed:
-            # Fichier incomplet non écrit : un nouveau lancement (--reprendre) le retentera.
-            log(f"  news {ticker:6} incomplet ({failed} fenêtre(s) en échec) : non enregistré")
-            continue
-        write_news_csv(folder / f"{ticker}.csv", rows)
-        log(f"  news {ticker:6} {len(articles):5} articles bruts -> {len(rows):4} retenus"
-            + (f" ({failed} fenêtre(s) en échec)" if failed else ""))
+                articles = gdelt_articles(GDELT_QUERIES[ticker], datetime.combine(w[0], datetime.min.time()),
+                                          datetime.combine(w[1], datetime.min.time()), retries=0)
+            except Exception as e:  # noqa: BLE001 — refus ou erreur : fenêtre retentée plus tard
+                failed.append((ticker, w))
+                log(f"  ✗ news {ticker} {w[0]} : {type(e).__name__}: {str(e)[:120]}")
+            else:
+                path = cached(ticker, w)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                write_news_csv(path, to_news_rows(articles))
+                n = rebuild_ticker_file(folder, ticker)
+                log(f"  news {ticker:6} {w[0]} : {len(articles):3} articles bruts, {n} retenus au total")
+            sleep(pause)
+        todo = failed
+        log(f"  passage {passes} terminé : {len(todo)} fenêtre(s) restante(s)")
+    write_coverage(folder, tickers, windows)
+    if todo:
+        errors.append(f"GDELT : {len(todo)} fenêtre(s) non obtenue(s) (limite de débit) — relancer pour compléter")
     return errors
+
+
+def write_coverage(folder: Path, tickers: list[str], windows: list[tuple[date, date]]) -> None:
+    folder.mkdir(parents=True, exist_ok=True)
+    lines = ["Ticker,Fenetres,Obtenues,Articles"]
+    for t in tickers:
+        done = sum((folder / "fenetres" / t / f"{w[0].isoformat()}.csv").exists() for w in windows)
+        n = len(read_news_rows(folder / f"{t}.csv")) if (folder / f"{t}.csv").exists() else 0
+        lines.append(f"{t},{len(windows)},{done},{n}")
+    (folder / "couverture.csv").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def write_news_csv(path: Path, rows) -> None:

@@ -31,7 +31,7 @@ def main() -> int:
     p.add_argument("--out", default="data")
     p.add_argument("--extra", default="", help="Titres supplémentaires, séparés par des virgules (ex. IREN)")
     p.add_argument("--only", default="news,sec,macro", help="Sources à télécharger (news, sec, macro)")
-    p.add_argument("--reprendre", action="store_true", help="News : ignorer les titres déjà téléchargés")
+    p.add_argument("--budget", type=float, default=60.0, help="News : durée maximale en minutes")
     args = p.parse_args()
     out = Path(args.out)
     tickers = [s.security.ticker for s in SP500_SAMPLE]
@@ -48,7 +48,8 @@ def main() -> int:
     if "news" in only:
         news_start = max(args.start, today - timedelta(days=GDELT_MAX_DAYS))
         print(f"News (GDELT) du {news_start} au {args.end}…")
-        errors += download_news(out, tickers + [MARKET], news_start, args.end, resume=args.reprendre)
+        errors += download_news(out, tickers + [MARKET], news_start, args.end, budget_minutes=args.budget,
+                                today=today)
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)
     files = [f for d in only for f in (out / d).glob("*.csv")] if out.exists() else []

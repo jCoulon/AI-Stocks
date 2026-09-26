@@ -16,7 +16,9 @@ des prévisions fiables pour un titre donné.
   la valeur propre du titre, sans classement.
 - **Pondération** selon la robustesse attendue *sur de grandes capitalisations américaines*
   (voir §4), puis ajustement selon le régime statistique du titre et du marché (§3).
-- **Pilier du score final** : 20 % de l'avis court terme, 30 % de l'avis moyen terme.
+- **Pilier du score final** : 20 % de l'avis court terme ; à moyen terme, les facteurs de
+  tendance rejoignent le bloc « tendance » (35 %) et les autres facteurs forment le pilier
+  « recherche » (25 %) — voir limite n° 7.
 
 ## 2. Facteurs
 
@@ -68,6 +70,11 @@ point (vérifié sur séries simulées : α = 0,08, β = 0,90 retrouvés en moye
 `Σₖ [σ²_LT + (α+β)^(k−1) × (σ²ₜ₊₁ − σ²_LT)]`, remplace la règle « racine du temps » pour
 les fourchettes de cours à 5 séances (court terme) et 63 séances (moyen terme).
 
+Ces fourchettes (±1 écart-type, soit environ 2 chances sur 3) sont **centrées sur le cours
+actuel** : elles mesurent l'incertitude, ce ne sont pas des objectifs de cours. Couverture
+mesurée hors échantillon (fourchette calculée à chaque date avec les seules données
+disponibles) : 71 % à 5 séances et 65 % à 63 séances, pour une cible de 68 %.
+
 ## 4. Limites connues — à lire avant toute utilisation
 
 1. **Déclin après publication.** Sur 97 facteurs, les rendements sont inférieurs de 26 %
@@ -83,6 +90,15 @@ les fourchettes de cours à 5 séances (court terme) et 63 séances (moyen terme
    les petites valeurs ; le facteur a donc un poids faible.
 5. **Approximations.** Les mesures sont simplifiées (pas de neutralisation taille /
    valeur, univers de 30 titres, attention mesurée par les réseaux sociaux).
+6. **Biais du survivant.** Le backtest utilise la composition *actuelle* de l'univers :
+   les titres sortis de l'indice (faillites, rachats, déclassements) en sont absents, ce
+   qui embellit les résultats historiques. Un backtest sur données réelles doit utiliser
+   la composition de l'indice à chaque date.
+7. **Double comptage.** Les facteurs de tendance académiques et la tendance technique
+   mesurent le même phénomène (corrélation de rang ≈ 0,6 entre les deux piliers). À moyen
+   terme ils sont donc regroupés dans un seul bloc « tendance » ; le pilier « recherche »
+   ne garde que les anomalies indépendantes (corrélation résiduelle ≈ −0,06). Sans cela,
+   la tendance aurait pesé environ 60 % de l'avis et gonflé l'accord apparent entre piliers.
 
 ## 5. Validation : backtest point-in-time
 

@@ -14,7 +14,7 @@ from ..analysis.sentiment import analyze_sentiment
 from ..analysis.stock import build_stock_report
 from ..analysis.technical import analyze_technical
 from ..models import (
-    Bar, Flag, MarketReport, NewsItem, PillarResult, Security, SocialPost, StockReport, TickerAnalysis,
+    Bar, Flag, MarketReport, NewsItem, PillarResult, Security, Signal, SocialPost, StockReport, TickerAnalysis,
 )
 from .base import Agent, Blackboard, Task
 
@@ -133,7 +133,20 @@ class StrategistAgent(Agent):
         research_views = board.get("research")
         research: ResearchView | None = research_views.get(t) if research_views else None
         if research:
-            pillars_s["recherche"], pillars_m["recherche"] = research.pillars()
+            r_short, r_medium, r_trend = research.pillars()
+            pillars_s["recherche"], pillars_m["recherche"] = r_short, r_medium
+            # Tendance comptée une seule fois à moyen terme : facteurs académiques de tendance
+            # (Jegadeesh & Titman, Moskowitz et al., George & Hwang…) + tendance technique.
+            # La moyenne pondérée étant invariante à l'échelle des poids, on ramène d'abord
+            # chaque famille à un poids total identique.
+            tech_w = sum(sig.weight for sig in tech.medium.signals) or 1.0
+            trend_w = sum(sig.weight for sig in r_trend) or 1.0
+            merged = PillarResult("technique", "moyen", [
+                *[Signal(sig.name, sig.value, sig.score, sig.weight / tech_w, sig.comment)
+                  for sig in tech.medium.signals],
+                *[Signal(sig.name, sig.value, sig.score, sig.weight / trend_w, sig.comment) for sig in r_trend],
+            ])
+            pillars_m["technique"] = merged
         if sentiment:
             pillars_s["sentiment"], pillars_m["sentiment"] = sentiment.short, sentiment.medium
         else:

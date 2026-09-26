@@ -137,5 +137,42 @@ class StatisticsAuditTests(unittest.TestCase):
         self.assertLess(false_regimes / n, 0.09)
 
 
+class MethodologyAuditTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from sp500_analyzer.engine import run_analysis
+        cls.reports = [run_analysis(MockDataProvider(seed=s)) for s in (1, 2, 3)]
+
+    def test_trend_is_not_double_counted(self):
+        from sp500_analyzer.analysis.backtest import spearman
+        tech, research = [], []
+        for r in self.reports:
+            for t in r.tickers:
+                tech.append(t.pillars["technique_moyen"].score)
+                research.append(t.pillars["recherche_moyen"].score)
+        self.assertLess(abs(spearman(tech, research)), 0.3)
+        names = {s.name for s in self.reports[0].tickers[0].pillars["technique_moyen"].signals}
+        self.assertIn("Momentum 12-1 mois", names)  # la tendance académique est bien dans le bloc tendance
+        self.assertNotIn("Momentum 12-1 mois",
+                         {s.name for s in self.reports[0].tickers[0].pillars["recherche_moyen"].signals})
+
+    def test_single_beta_everywhere(self):
+        for t in self.reports[0].tickers:
+            research_beta = next(f.value for f in t.research.factors if f.key == "beta")
+            self.assertAlmostEqual(t.stock.risk_metrics["Bêta vs S&P 500"], research_beta)
+
+    def test_ranges_are_centered_uncertainty_bands(self):
+        for t in self.reports[0].tickers:
+            for o in (t.short, t.medium):
+                self.assertAlmostEqual((o.low + o.high) / 2, t.last_close, places=6)
+
+    def test_no_tone_shift_without_recent_news(self):
+        for r in self.reports:
+            for t in r.tickers:
+                names = {s.name for s in t.pillars["sentiment_moyen"].signals}
+                if t.stats.get("news_count_7d", 0) == 0:
+                    self.assertNotIn("Inflexion du ton", names, t.security.ticker)
+
+
 if __name__ == "__main__":
     unittest.main()

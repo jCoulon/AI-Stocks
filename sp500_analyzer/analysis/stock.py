@@ -10,7 +10,8 @@ from ..models import (
     Bar, Catalyst, KeyLevel, NewsItem, Peer, Signal, SocialPost, StockReport, TickerAnalysis,
 )
 from .coherence import CoherenceResult, reaction_index
-from .indicators import closes_on_calendar, mean, pct_returns, sma, stdev
+from .research import aligned_returns, ols
+from .indicators import closes_on_calendar, pct_returns, sma, stdev
 from .sentiment import score_text
 
 HORIZONS = [("1 semaine", 5), ("1 mois", 21), ("3 mois", 63), ("6 mois", 126), ("1 an", 252)]
@@ -40,17 +41,10 @@ def risk_metrics(bars: list[Bar], index_bars: list[Bar], atr: float) -> dict[str
     out = {"Volatilité annualisée": stdev(rets[-60:]) * math.sqrt(252),
            "ATR 14 j (% du cours)": atr / closes[-1]}
 
-    # Bêta sur 120 séances, calculé uniquement sur les dates communes.
-    idx = {b.day: b.close for b in index_bars}
-    pairs = [(bars[i].close / bars[i - 1].close - 1, idx[bars[i].day] / idx[bars[i - 1].day] - 1)
-             for i in range(max(1, len(bars) - 120), len(bars))
-             if bars[i].day in idx and bars[i - 1].day in idx]
-    if len(pairs) > 20:
-        xs, ys = [p[1] for p in pairs], [p[0] for p in pairs]
-        mx, my = mean(xs), mean(ys)
-        var = sum((x - mx) ** 2 for x in xs)
-        if var:
-            out["Bêta vs S&P 500"] = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / var
+    # Même bêta que le facteur « betting against beta » (252 séances, dates alignées).
+    ys, xs = aligned_returns(bars, index_bars, 252)
+    if len(ys) > 20:
+        out["Bêta vs S&P 500"] = ols(ys, xs)[1]
 
     window = closes[-CHART_DAYS:]  # 6 mois, ou tout l'historique s'il est plus court
     peak, mdd = window[0], 0.0

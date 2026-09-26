@@ -227,9 +227,11 @@ Poids des piliers (`analysis/scoring.py`) :
 | Horizon | Technique | Sentiment | Macro | Recherche |
 |---|---|---|---|---|
 | Court terme | 40 % | 25 % | 15 % | 20 % |
-| Moyen terme | 30 % | 10 % | 30 % | 30 % |
+| Moyen terme | 35 % (tendance technique + facteurs de momentum) | 10 % | 30 % | 25 % (anomalies hors tendance) |
 
-Les fourchettes de cours reposent sur une prévision de volatilité GARCH(1,1).
+Les fourchettes de cours (≈ 2 chances sur 3) reposent sur une prévision de volatilité
+GARCH(1,1) et sont centrées sur le cours actuel : ce sont des mesures d'incertitude, pas
+des objectifs de cours.
 
 ## Brancher de vraies données
 

@@ -124,9 +124,16 @@ def analyze_sentiment(
     s_month, _ = news_score(month, now, half_life=10.0)
     medium.signals.append(Signal("News 30 jours", s_month, s_month * _coverage(month, 2.0), 0.8,
                                  f"{len(month)} article(s), ton {_tone(s_month)}"))
-    trend = s_news - s_month
-    medium.signals.append(Signal("Inflexion du ton", trend, clip(trend), 0.2,
-                                 "le ton s'améliore" if trend > 0.1 else "le ton se dégrade" if trend < -0.1 else "ton stable"))
+    # Inflexion : ton de la semaine vs ton des 3 semaines précédentes (périodes disjointes).
+    # Sans news de part et d'autre, pas d'inflexion mesurable : l'absence d'information
+    # ne doit pas être lue comme une dégradation du ton.
+    prior = [n for n in month if _age_days(n.published, now) > 7]
+    if recent and prior:
+        s_prior, _ = news_score(prior, now, half_life=10.0)
+        trend = s_news - s_prior
+        medium.signals.append(Signal(
+            "Inflexion du ton", trend, clip(trend) * min(_coverage(recent, 1.2), _coverage(prior, 1.2)), 0.2,
+            "le ton s'améliore" if trend > 0.1 else "le ton se dégrade" if trend < -0.1 else "ton stable"))
 
     stats = {"news_7d": s_news, "social_3d": s_soc, "buzz": buzz, "news_count_7d": float(len(recent))}
     return short, medium, stats

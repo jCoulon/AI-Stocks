@@ -90,6 +90,8 @@ FACTORS: list[FactorSpec] = [
                cross_sectional=False, price_only=False),
 ]
 SPECS = {f.key: f for f in FACTORS}
+# Facteurs de la famille « tendance », fusionnés à moyen terme avec la tendance technique.
+TREND_FACTORS = {"mom_12_1", "tsmom", "high52", "ind_mom"}
 
 
 # ------------------------------------------------------------------ données d'entrée
@@ -107,7 +109,7 @@ class TickerInputs:
 
 # ------------------------------------------------------------ facteurs sur les cours
 
-def _aligned_returns(bars: list[Bar], index_bars: list[Bar], n: int) -> tuple[list[float], list[float]]:
+def aligned_returns(bars: list[Bar], index_bars: list[Bar], n: int) -> tuple[list[float], list[float]]:
     """Rendements journaliers du titre et de l'indice sur les dates communes (n dernières)."""
     idx = {b.day: b.close for b in index_bars}
     xs, ys = [], []
@@ -119,7 +121,7 @@ def _aligned_returns(bars: list[Bar], index_bars: list[Bar], n: int) -> tuple[li
     return ys, xs
 
 
-def _ols(ys: list[float], xs: list[float]) -> tuple[float, float, list[float]]:
+def ols(ys: list[float], xs: list[float]) -> tuple[float, float, list[float]]:
     mx, my = mean(xs), mean(ys)
     var = sum((x - mx) ** 2 for x in xs)
     beta = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / var if var else 1.0
@@ -156,13 +158,13 @@ def price_factors(bars: list[Bar], index_bars: list[Bar]) -> dict[str, Optional[
         out["strev"] = ret(21)
         out["max"] = max(rets[-21:])
     if n > 60:
-        ys, xs = _aligned_returns(bars, index_bars, 63)
+        ys, xs = aligned_returns(bars, index_bars, 63)
         if len(ys) > 30:
-            _, _, resid = _ols(ys, xs)
+            _, _, resid = ols(ys, xs)
             out["ivol"] = stdev(resid) * math.sqrt(252)
-        ys, xs = _aligned_returns(bars, index_bars, 252)
+        ys, xs = aligned_returns(bars, index_bars, 252)
         if len(ys) > 60:
-            out["beta"] = _ols(ys, xs)[1]
+            out["beta"] = ols(ys, xs)[1]
     if n > 55:
         recent = mean([b.volume for b in bars[-5:]])
         base = mean([b.volume for b in bars[-55:-5]]) or 1
@@ -371,16 +373,26 @@ class ResearchView:
     garch: Optional[GarchFit]
     momentum_crash_risk: bool
 
-    def pillars(self) -> tuple[PillarResult, PillarResult]:
+    def pillars(self) -> tuple[PillarResult, PillarResult, list[Signal]]:
+        """(pilier court terme, pilier moyen terme hors tendance, signaux de tendance moyen terme).
+
+        À moyen terme, les facteurs de tendance académiques sont renvoyés à part pour être
+        fusionnés avec la tendance du pilier technique : les deux mesurent le même phénomène
+        (corrélation de rang ≈ 0,6 entre les piliers), le compter deux fois gonflerait son poids
+        et l'accord apparent entre piliers, donc la confiance.
+        """
         short, medium = PillarResult("recherche", "court"), PillarResult("recherche", "moyen")
+        trend: list[Signal] = []
         for f in self.factors:
             if f.value is None or f.weight == 0:
                 continue
             comment = f"{f.note} — {f.reference}"
-            for horizon, pillar in (("court", short), ("moyen", medium)):
-                if horizon in f.horizons:
-                    pillar.signals.append(Signal(f.name, f.value, f.score, f.weight, comment))
-        return short, medium
+            if "court" in f.horizons:
+                short.signals.append(Signal(f.name, f.value, f.score, f.weight, comment))
+            if "moyen" in f.horizons:
+                target = trend if f.key in TREND_FACTORS else medium.signals
+                target.append(Signal(f.name, f.value, f.score, f.weight, comment))
+        return short, medium, trend
 
 
 def _fmt(key: str, v: float) -> str:
@@ -462,7 +474,7 @@ def build_research(
         # Le régime statistique module le poids des familles momentum / retournement.
         tilt = clip(z / 2) * 0.5
         for f in factors:
-            if f.key in ("mom_12_1", "tsmom", "high52", "ind_mom"):
+            if f.key in TREND_FACTORS:
                 f.weight *= (1 + tilt) * (0.5 if crash else 1.0)
             elif f.key in ("strev", "max"):
                 f.weight *= (1 - tilt)

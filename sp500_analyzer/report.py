@@ -166,9 +166,9 @@ def render_stock(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
     out += ["  " + line for line in textwrap.wrap(sr.thesis, 100)]
     out.append("")
     out.append("  " + st.score(f"Court terme : {_outlook_cell(t.short)}", t.short.score)
-               + f"   fourchette {t.short.low:,.2f} – {t.short.high:,.2f}")
+               + f"   fourchette probable (2 chances sur 3) {t.short.low:,.2f} – {t.short.high:,.2f}")
     out.append("  " + st.score(f"Moyen terme : {_outlook_cell(t.medium)}", t.medium.score)
-               + f"   fourchette {t.medium.low:,.2f} – {t.medium.high:,.2f}")
+               + f"   fourchette probable (2 chances sur 3) {t.medium.low:,.2f} – {t.medium.high:,.2f}")
 
     out += ["", st("  Points forts", "1")] + [f"    + {x}" for x in sr.strengths or ["aucun signal nettement positif"]]
     out += [st("  Risques / points de vigilance", "1")] + [f"    - {x}" for x in sr.risks or ["aucun signal nettement négatif"]]
@@ -273,7 +273,7 @@ def render_detail(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
     for o, title in ((t.short, "Court terme (1-2 semaines)"), (t.medium, "Moyen terme (1-3 mois)")):
         out.append("")
         out.append("  " + st.score(f"{title} : {o.label}  score {o.score:+.2f}  confiance {o.confidence:.0%}", o.score))
-        out.append(f"    Fourchette indicative : {o.low:.2f} — {o.high:.2f}")
+        out.append(f"    Fourchette probable (≈ 2 chances sur 3, volatilité GARCH) : {o.low:.2f} — {o.high:.2f}")
         out.append("    Contributions : " + ", ".join(f"{k} {v:+.2f}" for k, v in o.contributions.items()))
         horizon = "court" if o is t.short else "moyen"
         for pillar in ("technique", "sentiment", "macro", "recherche"):
@@ -690,9 +690,11 @@ def html_stock_header(t: TickerAnalysis) -> str:
             f'<p class="muted">{html.escape(s.sector)} · cours {t.last_close:,.2f} · semaine {t.week_return:+.2%} · '
             f'qualité des données {t.data_quality:.0%} · cohérence des sources {t.coherence:.0%}</p>'
             f'<div class="cards"><div class="card"><div class="muted">Court terme (1-2 semaines)</div>'
-            f'<p>{_score_badge(t.short)}</p><div class="small muted">Fourchette {t.short.low:,.2f} – {t.short.high:,.2f}</div></div>'
+            f'<p>{_score_badge(t.short)}</p><div class="small muted" title="±1 écart-type de volatilité prévue (GARCH)">'
+            f'Fourchette probable (2 chances sur 3) {t.short.low:,.2f} – {t.short.high:,.2f}</div></div>'
             f'<div class="card"><div class="muted">Moyen terme (1-3 mois)</div><p>{_score_badge(t.medium)}</p>'
-            f'<div class="small muted">Fourchette {t.medium.low:,.2f} – {t.medium.high:,.2f}</div></div></div>')
+            f'<div class="small muted" title="±1 écart-type de volatilité prévue (GARCH)">'
+            f'Fourchette probable (2 chances sur 3) {t.medium.low:,.2f} – {t.medium.high:,.2f}</div></div></div>')
 
 
 def html_agents(report: MarketReport) -> str:
@@ -746,9 +748,9 @@ def html_market(report: MarketReport) -> str:
     <div class="{'pos' if idx.week_return > 0 else 'neg'}">{idx.week_return:+.2%} sur la semaine</div>
     {_sparkline(idx.week_closes, 200, 40)}</div>
   <div class="card"><div class="muted">Court terme (1-2 semaines)</div><p>{_score_badge(idx.short)}</p>
-    <div class="small muted">Fourchette {idx.short.low:,.0f} – {idx.short.high:,.0f}</div></div>
+    <div class="small muted">Fourchette probable (2 chances sur 3) {idx.short.low:,.0f} – {idx.short.high:,.0f}</div></div>
   <div class="card"><div class="muted">Moyen terme (1-3 mois)</div><p>{_score_badge(idx.medium)}</p>
-    <div class="small muted">Fourchette {idx.medium.low:,.0f} – {idx.medium.high:,.0f}</div></div>
+    <div class="small muted">Fourchette probable (2 chances sur 3) {idx.medium.low:,.0f} – {idx.medium.high:,.0f}</div></div>
   <div class="card"><div class="muted">Largeur de marché</div>
     <div class="kv"><span>Titres en hausse (sem.)</span><strong>{b['advancers_week']:.0%}</strong></div>
     <div class="kv"><span>Au-dessus MM50</span><strong>{b['above_sma50']:.0%}</strong></div>

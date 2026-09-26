@@ -103,7 +103,7 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
     if r63 is not None:
         medium.signals.append(Signal("Momentum 3 mois", r63 * 100, math.tanh(r63 / (vol_d * math.sqrt(63))), 0.2,
                                      f"{r63 * 100:+.1f}% sur 3 mois"))
-    hi252 = max(closes[-252:])
+    hi252 = max(b.high for b in bars[-252:])  # plus haut intrajournalier, comme la fiche et George & Hwang
     dd = c / hi252 - 1
     dd_score = 0.5 if dd > -0.05 else clip(0.5 + (dd + 0.05) / 0.2 * 1.1)
     medium.signals.append(Signal("Distance plus haut 52s", dd * 100, dd_score, 0.1,

@@ -36,7 +36,7 @@ SEC_SOURCE = "SEC EDGAR"
 
 GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
 GDELT_MAX_DAYS = 88  # l'API DOC ne couvre que les 3 derniers mois
-GDELT_PAUSE = 5.5    # GDELT demande au plus une requête toutes les 5 secondes
+GDELT_PAUSE = 8.0    # GDELT demande au plus une requête toutes les 5 s (IP de GitHub partagées : marge)
 SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SEC_SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 FRED_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}&cosd={start}"
@@ -61,35 +61,35 @@ NEWS_DOMAINS: dict[str, str] = {
 # homonymes (« Apple » le fruit, « Visa » le document de voyage...).
 GDELT_QUERIES: dict[str, str] = {
     "AAPL": '("Apple Inc" OR "Apple shares" OR "Apple stock" OR "Tim Cook")',
-    "MSFT": '("Microsoft")',
-    "NVDA": '("Nvidia")',
-    "AVGO": '("Broadcom")',
+    "MSFT": '"Microsoft"',
+    "NVDA": '"Nvidia"',
+    "AVGO": '"Broadcom"',
     "AMD": '("Advanced Micro Devices" OR "AMD shares" OR "AMD stock" OR "Lisa Su")',
     "INTC": '("Intel Corp" OR "Intel shares" OR "Intel stock" OR "Intel chips" OR "Intel CEO")',
     "GOOGL": '("Alphabet Inc" OR "Google parent" OR "Alphabet shares" OR "Sundar Pichai")',
     "META": '("Meta Platforms" OR "Mark Zuckerberg" OR "Meta shares" OR "Meta stock")',
-    "NFLX": '("Netflix")',
+    "NFLX": '"Netflix"',
     "DIS": '("Walt Disney" OR "Disney shares" OR "Disney stock" OR "Disney CEO")',
     "AMZN": '("Amazon.com" OR "Amazon shares" OR "Amazon stock" OR "Andy Jassy" OR "Amazon Web Services")',
-    "TSLA": '("Tesla")',
-    "HD": '("Home Depot")',
+    "TSLA": '"Tesla"',
+    "HD": '"Home Depot"',
     "JPM": '("JPMorgan" OR "Jamie Dimon")',
-    "BAC": '("Bank of America")',
-    "GS": '("Goldman Sachs")',
+    "BAC": '"Bank of America"',
+    "GS": '"Goldman Sachs"',
     "V": '("Visa Inc" OR "Visa shares" OR "Visa stock")',
-    "UNH": '("UnitedHealth")',
+    "UNH": '"UnitedHealth"',
     "JNJ": '("Johnson & Johnson" OR "Johnson and Johnson")',
-    "PFE": '("Pfizer")',
-    "LLY": '("Eli Lilly")',
-    "XOM": '("Exxon")',
-    "CVX": '("Chevron")',
+    "PFE": '"Pfizer"',
+    "LLY": '"Eli Lilly"',
+    "XOM": '"Exxon"',
+    "CVX": '"Chevron"',
     "CAT": '("Caterpillar Inc" OR "Caterpillar shares" OR "Caterpillar stock")',
-    "BA": '("Boeing")',
-    "WMT": '("Walmart")',
-    "KO": '("Coca-Cola")',
+    "BA": '"Boeing"',
+    "WMT": '"Walmart"',
+    "KO": '"Coca-Cola"',
     "PG": '("Procter & Gamble" OR "Procter and Gamble")',
-    "NEE": '("NextEra")',
-    "AMT": '("American Tower")',
+    "NEE": '"NextEra"',
+    "AMT": '"American Tower"',
     "IREN": '("IREN Limited" OR "IREN shares" OR "IREN stock" OR "Iris Energy")',
     MARKET: '("Wall Street" OR "S&P 500" OR "Federal Reserve" OR "stock market")',
 }
@@ -129,9 +129,10 @@ _TITLE_KEY = re.compile(r"[^a-z0-9]+")
 
 
 def http_get(url: str, headers: Optional[dict] = None, retries: int = 4, timeout: float = 30.0,
+             backoff: float = 5.0,
              retry_if: Callable[[str], bool] = lambda body: False, sleep: Callable[[float], None] = time.sleep) -> str:
     """GET avec nouvelles tentatives espacées (429, 5xx, coupures réseau ou réponse refusée)."""
-    delay = 5.0
+    delay = backoff
     for attempt in range(retries + 1):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (sp500-analyzer research)",
@@ -181,7 +182,7 @@ def gdelt_articles(query: str, start: datetime, end: datetime, sleep=time.sleep)
     params = {"query": f"{query} sourcelang:english", "mode": "artlist", "format": "json",
               "maxrecords": "250", "sort": "datedesc",
               "startdatetime": _gdelt_time(start), "enddatetime": _gdelt_time(end)}
-    body = http_get(f"{GDELT_URL}?{urllib.parse.urlencode(params)}", timeout=45, retries=3,
+    body = http_get(f"{GDELT_URL}?{urllib.parse.urlencode(params)}", timeout=45, retries=3, backoff=20.0,
                     retry_if=lambda b: b.lstrip().lower().startswith("please limit"), sleep=sleep)
     return parse_gdelt(body)
 
@@ -211,7 +212,7 @@ class SourceUnavailable(RuntimeError):
 
 
 def download_news(out_dir: Path, tickers: list[str], start: date, end: date, window_days: int = 14,
-                  pause: float = GDELT_PAUSE, resume: bool = False, max_consecutive_failures: int = 4,
+                  pause: float = GDELT_PAUSE, resume: bool = False, max_consecutive_failures: int = 6,
                   log=print) -> list[str]:
     """News GDELT par fenêtres de `window_days` jours (250 articles au plus par requête).
 
@@ -249,6 +250,10 @@ def download_news(out_dir: Path, tickers: list[str], start: date, end: date, win
             time.sleep(pause)
             day = stop
         rows = to_news_rows(articles)
+        if failed:
+            # Fichier incomplet non écrit : un nouveau lancement (--reprendre) le retentera.
+            log(f"  news {ticker:6} incomplet ({failed} fenêtre(s) en échec) : non enregistré")
+            continue
         write_news_csv(folder / f"{ticker}.csv", rows)
         log(f"  news {ticker:6} {len(articles):5} articles bruts -> {len(rows):4} retenus"
             + (f" ({failed} fenêtre(s) en échec)" if failed else ""))

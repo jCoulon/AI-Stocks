@@ -33,6 +33,12 @@ class GdeltTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_gdelt("Please limit requests to one every 5 seconds")
 
+    def test_queries_use_parentheses_only_around_or(self):
+        from sp500_analyzer.providers.realnews import GDELT_QUERIES
+
+        for ticker, q in GDELT_QUERIES.items():
+            self.assertEqual(q.startswith("("), " OR " in q, ticker)
+
     def test_known_sources_new_york_time_and_dedup(self):
         self.assertEqual(source_for_domain("www.reuters.com"), "Reuters")
         self.assertEqual(source_for_domain("finance.yahoo.com"), "Yahoo Finance")

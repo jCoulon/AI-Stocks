@@ -54,6 +54,15 @@ corrections elles-mêmes. Chaque écart corrigé est couvert par un test de non-
 - **La calibration de la confiance.** Le pourcentage affiché mesure l'accord entre des
   piliers indépendants et la qualité des données ; ce n'est pas une probabilité de gain.
 
+## Points à recalibrer sur données réelles
+
+- **Alerte « mouvement inexpliqué »** (> 4 écarts-types ou volume x2,5 sans news fiable) :
+  taux de fausses alertes mesuré sur titres sans événement, par semaine : 0,2 % avec des
+  rendements gaussiens, 2,8 % avec des queues épaisses réalistes (Student t à 4 degrés de
+  liberté), 4,3 % avec t à 3 degrés. Sur 30 titres, environ une fausse alerte par semaine ;
+  sur les 500 valeurs du S&P 500, une quinzaine. Le seuil devra être ajusté sur l'historique
+  réel (par exemple au 99,5e centile empirique des rendements de chaque titre).
+
 ## Revérifier
 
 ```bash

@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sp500-analyzer"
+version = "0.1.0"
+description = "Analyse des mouvements des actions du S&P 500 : cours, news, réseaux sociaux, macro et contrôle de cohérence"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+sp500-analyzer = "sp500_analyzer.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sp500_analyzer*"]

@@ -106,6 +106,8 @@ class PeriodReport:
     first_calls: list[tuple[str, str, float, float, float, float]]
     months: list[MonthStats] = field(default_factory=list)
     strategy: Optional[StrategyStats] = None
+    #: Sources réelles utilisées (vide : cours seuls ou données simulées)
+    data_note: str = ""
 
 
 def _outcome_index(calendar: list[date], day: date, h: int, end: date) -> Optional[int]:
@@ -202,7 +204,8 @@ def run_period_backtest(
 
     from ..providers.mock import MockDataProvider
     return PeriodReport(start, end, isinstance(base, MockDataProvider), signal_days, calls, stats,
-                        idx_ret, first_calls, months, strategy)
+                        idx_ret, first_calls, months, strategy,
+                        base.coverage() if hasattr(base, "coverage") else "")
 
 
 def _ref_horizon(horizons: tuple[int, ...]) -> int:
@@ -269,7 +272,8 @@ def render_period_backtest(r: PeriodReport) -> str:
     fmt = "%d/%m/%Y"
     out = [f"BACKTEST DE L'OUTIL — période du {r.start.strftime(fmt)} au {r.end.strftime(fmt)}",
            ("⚠ Données SIMULÉES : ce backtest valide la mécanique, pas la qualité des avis."
-            if r.simulated else "Cours réels."),
+            if r.simulated else f"Données réelles : cours ; {r.data_note}." if r.data_note
+            else "Cours réels (sans news, réseaux sociaux ni macro)."),
            *(["  (Dans les données simulées, news et messages sociaux ne couvrent que les dernières semaines :"
               " sur le reste de la période, seuls les cours et la macro alimentent l'outil.)"]
              if r.simulated and len(r.signal_days) > 40 else []),

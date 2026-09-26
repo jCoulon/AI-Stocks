@@ -7,7 +7,7 @@ import re
 from datetime import datetime
 
 from ..models import NewsItem, PillarResult, Signal, SocialPost
-from ..universe import source_reliability
+from ..universe import EVENT_SOURCES, source_reliability
 from .indicators import clip
 
 POSITIVE = {
@@ -105,6 +105,7 @@ def analyze_sentiment(
     short = PillarResult("sentiment", "court")
     medium = PillarResult("sentiment", "moyen")
 
+    news = [n for n in news if n.source not in EVENT_SOURCES]
     recent = [n for n in news if _age_days(n.published, now) <= 7]
     s_news, _ = news_score(recent, now, half_life=3.0)
     coverage = _coverage(recent, 1.2)  # peu de news fiables => signal atténué

@@ -194,6 +194,26 @@ news, messages ni macro, les piliers correspondants restent vides et le backtest
 les signaux de cours (technique, recherche). Dans l'environnement cloud, le domaine
 `stooq.com` doit être autorisé dans les paramètres réseau.
 
+### Avec toutes les données réelles (dossier `data/`)
+
+Deux workflows GitHub Actions téléchargent de vraies données et les enregistrent dans `data/` :
+
+| Workflow | Source | Contenu |
+|---|---|---|
+| « Données de marché réelles » | Yahoo Finance | `daily/` cours ajustés 2 ans, `intraday_10min/` barres de 10 min |
+| « News et macro réelles » | GDELT | `news/` articles de sources connues (≈ 3 derniers mois seulement) |
+| | SEC EDGAR | `sec/` dépôts 8-K, 10-Q, 10-K (faits officiels, horodatés) |
+| | FRED | `macro/` taux 10 et 2 ans, Fed funds, VIX, pétrole, inflation, chômage |
+
+```bash
+python -m sp500_analyzer --donnees data --backtest-periode 2026-07-01:2026-09-25
+```
+
+Les dépôts SEC expliquent les mouvements de prix mais n'entrent pas dans le ton des news.
+Les séries mensuelles sont datées de leur publication (prudente), pas du mois mesuré.
+Limites : pas de réseaux sociaux (aucune source historique gratuite), pas d'ISM, de ratio
+put/call ni d'enquête AAII ; GDELT couvre mal la presse financière payante.
+
 ## Facteurs issus de la recherche académique
 
 L'agent `chercheur` ajoute un pilier fondé sur des résultats publiés en finance empirique,

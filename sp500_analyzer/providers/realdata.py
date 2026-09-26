@@ -1,0 +1,80 @@
+"""Source de données entièrement réelle, lue dans le dossier rempli par les workflows
+« Données de marché réelles » (cours) et « News et macro réelles » (news, SEC, FRED).
+
+  <dossier>/daily/<TICKER>.csv   cours quotidiens ajustés (voir CsvPriceProvider)
+  <dossier>/news/<TICKER>.csv    articles GDELT de sources connues ; news/MARCHE.csv = marché
+  <dossier>/sec/<TICKER>.csv     dépôts réglementaires (8-K, 10-Q, 10-K...)
+  <dossier>/macro/<clé>.csv      séries FRED datées de leur publication
+
+Chaque partie est facultative sauf les cours : ce qui manque reste vide et l'outil le signale.
+Pas de réseaux sociaux (aucune source historique gratuite).
+"""
+
+from __future__ import annotations
+
+import csv
+from bisect import bisect_left
+from datetime import date, datetime
+from pathlib import Path
+from typing import Optional
+
+from ..models import NewsItem, Series, SocialPost
+from .csv_prices import CsvPriceProvider
+from .realnews import MARKET, SEC_SOURCE
+
+
+def read_news(path: Path, ticker: Optional[str]) -> list[NewsItem]:
+    if not path.exists():
+        return []
+    with open(path, newline="", encoding="utf-8") as f:
+        return [NewsItem(ticker, datetime.fromisoformat(r["Published"]), r["Source"], r["Title"])
+                for r in csv.DictReader(f) if r.get("Title")]
+
+
+def read_sec(path: Path, ticker: str) -> list[NewsItem]:
+    if not path.exists():
+        return []
+    with open(path, newline="", encoding="utf-8") as f:
+        return [NewsItem(ticker, datetime.fromisoformat(r["Published"]), SEC_SOURCE, r["Title"])
+                for r in csv.DictReader(f)]
+
+
+def read_series(path: Path) -> Series:
+    with open(path, newline="", encoding="utf-8") as f:
+        return sorted((date.fromisoformat(r["Date"]), float(r["Value"])) for r in csv.DictReader(f))
+
+
+class RealDataProvider(CsvPriceProvider):
+    def __init__(self, folder: str | Path, as_of: date | None = None):
+        root = Path(folder)
+        super().__init__(root / "daily", as_of)
+        self.root = root
+        self._news: dict[Optional[str], list[NewsItem]] = {}
+        for t in [s.ticker for s in self.universe()] + [None]:
+            items = read_news(root / "news" / f"{t or MARKET}.csv", t)
+            if t:
+                items += read_sec(root / "sec" / f"{t}.csv", t)
+            self._news[t] = sorted(items, key=lambda n: n.published)
+        macro_dir = root / "macro"
+        self._macro = {p.stem: read_series(p) for p in sorted(macro_dir.glob("*.csv"))} if macro_dir.exists() else {}
+        press = [n.published for t, items in self._news.items() for n in items if n.source != SEC_SOURCE]
+        #: Première date couverte par les articles de presse (None : aucun article).
+        self.news_start: Optional[date] = min(press).date() if press else None
+
+    def news(self, ticker: str | None, since: datetime) -> list[NewsItem]:
+        items = self._news.get(ticker, [])
+        return items[bisect_left(items, since, key=lambda n: n.published):]
+
+    def social_posts(self, ticker: str, since: datetime) -> list[SocialPost]:
+        return []
+
+    def macro(self) -> dict[str, Series]:
+        return {k: list(v) for k, v in self._macro.items()}
+
+    def coverage(self) -> str:
+        n_press = sum(1 for items in self._news.values() for n in items if n.source != SEC_SOURCE)
+        n_sec = sum(1 for items in self._news.values() for n in items if n.source == SEC_SOURCE)
+        parts = [f"{n_press} articles de presse" + (f" depuis le {self.news_start:%d/%m/%Y}" if self.news_start else ""),
+                 f"{n_sec} dépôts SEC", f"macro : {', '.join(self._macro) or 'aucune série'}",
+                 "réseaux sociaux : aucune source"]
+        return " ; ".join(parts)

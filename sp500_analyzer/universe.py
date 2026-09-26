@@ -91,7 +91,39 @@ SOURCE_RELIABILITY: dict[str, float] = {
     "Barron's": 0.8,
     "Seeking Alpha": 0.5,
     "StockBuzzDaily": 0.25,
+    # Sources des vraies news (GDELT, voir providers/realnews.py).
+    "Associated Press": 0.9,
+    "The Economist": 0.9,
+    "New York Times": 0.85,
+    "BBC": 0.85,
+    "Washington Post": 0.8,
+    "Morningstar": 0.75,
+    "Axios": 0.75,
+    "CNN": 0.75,
+    "Los Angeles Times": 0.75,
+    "The Guardian": 0.75,
+    "Fortune": 0.7,
+    "Investor's Business Daily": 0.7,
+    "Yahoo Finance": 0.7,
+    "TechCrunch": 0.7,
+    "The Verge": 0.7,
+    "Fox Business": 0.65,
+    "Forbes": 0.6,
+    "Business Insider": 0.6,
+    "Nasdaq": 0.6,
+    "Business Wire": 0.6,  # communiqués des entreprises : factuels mais ton toujours favorable
+    "PR Newswire": 0.6,
+    "GlobeNewswire": 0.6,
+    "TheStreet": 0.55,
+    "Investing.com": 0.55,
+    "Benzinga": 0.5,
+    "The Motley Fool": 0.45,
+    "Zacks": 0.45,
+    "SEC EDGAR": 1.0,
 }
+# Sources factuelles sans ton (dépôts réglementaires) : elles expliquent un mouvement de prix
+# mais n'entrent pas dans la moyenne du sentiment, qu'elles tireraient artificiellement vers 0.
+EVENT_SOURCES = frozenset({"SEC EDGAR"})
 DEFAULT_RELIABILITY = 0.3
 RELIABLE_THRESHOLD = 0.7  # source suffisante pour confirmer une info
 UNRELIABLE_THRESHOLD = 0.4  # en dessous : info exclue si non confirmée

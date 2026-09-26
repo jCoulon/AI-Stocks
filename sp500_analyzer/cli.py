@@ -41,6 +41,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Backtest de l'outil complet sur une période, ex. 2026-09-01:2026-09-25 (septembre)")
     p.add_argument("--cours", metavar="DOSSIER",
                    help="Utiliser de vrais cours : fichiers CSV <TICKER>.csv et SPX.csv (format Stooq / Yahoo)")
+    p.add_argument("--donnees", metavar="DOSSIER",
+                   help="Utiliser toutes les données réelles du dossier (cours daily/, news/, sec/, macro/)")
     p.add_argument("--telecharger-cours", metavar="DOSSIER",
                    help="Télécharger les cours quotidiens depuis Stooq dans ce dossier puis quitter")
     return p
@@ -58,7 +60,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Cours enregistrés dans {args.telecharger_cours} ({len(errors)} erreur(s)).")
         return 1 if errors else 0
 
-    if args.cours:
+    if args.donnees:
+        from .providers.realdata import RealDataProvider
+
+        try:
+            provider = RealDataProvider(args.donnees)
+        except (OSError, ValueError) as e:
+            print(f"Erreur de lecture des données : {e}", file=sys.stderr)
+            return 2
+        print(f"Données réelles : {provider.coverage()}", file=sys.stderr)
+    elif args.cours:
         from .providers.csv_prices import CsvPriceProvider
 
         try:

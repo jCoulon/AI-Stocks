@@ -135,7 +135,7 @@ class CsvProviderTests(unittest.TestCase):
             with redirect_stdout(out), redirect_stderr(err):
                 code = main(["--cours", tmp, "--backtest-periode", "2026-09-21:2026-09-25"])
             self.assertEqual(code, 0, err.getvalue())
-            self.assertIn("Cours réels.", out.getvalue())
+            self.assertIn("Cours réels (sans news", out.getvalue())
             self.assertIn("AVIS DU 18/09/2026", out.getvalue())
 
     def test_stooq_download(self):

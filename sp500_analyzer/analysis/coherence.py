@@ -60,8 +60,14 @@ def check_prices(bars: list[Bar], calendar: list[date], as_of: date, res: Cohere
         res.data_quality -= 0.4
 
 
+# Seuils de l'alerte « mouvement inexpliqué » (voir docs/AUDIT.md pour leur calibration).
+UNEXPLAINED_Z = 4.0
+UNEXPLAINED_VOLUME = 2.5
+
+
 def check_abnormal_moves(bars: list[Bar], news: list[NewsItem], res: CoherenceResult) -> None:
-    """Un mouvement > 4 écarts-types ou un volume x2,5 doit être expliqué par une news."""
+    """Un mouvement > UNEXPLAINED_Z écarts-types ou un volume > UNEXPLAINED_VOLUME fois la
+    normale doit être expliqué par une news."""
     closes = [b.close for b in bars]
     rets = pct_returns(closes)
     if len(rets) < 70:
@@ -73,7 +79,7 @@ def check_abnormal_moves(bars: list[Bar], news: list[NewsItem], res: CoherenceRe
         r = rets[i - 1]
         z = r / sd
         vol_ratio = bars[i].volume / (mean([b.volume for b in bars[i - 51:i - 1]]) or 1)
-        if abs(z) < 4 and vol_ratio < 2.5:
+        if abs(z) < UNEXPLAINED_Z and vol_ratio < UNEXPLAINED_VOLUME:
             continue
         day = bars[i].day
         if explaining_news(bars, i, news):

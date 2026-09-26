@@ -82,7 +82,8 @@ class Orchestrator:
 
     def plan(self, tickers: list[str]) -> list[Task]:
         index = self.provider.index().ticker
-        tasks = [Task("macro", "economiste"), Task(f"collect:{index}", "collecteur", index)]
+        tasks = [Task("macro", "economiste", optional_deps=(f"collect:{index}",)),
+                 Task(f"collect:{index}", "collecteur", index)]
         for t in [index, *tickers]:
             if t != index:
                 tasks.append(Task(f"collect:{t}", "collecteur", t))

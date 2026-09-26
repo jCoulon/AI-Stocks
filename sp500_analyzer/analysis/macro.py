@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import calendar
 from datetime import date, timedelta
 
 from ..models import Bar, PillarResult, Series, Signal
@@ -24,12 +25,25 @@ def _value_at(series: Series, day) -> float | None:
     return out
 
 
-def _change(series: Series, days: int) -> float | None:
-    """Variation sur une durée calendaire, quelle que soit la fréquence de la série
-    (quotidienne, hebdomadaire, mensuelle)."""
+def _months_back(d: date, months: int) -> date:
+    y, m = divmod(d.year * 12 + d.month - 1 - months, 12)
+    m += 1
+    last_day = calendar.monthrange(y, m)[1]
+    return date(y, m, min(d.day, last_day))
+
+
+def _start(series: Series, days: int | None, months: int | None) -> date:
+    last = series[-1][0]
+    return _months_back(last, months) if months else last - timedelta(days=days)
+
+
+def _change(series: Series, days: int | None = None, months: int | None = None) -> float | None:
+    """Variation sur une durée calendaire (en jours ou en mois civils), quelle que soit la
+    fréquence de la série. Les mois civils évitent qu'une série mensuelle datée du 1er ne
+    couvre 4 mois au lieu de 3 (92 jours avant le 1er décembre = 31 août)."""
     if not series:
         return None
-    before = _value_at(series, series[-1][0] - timedelta(days=days))
+    before = _value_at(series, _start(series, days, months))
     return None if before is None else series[-1][1] - before
 
 
@@ -40,8 +54,8 @@ def _pct_change(series: Series, days: int) -> float | None:
     return None if not before else series[-1][1] / before - 1
 
 
-# Durées calendaires : 1 semaine de bourse, 1 mois, 3 mois.
-WEEK, MONTH, QUARTER = 7, 28, 92
+# Durées calendaires : 1 semaine de bourse et 1 mois (jours), 3 mois (mois civils).
+WEEK, MONTH, QUARTER_MONTHS = 7, 28, 3
 
 
 def macro_summary(macro: dict[str, Series]) -> dict[str, float]:
@@ -62,25 +76,32 @@ def macro_summary(macro: dict[str, Series]) -> dict[str, float]:
 def variance_risk_premium(vix: Series, index_bars: list[Bar], window: int = 21) -> list[tuple[date, float]]:
     """Prime de risque de variance (Bollerslev, Tauchen & Zhou, 2009), en points de variance
     annualisée : VIX² (variance implicite, 30 jours) − variance réalisée de l'indice sur
-    les `window` dernières séances. Série quotidienne alignée sur les dates du VIX."""
-    closes = {b.day: b.close for b in index_bars}
-    days = [b.day for b in index_bars]
-    logr = {days[i]: math.log(closes[days[i]] / closes[days[i - 1]]) for i in range(1, len(days))}
-    ordered = [d for d in days[1:]]
-    pos = {d: i for i, d in enumerate(ordered)}
+    les `window` dernières séances. Série alignée sur les dates communes au VIX et à l'indice."""
+    sq = [math.log(index_bars[i].close / index_bars[i - 1].close) ** 2 for i in range(1, len(index_bars))]
+    pos = {b.day: i for i, b in enumerate(index_bars[1:])}
     out = []
     for d, v in vix:
         i = pos.get(d)
-        if i is None or i + 1 < window:
-            continue
-        rv = sum(logr[x] ** 2 for x in ordered[i + 1 - window:i + 1]) * 252 / window
-        out.append((d, (v / 100) ** 2 - rv))
+        if i is not None and i + 1 >= window:
+            out.append((d, (v / 100) ** 2 - sum(sq[i + 1 - window:i + 1]) * 252 / window))
     return out
+
+
+def vrp_zscore(vrp: list[tuple[date, float]]) -> float | None:
+    """Prime actuelle en écarts-types de sa propre année écoulée (None si moins de 60 points)."""
+    hist = [v for _, v in vrp[-252:]]
+    if len(hist) < 60:
+        return None
+    sd = stdev(hist)
+    return (hist[-1] - mean(hist)) / sd if sd else 0.0
 
 
 def analyze_macro(
     macro: dict[str, Series], sector: str, as_of: date, index_bars: list[Bar] | None = None,
+    vrp_z: float | None = None,
 ) -> tuple[PillarResult, PillarResult]:
+    """`vrp_z` (prime de risque de variance standardisée) peut être précalculé une fois pour
+    tous les secteurs ; sinon il est calculé à partir de `index_bars` et du VIX."""
     prof = SECTOR_PROFILE.get(sector, SECTOR_PROFILE["Index"])
     short = PillarResult("macro", "court")
     medium = PillarResult("macro", "moyen")
@@ -126,14 +147,14 @@ def analyze_macro(
     pmi = macro.get("ism_pmi", [])
     if pmi:
         lvl = pmi[-1][1]
-        trend = _change(pmi, QUARTER) or 0.0
+        trend = _change(pmi, months=QUARTER_MONTHS) or 0.0
         add(medium, "ISM manufacturier", lvl, prof["cyclical"] * math.tanh((lvl - 50) / 2 + trend / 1.5), 0.2,
             f"{'expansion' if lvl > 50 else 'contraction'}, tendance {'en amélioration' if trend > 0 else 'en dégradation'}")
-    cpi_ch = _change(macro.get("cpi_yoy", []), QUARTER)
+    cpi_ch = _change(macro.get("cpi_yoy", []), months=QUARTER_MONTHS)
     if cpi_ch is not None:
         add(medium, "Inflation (3 mois)", cpi_ch, -math.tanh(cpi_ch / 0.3), 0.15,
             "désinflation" if cpi_ch < 0 else "réaccélération de l'inflation")
-    un_ch = _change(macro.get("unemployment", []), QUARTER)
+    un_ch = _change(macro.get("unemployment", []), months=QUARTER_MONTHS)
     if un_ch is not None:
         add(medium, "Chômage (3 mois)", un_ch, -abs(prof["cyclical"]) * math.tanh(un_ch / 0.3) - 0.2 * math.tanh(un_ch / 0.3), 0.15,
             "marché du travail qui se détend" if un_ch > 0 else "marché du travail solide")
@@ -153,21 +174,19 @@ def analyze_macro(
     if oil_20 is not None:
         add(medium, "Pétrole WTI (1 mois)", oil_20 * 100, prof["oil"] * math.tanh(oil_20 / 0.1), 0.1,
             f"{oil_20 * 100:+.1f}% sur un mois")
-    ff_60 = _change(macro.get("fed_funds", []), QUARTER)
+    ff_60 = _change(macro.get("fed_funds", []), months=QUARTER_MONTHS)
     if ff_60 is not None:
         add(medium, "Politique monétaire (3 mois)", ff_60 * 100, -math.tanh(ff_60 / 0.25), 0.1,
             "cycle d'assouplissement" if ff_60 < 0 else "resserrement" if ff_60 > 0 else "statu quo")
     # Prime de risque de variance : élevée => rendements du marché plus élevés, surtout à
     # l'horizon trimestriel (Bollerslev, Tauchen & Zhou, 2009). Standardisée sur un an.
-    if index_bars and macro.get("vix"):
-        vrp = variance_risk_premium(macro["vix"], index_bars)
-        hist = [v for _, v in vrp[-252:]]
-        if len(hist) >= 60:
-            sd = stdev(hist)
-            z = (hist[-1] - mean(hist)) / sd if sd else 0.0
-            add(medium, "Prime de risque de variance", z, math.tanh(z / 1.5), 0.15,
-                f"{'élevée' if z > 0.5 else 'faible' if z < -0.5 else 'normale'} ({z:+.1f} écart-type sur 1 an) "
-                "— Bollerslev, Tauchen & Zhou (2009)")
+    if vrp_z is None and index_bars and macro.get("vix"):
+        vrp_z = vrp_zscore(variance_risk_premium(macro["vix"], index_bars))
+    if vrp_z is not None:
+        z = vrp_z
+        add(medium, "Prime de risque de variance", z, math.tanh(z / 1.5), 0.15,
+            f"{'élevée' if z > 0.5 else 'faible' if z < -0.5 else 'normale'} ({z:+.1f} écart-type sur 1 an) "
+            "— Bollerslev, Tauchen & Zhou (2009)")
     aaii = _value(macro.get("aaii_spread", []))
     if aaii is not None:
         add(medium, "Sondage AAII (bull-bear)", aaii, -0.5 * math.tanh(aaii / 25), 0.05,

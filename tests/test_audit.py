@@ -113,6 +113,35 @@ class MissingDataSemanticsTests(unittest.TestCase):
         self.assertAlmostEqual(idx.short.high / idx.last_close - 1, g.horizon_vol(5), places=9)
 
 
+class ReviewFollowUpTests(unittest.TestCase):
+    """Points relevés par la revue de code des corrections d'audit."""
+
+    def test_macro_view_survives_missing_index_data(self):
+        from datetime import time as dtime
+        from sp500_analyzer.agents.base import Blackboard, Task
+        from sp500_analyzer.agents.specialists import MacroEconomistAgent
+        provider = MockDataProvider()
+        board = Blackboard(provider, datetime.combine(provider.as_of, dtime(22)))
+        out = MacroEconomistAgent().run(Task("macro", "economiste"), board)  # pas de collect:^GSPC
+        medium = out["views"]["Technology"].medium
+        names = {s.name for s in medium.signals}
+        self.assertIn("ISM manufacturier", names)
+        self.assertNotIn("Prime de risque de variance", names)
+
+    def test_index_keeps_an_academic_trend_signal(self):
+        from sp500_analyzer.engine import run_analysis
+        report = run_analysis(MockDataProvider(), ["AAPL"])
+        names = {s.name for s in report.index.pillars["technique_moyen"].signals}
+        self.assertIn("Momentum temporel (ajusté volatilité)", names)
+
+    def test_returns_use_latest_bar_when_index_lags(self):
+        provider = MockDataProvider()
+        bars, index = provider.price_history("AAPL"), provider.price_history("^GSPC")
+        expected = bars[-1].close / bars[-6].close - 1
+        for idx in (index, index[:-1], []):
+            self.assertAlmostEqual(performance(bars, idx)[0]["1 semaine"], expected)
+
+
 class VarianceRiskPremiumTests(unittest.TestCase):
     def test_high_premium_is_favourable_at_medium_term(self):
         rng = random.Random(4)
@@ -238,6 +267,17 @@ class MethodologyAuditTests(unittest.TestCase):
         self.assertIn("Momentum 12-1 mois", names)  # la tendance académique est bien dans le bloc tendance
         self.assertNotIn("Momentum 12-1 mois",
                          {s.name for s in self.reports[0].tickers[0].pillars["recherche_moyen"].signals})
+
+    def test_crash_protection_survives_trend_merge(self):
+        from sp500_analyzer.analysis.research import TREND_FACTORS
+        rv = self.reports[0].tickers[0].research
+        _, _, trend = rv.pillars()
+        total = sum(s.weight for s in trend)
+        for f in rv.factors:  # simulation d'un régime de krach : poids de tendance divisés par 2
+            if f.key in TREND_FACTORS:
+                f.weight *= 0.5
+        _, _, trend_crash = rv.pillars()
+        self.assertAlmostEqual(sum(s.weight for s in trend_crash), total * 0.5)
 
     def test_single_beta_everywhere(self):
         for t in self.reports[0].tickers:

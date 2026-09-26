@@ -25,7 +25,7 @@ des prévisions fiables pour un titre donné.
 | Facteur | Mesure implémentée | Sens | Horizon | Poids | Source |
 |---|---|---|---|---|---|
 | Momentum 12-1 | rendement de t−12 mois à t−1 mois (le dernier mois est exclu) | + | MT | 1,0 | Jegadeesh & Titman (1993) |
-| Momentum temporel | rendement 12 mois ÷ volatilité annualisée (126 j) | + | MT | 0,8 | Moskowitz, Ooi & Pedersen (2012) ; mise à l'échelle par la volatilité : Barroso & Santa-Clara (2015) |
+| Momentum temporel | rendement **logarithmique** 12 mois ÷ volatilité annualisée (126 j), score `tanh(valeur)` ; aussi appliqué à l'indice | + | MT | 0,8 | Moskowitz, Ooi & Pedersen (2012) ; mise à l'échelle par la volatilité : Barroso & Santa-Clara (2015) |
 | Plus haut 52 semaines | cours ÷ plus haut des 252 dernières séances | + | MT | 0,7 | George & Hwang (2004) |
 | Momentum sectoriel | rendement moyen 6 mois du secteur | + | MT | 0,6 | Moskowitz & Grinblatt (1999) |
 | Volatilité idiosyncratique | écart-type annualisé des résidus de la régression des rendements journaliers sur l'indice (63 j) | − | MT | 0,6 | Ang, Hodrick, Xing & Zhang (2006) |

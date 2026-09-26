@@ -25,7 +25,7 @@ from typing import Optional
 
 from ..models import Bar, NewsItem, PillarResult, Signal, SocialPost
 from .coherence import explaining_news
-from .indicators import clip, closes_on_calendar, mean, pct_returns, stdev
+from .indicators import SessionReturns, clip, mean, pct_returns, stdev
 
 
 # --------------------------------------------------------------------------- références
@@ -140,14 +140,8 @@ def price_factors(bars: list[Bar], index_bars: list[Bar]) -> dict[str, Optional[
     out: dict[str, Optional[float]] = {k: None for k in ("mom_12_1", "tsmom", "high52", "ivol", "beta",
                                                           "strev", "max", "abvol")}
     n = len(closes)
-    # Rendements sur N séances mesurés sur le calendrier de l'indice (trous du flux comblés).
-    cal = closes_on_calendar(bars, [b.day for b in index_bars]) if index_bars else closes
-
-    def ret(a: int, b: int = 0) -> Optional[float]:
-        """Rendement entre t-a et t-b séances."""
-        if len(cal) <= a or cal[-a - 1] is None or cal[-b - 1] is None:
-            return None
-        return cal[-b - 1] / cal[-a - 1] - 1
+    # Rendements sur N séances mesurés sur un calendrier commun avec l'indice.
+    ret = SessionReturns(bars, index_bars).ret
 
     if n > 253:
         # Rendement de t-12 mois à t-1 mois : on saute le dernier mois (effet de retournement).
@@ -390,6 +384,11 @@ class ResearchView:
         """
         short, medium = PillarResult("recherche", "court"), PillarResult("recherche", "moyen")
         trend: list[Signal] = []
+        # Poids de la famille tendance normalisés par leurs poids de BASE (avant ajustements) :
+        # le bloc garde ainsi un poids total de 1 x (ajustement de régime) x (protection
+        # anti-krach), au lieu que ces ajustements s'annulent à la renormalisation.
+        base = sum(SPECS[f.key].weight for f in self.factors
+                   if f.key in TREND_FACTORS and f.value is not None) or 1.0
         for f in self.factors:
             if f.value is None or f.weight == 0:
                 continue
@@ -397,8 +396,10 @@ class ResearchView:
             if "court" in f.horizons:
                 short.signals.append(Signal(f.name, f.value, f.score, f.weight, comment))
             if "moyen" in f.horizons:
-                target = trend if f.key in TREND_FACTORS else medium.signals
-                target.append(Signal(f.name, f.value, f.score, f.weight, comment))
+                if f.key in TREND_FACTORS:
+                    trend.append(Signal(f.name, f.value, f.score, f.weight / base, comment))
+                else:
+                    medium.signals.append(Signal(f.name, f.value, f.score, f.weight, comment))
         return short, medium, trend
 
 

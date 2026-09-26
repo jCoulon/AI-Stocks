@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 
 from ..models import Bar, PillarResult, Signal
-from .indicators import atr, bollinger, clip, closes_on_calendar, ema, macd, mean, pct_returns, rsi, sma, stdev
+from .indicators import SessionReturns, atr, bollinger, clip, ema, macd, mean, pct_returns, rsi, sma, stdev
 
 
 def _lg(r: float) -> float:
@@ -29,24 +29,9 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
     short = PillarResult("technique", "court")
     medium = PillarResult("technique", "moyen")
 
-    # Rendements sur N séances : mesurés sur le calendrier de l'indice (séances manquantes
-    # du titre comblées par le dernier cours), pour comparer des périodes identiques.
-    if index_bars:
-        aligned = closes_on_calendar(bars, [b.day for b in index_bars])
-        idx = [b.close for b in index_bars]
-    else:
-        aligned, idx = list(closes), None
-
-    def ret_n(n: int) -> float | None:
-        if len(aligned) <= n or aligned[-n - 1] is None or aligned[-1] is None:
-            return None
-        return aligned[-1] / aligned[-n - 1] - 1
-
-    def rel_n(n: int) -> float | None:
-        r = ret_n(n)
-        if r is None or idx is None or len(idx) <= n:
-            return None
-        return (1 + r) / (idx[-1] / idx[-n - 1]) - 1
+    # Rendements sur N séances mesurés sur un calendrier commun avec l'indice.
+    sessions = SessionReturns(bars, index_bars)
+    ret_n, rel_n = sessions.ret, sessions.relative
 
     # ---------------------------------------------------------- court terme
     r = _last(rsi(closes, 14))

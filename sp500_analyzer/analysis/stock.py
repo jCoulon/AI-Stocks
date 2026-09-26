@@ -11,7 +11,7 @@ from ..models import (
 )
 from .coherence import CoherenceResult, reaction_index
 from .research import aligned_returns, ols
-from .indicators import closes_on_calendar, pct_returns, sma, stdev
+from .indicators import SessionReturns, pct_returns, sma, stdev
 from .sentiment import score_text
 
 HORIZONS = [("1 semaine", 5), ("1 mois", 21), ("3 mois", 63), ("6 mois", 126), ("1 an", 252)]
@@ -22,16 +22,17 @@ CHART_DAYS = 126
 
 
 def performance(bars: list[Bar], index_bars: list[Bar]) -> tuple[dict[str, float], dict[str, float]]:
-    """Rendements sur N séances du calendrier de l'indice (séances manquantes comblées)."""
-    closes = closes_on_calendar(bars, [b.day for b in index_bars])
-    idx = [b.close for b in index_bars]
+    """Rendements sur N séances, absolus et relatifs à l'indice (calendrier commun)."""
+    sessions = SessionReturns(bars, index_bars)
     perf, rel = {}, {}
     for label, n in HORIZONS:
-        if len(closes) <= n or closes[-n - 1] is None or closes[-1] is None:
+        r = sessions.ret(n)
+        if r is None:
             continue
-        r = closes[-1] / closes[-n - 1] - 1
         perf[label] = r
-        rel[label] = (1 + r) / (idx[-1] / idx[-n - 1]) - 1
+        rv = sessions.relative(n)
+        if rv is not None:
+            rel[label] = rv
     return perf, rel
 
 

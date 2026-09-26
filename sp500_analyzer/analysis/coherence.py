@@ -13,6 +13,7 @@ Objectif : ne retenir que les données de marché cohérentes entre elles.
 from __future__ import annotations
 
 import re
+from bisect import bisect_left
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
@@ -143,7 +144,8 @@ def reaction_index(bars: list[Bar], published: datetime) -> int | None:
     Publiée après la clôture (16h) => la réaction se lit à la séance suivante.
     """
     day = published.date() + (timedelta(days=1) if published.hour >= 16 else timedelta())
-    return next((i for i, b in enumerate(bars) if b.day >= day), None)
+    i = bisect_left(bars, day, key=lambda b: b.day)  # recherche dichotomique : O(log n)
+    return i if i < len(bars) else None
 
 
 def explaining_news(bars: list[Bar], i: int, news: list[NewsItem]) -> list[NewsItem]:

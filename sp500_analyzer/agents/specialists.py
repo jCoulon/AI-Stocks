@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
 
 from ..analysis.coherence import CoherenceResult, assess
-from ..analysis.macro import analyze_macro, macro_summary
-from ..analysis.research import ResearchView, TickerInputs, build_research, fit_garch
+from ..analysis.macro import analyze_macro, macro_summary, variance_risk_premium, vrp_zscore
+from ..analysis.research import ResearchView, TickerInputs, build_research, fit_garch, price_factors
 from ..analysis.scoring import HORIZON_DAYS
 from ..analysis.scoring import build_outlook
 from ..analysis.sentiment import analyze_sentiment
@@ -67,11 +68,16 @@ class MacroEconomistAgent(Agent):
 
     def run(self, task: Task, board: Blackboard) -> dict:
         series = board.provider.macro()
-        index_bars = board.provider.price_history(board.provider.index().ticker)
+        # Cours de l'indice fournis par le collecteur (dépendance facultative) : sans eux, seule
+        # la prime de risque de variance est omise, le reste du pilier macro reste disponible.
+        index_data: TickerData | None = board.get(f"collect:{board.provider.index().ticker}")
+        vrp_z = None
+        if index_data and series.get("vix"):
+            vrp_z = vrp_zscore(variance_risk_premium(series["vix"], index_data.bars))
         sectors = {s.sector for s in board.provider.universe()} | {board.provider.index().sector}
         views = {}
         for sector in sorted(sectors):
-            short, medium = analyze_macro(series, sector, board.provider.as_of, index_bars)
+            short, medium = analyze_macro(series, sector, board.provider.as_of, vrp_z=vrp_z)
             views[sector] = PillarPair(short, medium)
         return {"summary": macro_summary(series), "views": views}
 
@@ -133,19 +139,35 @@ class StrategistAgent(Agent):
             coherence -= 0.1
         research_views = board.get("research")
         research: ResearchView | None = research_views.get(t) if research_views else None
+        if research is None:
+            # Indice (ou chercheur indisponible) : pas de classement transversal possible, mais
+            # le momentum temporel (Moskowitz, Ooi & Pedersen, 2012) ne dépend que de la série
+            # elle-même. Il rejoint le bloc tendance pour que celui-ci garde sa composante
+            # académique.
+            index_data: TickerData | None = board.get(f"collect:{board.provider.index().ticker}")
+            ts = price_factors(data.bars, index_data.bars if index_data else [])["tsmom"]
+            if ts is not None:
+                tech_w = sum(sig.weight for sig in tech.medium.signals) or 1.0
+                pillars_m["technique"] = PillarResult("technique", "moyen", [
+                    *[Signal(sig.name, sig.value, sig.score, sig.weight / tech_w, sig.comment)
+                      for sig in tech.medium.signals],
+                    Signal("Momentum temporel (ajusté volatilité)", ts, math.tanh(ts), 1.0,
+                           f"rendement 12 mois (log) = {ts:+.2f} x la volatilité annuelle — "
+                           "Moskowitz, Ooi & Pedersen (2012)"),
+                ])
         if research:
             r_short, r_medium, r_trend = research.pillars()
             pillars_s["recherche"], pillars_m["recherche"] = r_short, r_medium
             # Tendance comptée une seule fois à moyen terme : facteurs académiques de tendance
             # (Jegadeesh & Titman, Moskowitz et al., George & Hwang…) + tendance technique.
-            # La moyenne pondérée étant invariante à l'échelle des poids, on ramène d'abord
-            # chaque famille à un poids total identique.
+            # Chaque famille pèse 1 (poids technique normalisés ; poids académiques déjà
+            # normalisés par leur base dans research.pillars(), ce qui préserve l'ajustement de
+            # régime et la protection anti-krach du momentum).
             tech_w = sum(sig.weight for sig in tech.medium.signals) or 1.0
-            trend_w = sum(sig.weight for sig in r_trend) or 1.0
             merged = PillarResult("technique", "moyen", [
                 *[Signal(sig.name, sig.value, sig.score, sig.weight / tech_w, sig.comment)
                   for sig in tech.medium.signals],
-                *[Signal(sig.name, sig.value, sig.score, sig.weight / trend_w, sig.comment) for sig in r_trend],
+                *r_trend,
             ])
             pillars_m["technique"] = merged
         if sentiment:

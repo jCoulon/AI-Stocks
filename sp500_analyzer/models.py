@@ -96,6 +96,52 @@ class Outlook:
 
 
 @dataclass
+class KeyLevel:
+    label: str
+    price: float
+    kind: str  # "support" | "resistance" | "moyenne" | "extreme"
+
+
+@dataclass
+class Catalyst:
+    """News récente et réaction du cours le jour de sa publication."""
+
+    published: datetime
+    source: str
+    headline: str
+    tone: float
+    reaction: Optional[float]  # rendement de la séance de réaction
+    retained: bool  # False = écartée par le contrôleur (rumeur non confirmée)
+
+
+@dataclass
+class Peer:
+    ticker: str
+    week_return: float
+    short_score: float
+    medium_score: float
+
+
+@dataclass
+class StockReport:
+    """Fiche d'analyse détaillée d'une action (agent analyste-titre)."""
+
+    thesis: str
+    strengths: list[str]
+    risks: list[str]
+    performance: dict[str, float]  # horizon -> rendement
+    relative: dict[str, float]  # horizon -> surperformance vs S&P 500
+    risk_metrics: dict[str, float]
+    levels: list[KeyLevel]
+    catalysts: list[Catalyst]
+    social: dict[str, float]
+    peers: list[Peer]
+    sector_rank: tuple[int, int]  # (rang court terme dans le secteur, nb de titres)
+    #: Historique pour le graphique : (date, clôture, MM50, MM200)
+    history: list[tuple[date, float, Optional[float], Optional[float]]]
+
+
+@dataclass
 class TickerAnalysis:
     security: Security
     last_close: float
@@ -108,6 +154,7 @@ class TickerAnalysis:
     short: Outlook
     medium: Outlook
     stats: dict[str, float] = field(default_factory=dict)
+    stock: Optional[StockReport] = None
 
 
 @dataclass

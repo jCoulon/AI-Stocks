@@ -6,8 +6,8 @@ Plan (un graphe de tâches par titre, plus des tâches globales) :
     economiste (macro) ─────────────┼─────────────────────┐
     collecteur(T) ─┬─ controleur(T) ─┴─ sentiment(T)* ─┐   │
                    └─ technicien(T) ───────────────────┴─ strategiste(T) ─┐
-                                                                         ├─ chef-strategiste ─ redacteur*
-                        (idem pour chaque titre et pour l'indice) ───────┘
+                                                                         ├─ chef-strategiste ─┬─ redacteur*
+                        (idem pour chaque titre et pour l'indice) ───────┘                    └─ analyste-titre(T)
     * tâche facultative : son échec n'empêche pas la suite, l'avis est rendu sans ce pilier.
 
 Chaque tâche est lancée dès que ses dépendances sont terminées. Une tâche en
@@ -31,6 +31,7 @@ from .agents.specialists import (
     MarketStrategistAgent,
     QualityControlAgent,
     SentimentAnalystAgent,
+    StockAnalystAgent,
     StrategistAgent,
     TechnicalAnalystAgent,
 )
@@ -69,6 +70,7 @@ class Orchestrator:
             "technicien": TechnicalAnalystAgent(),
             "sentiment": SentimentAnalystAgent(),
             "strategiste": StrategistAgent(),
+            "analyste-titre": StockAnalystAgent(),
         }
         if use_llm:
             self.agents["redacteur"] = ClaudeWriterAgent()
@@ -92,6 +94,8 @@ class Orchestrator:
             ]
         tasks.append(Task("market", "chef-strategiste", None, (f"strategy:{index}",),
                           optional_deps=tuple(f"strategy:{t}" for t in tickers) + ("macro",)))
+        tasks += [Task(f"stock:{t}", "analyste-titre", t, ("market", f"collect:{t}", f"quality:{t}"))
+                  for t in tickers]
         if "redacteur" in self.agents:
             tasks.append(Task("writer", "redacteur", None, ("market",)))
         return tasks
@@ -181,6 +185,8 @@ class Orchestrator:
         report: Optional[MarketReport] = board.get("market")
         if report is None:
             raise OrchestrationError("L'orchestration n'a pas pu produire de rapport", list(records.values()))
+        for t in report.tickers:
+            t.stock = board.get(f"stock:{t.security.ticker}")
         report.narrative = board.get("writer")
         report.trace = trace
         if focus:

@@ -26,7 +26,8 @@ Python ≥ 3.10, aucune dépendance externe (sauf `anthropic` pour l'agent réda
 ```bash
 python -m sp500_analyzer                      # rapport complet dans le terminal
 python -m sp500_analyzer -t NVDA -t META      # uniquement ces titres, avec le détail des signaux
-python -m sp500_analyzer --detail UNH         # rapport complet + détail d'un titre
+python -m sp500_analyzer --detail UNH         # rapport complet + fiche d'un titre
+python -m sp500_analyzer -s NVDA -s TSLA      # analyse par action : uniquement les fiches
 python -m sp500_analyzer --html rapport.html  # rapport HTML autonome (clair/sombre, mobile)
 python -m sp500_analyzer --json rapport.json  # export complet pour d'autres outils
 python -m sp500_analyzer --seed 7             # autre jeu de données simulées
@@ -49,13 +50,14 @@ publie son résultat sur un **tableau partagé** (*blackboard*) et lit ceux de s
 | `sentiment` | Mesure le ton des news fiables et du social, **selon les consignes du contrôleur** | controleur |
 | `strategiste` | Confronte les avis et rend le verdict court / moyen terme | technicien, controleur, *economiste*, *sentiment* |
 | `chef-strategiste` | Agrège : indice, largeur de marché, news macro | strategiste (indice), *tous les titres* |
+| `analyste-titre` | Rédige la fiche détaillée de chaque action (voir ci-dessous) | chef-strategiste, collecteur, controleur |
 | `redacteur` (option `--llm`) | Claude rédige une synthèse en français à partir des seules conclusions chiffrées | chef-strategiste |
 
 *En italique : dépendances facultatives.*
 
 L'orchestrateur :
 
-- **planifie** un graphe de tâches (≈ 5 tâches par titre, 157 pour l'univers complet) ;
+- **planifie** un graphe de tâches (6 tâches par titre, 187 pour l'univers complet) ;
 - **exécute en parallèle** toute tâche dont les dépendances sont prêtes (`--workers`) — le résultat est identique à une exécution séquentielle ;
 - **retente** une tâche en échec (erreur passagère) ;
 - **dégrade proprement** : si un agent facultatif échoue (ex. sentiment), l'avis est rendu sans ce pilier avec une alerte `AGENT_FAILURE` et une confiance réduite ; si une donnée indispensable manque pour un titre, seul ce titre est retiré du rapport ;
@@ -76,6 +78,22 @@ déterministes : Claude ne fait que mettre en mots les conclusions des autres ag
 
 Pour ajouter un agent : hériter de `agents.base.Agent`, implémenter `run(task, board)`,
 puis l'enregistrer dans l'orchestrateur et l'insérer dans `Orchestrator.plan`.
+
+## Analyse par action
+
+`python -m sp500_analyzer -s META` affiche la fiche complète d'un titre ; dans le rapport
+HTML, chaque titre a la sienne (ouverte d'office quand on cible 3 titres ou moins) :
+
+- **Thèse** : avis court / moyen terme, pilier qui pèse le plus, rang dans le secteur, prudence si données incohérentes.
+- **Points forts / risques** : signaux propres au titre en priorité (le contexte macro, commun à tous, en appoint),
+  catalyseurs confirmés par la réaction du cours, alertes de données, proximité d'une résistance, volatilité élevée.
+- **Performance** sur 1 semaine, 1 / 3 / 6 mois, 1 an, en absolu et relative au S&P 500.
+- **Risque** : volatilité annualisée, ATR, bêta vs S&P 500, repli maximal sur 6 mois.
+- **Niveaux clés** : supports / résistances (pivots des 60 dernières séances), moyennes 50/200 j, extrêmes 52 semaines.
+- **Catalyseurs** : news des 7 derniers jours, ton, réaction du cours le jour même, et news écartées par le contrôleur.
+- **Réseaux sociaux** : volume, ton, buzz, part de comptes récents, score de manipulation.
+- **Pairs** : comparaison avec les autres titres du même secteur.
+- **Graphique 6 mois** (HTML) : cours, moyennes 50/200 j, supports / résistances, info-bulle au survol.
 
 ## Le moteur de cohérence
 
@@ -123,6 +141,7 @@ sp500_analyzer/
   analysis/macro.py       Pilier macro + sensibilités sectorielles
   analysis/coherence.py   Contrôles de qualité et recoupement des sources
   analysis/scoring.py     Pondération des piliers, confiance, fourchettes
+  analysis/stock.py       Fiche par action : thèse, niveaux clés, catalyseurs, risques, pairs
   engine.py             Point d'entrée programmatique (run_analysis)
   report.py             Rendu terminal / JSON / HTML
   universe.py           30 valeurs du S&P 500, profils sectoriels, fiabilité des sources

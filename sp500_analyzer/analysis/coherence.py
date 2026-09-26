@@ -140,6 +140,15 @@ def check_social(posts: list[SocialPost], now: datetime, res: CoherenceResult) -
         res.coherence -= 0.15
 
 
+def reaction_index(bars: list[Bar], published: datetime) -> int | None:
+    """Indice de la séance où le marché réagit à une news.
+
+    Publiée après la clôture (16h) => la réaction se lit à la séance suivante.
+    """
+    day = published.date() + (timedelta(days=1) if published.hour >= 16 else timedelta())
+    return next((i for i, b in enumerate(bars) if b.day >= day), None)
+
+
 def cross_check(bars: list[Bar], posts: list[SocialPost], now: datetime, res: CoherenceResult) -> None:
     """Croise les sources : la réaction du prix confirme-t-elle les news ? le social ?"""
     closes = [b.close for b in bars]
@@ -147,7 +156,6 @@ def cross_check(bars: list[Bar], posts: list[SocialPost], now: datetime, res: Co
         return
     rets = pct_returns(closes)
     sd = stdev(rets[-61:-1]) or 0.01
-    by_day = {b.day: i for i, b in enumerate(bars)}
 
     # 1. Réaction du prix le jour de chaque news fiable et tranchée de la semaine.
     confirmed, divergent = [], []
@@ -157,9 +165,7 @@ def cross_check(bars: list[Bar], posts: list[SocialPost], now: datetime, res: Co
         if now - n.published > timedelta(days=7) or abs(tone) <= 0.3:
             continue
         strong_tones.append(tone)
-        # Publiée après la clôture (16h) => la réaction se lit à la séance suivante.
-        day = n.published.date() + (timedelta(days=1) if n.published.hour >= 16 else timedelta())
-        i = next((by_day[d] for d in sorted(by_day) if d >= day), None)
+        i = reaction_index(bars, n.published)
         if i is None or i == 0:
             continue
         z = rets[i - 1] / sd

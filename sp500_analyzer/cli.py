@@ -9,7 +9,7 @@ from datetime import date
 from .agents.base import TaskRecord
 from .orchestrator import OrchestrationError, Orchestrator
 from .providers.mock import MockDataProvider
-from .report import render_html, render_text, render_trace, to_json
+from .report import render_html, render_stock_sheets, render_text, render_trace, to_json
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -21,6 +21,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-t", "--ticker", action="append", default=[],
                    help="Limiter l'analyse à ce titre et afficher son détail (répétable)")
     p.add_argument("--detail", action="append", default=[], help="Afficher le détail d'un titre (répétable)")
+    p.add_argument("-s", "--stock", action="append", default=[],
+                   help="Analyse par action : n'afficher que la fiche complète de ce titre (répétable)")
     p.add_argument("--as-of", type=date.fromisoformat, default=date(2026, 9, 25),
                    help="Dernière séance des données simulées (AAAA-MM-JJ, défaut 2026-09-25)")
     p.add_argument("--seed", type=int, default=42, help="Graine des données simulées")
@@ -41,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     provider = MockDataProvider(as_of=args.as_of, seed=args.seed)
 
     known = {s.ticker for s in provider.universe()}
-    unknown = [t for t in args.ticker + args.detail if t.upper() not in known]
+    unknown = [t for t in args.ticker + args.detail + args.stock if t.upper() not in known]
     if unknown:
         print(f"Titre(s) inconnu(s) : {', '.join(unknown)}. Disponibles : {', '.join(sorted(known))}",
               file=sys.stderr)
@@ -54,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
 
     orchestrator = Orchestrator(provider, use_llm=args.llm, max_workers=args.workers, listener=progress)
     try:
-        report = orchestrator.run(focus=args.ticker or None)
+        report = orchestrator.run(focus=(args.ticker + args.stock) or None)
     except OrchestrationError as e:
         print(f"Erreur : {e}", file=sys.stderr)
         for r in e.records:
@@ -62,7 +64,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  {r.task_id} [{r.status}] {r.error}", file=sys.stderr)
         return 1
     color = sys.stdout.isatty() and not args.no_color
-    print(render_text(report, color=color, detail=args.ticker + args.detail))
+    if args.stock and not args.ticker:
+        print(render_stock_sheets(report, args.stock, color=color))
+    else:
+        print(render_text(report, color=color, detail=args.ticker + args.detail + args.stock))
     if args.trace:
         print(render_trace(report, verbose=args.verbose))
     if args.llm and not report.narrative:

@@ -9,8 +9,11 @@ from ..analysis.coherence import CoherenceResult, assess
 from ..analysis.macro import analyze_macro, macro_summary
 from ..analysis.scoring import build_outlook
 from ..analysis.sentiment import analyze_sentiment
+from ..analysis.stock import build_stock_report
 from ..analysis.technical import analyze_technical
-from ..models import Bar, Flag, MarketReport, NewsItem, PillarResult, Security, SocialPost, TickerAnalysis
+from ..models import (
+    Bar, Flag, MarketReport, NewsItem, PillarResult, Security, SocialPost, StockReport, TickerAnalysis,
+)
 from .base import Agent, Blackboard, Task
 
 
@@ -186,3 +189,19 @@ class MarketStrategistAgent(Agent):
             breadth=breadth,
             market_news=p.news(None, since),
         )
+
+
+class StockAnalystAgent(Agent):
+    name = "analyste-titre"
+    role = "Rédige la fiche détaillée d'une action : thèse, niveaux clés, catalyseurs, risques, pairs"
+
+    def run(self, task: Task, board: Blackboard) -> StockReport:
+        t = task.ticker
+        analysis: TickerAnalysis = board.get(f"strategy:{t}")
+        data: TickerData = board.get(f"collect:{t}")
+        index_data: TickerData = board.get(f"collect:{board.provider.index().ticker}")
+        quality: CoherenceResult = board.get(f"quality:{t}")
+        market: MarketReport = board.get("market")
+        sector = [r for r in market.tickers if r.security.sector == analysis.security.sector]
+        return build_stock_report(analysis, data.bars, index_data.bars, data.news, data.posts,
+                                  quality, sector, board.now)

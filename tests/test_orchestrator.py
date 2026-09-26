@@ -70,8 +70,8 @@ class OrchestratorTests(unittest.TestCase):
         for t in tasks:
             self.assertTrue(set(t.depends_on) | set(t.optional_deps) <= ids, t.id)
         self.assertIn("strategy:AAPL", ids)
-        # macro + collecte indice, 4 tâches pour l'indice, 5 par titre, synthèse marché
-        self.assertEqual(len(tasks), 2 + 4 + 2 * 5 + 1)
+        # macro + collecte indice, 4 tâches pour l'indice, 6 par titre (dont la fiche), synthèse marché
+        self.assertEqual(len(tasks), 2 + 4 + 2 * 6 + 1)
 
     def test_dependencies_respected(self):
         log, lock = [], threading.Lock()
@@ -118,7 +118,7 @@ class OrchestratorTests(unittest.TestCase):
         self.assertEqual(len(tickers), 29)
         status = {r["task_id"]: r["status"] for r in report.trace}
         self.assertEqual(status["collect:TSLA"], "failed")
-        for k in ("quality:TSLA", "technical:TSLA", "sentiment:TSLA", "strategy:TSLA"):
+        for k in ("quality:TSLA", "technical:TSLA", "sentiment:TSLA", "strategy:TSLA", "stock:TSLA"):
             self.assertEqual(status[k], "skipped", k)
 
     def test_index_failure_aborts_with_trace(self):
@@ -139,7 +139,7 @@ class OrchestratorTests(unittest.TestCase):
         report = run_analysis(self.provider)
         text = render_trace(report)
         self.assertIn("strategiste", text)
-        self.assertIn("157 tâches", text)
+        self.assertIn("187 tâches", text)
         self.assertIn("Équipe d'agents", render_html(report))
 
 

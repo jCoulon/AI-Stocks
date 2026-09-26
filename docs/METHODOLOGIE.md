@@ -49,9 +49,12 @@ Notes d'implémentation :
 
 **Régime statistique — ratio de variance** (Lo & MacKinlay, 1988). Sur les 250 derniers
 rendements journaliers, `VR(5) = Var(rendements sur 5 j) / (5 × Var(rendements sur 1 j))`,
-avec la statistique z homoscédastique. `z > 1,96` : tendance (autocorrélation positive) ;
-`z < −1,96` : retour à la moyenne. Le poids des facteurs de momentum est multiplié par
-`1 + 0,5 × clip(z/2)` et celui des facteurs de retournement par `1 − 0,5 × clip(z/2)`.
+avec la statistique **z\* robuste à l'hétéroscédasticité** de l'article (la version
+homoscédastique signale à tort un régime dans ~10 % des cas sur des rendements à
+volatilité groupée, contre ~6 % pour z\*, au seuil nominal de 5 % — vérifié par simulation).
+`z* > 1,96` : tendance (autocorrélation positive) ;
+`z* < −1,96` : retour à la moyenne. Le poids des facteurs de momentum est multiplié par
+`1 + 0,5 × clip(z*/2)` et celui des facteurs de retournement par `1 − 0,5 × clip(z*/2)`.
 
 **Risque de krach du momentum** (Daniel & Moskowitz, 2016). Les pires pertes du momentum
 surviennent lors des rebonds de marché qui suivent une baisse prolongée. Si l'indice est
@@ -60,7 +63,8 @@ momentum est divisé par deux.
 
 **Volatilité prévue — GARCH(1,1)** (Bollerslev, 1986).
 `σ²ₜ₊₁ = ω + α·ε²ₜ + β·σ²ₜ`, estimé par maximum de vraisemblance (grille sur α, β) avec
-ciblage de variance `ω = σ²_LT × (1 − α − β)`. La variance cumulée sur h séances,
+ciblage de variance `ω = σ²_LT × (1 − α − β)`, puis recherche locale autour du meilleur
+point (vérifié sur séries simulées : α = 0,08, β = 0,90 retrouvés en moyenne à ±0,003). La variance cumulée sur h séances,
 `Σₖ [σ²_LT + (α+β)^(k−1) × (σ²ₜ₊₁ − σ²_LT)]`, remplace la règle « racine du temps » pour
 les fourchettes de cours à 5 séances (court terme) et 63 séances (moyen terme).
 

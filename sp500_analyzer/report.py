@@ -304,7 +304,8 @@ def _default(o):
 def to_json(report: MarketReport) -> str:
     data = asdict(report)
     data["disclaimer"] = DISCLAIMER
-    return json.dumps(data, default=_default, ensure_ascii=False, indent=2)
+    # allow_nan=False : garantit un JSON standard (NaN/Infinity y sont interdits).
+    return json.dumps(data, default=_default, ensure_ascii=False, indent=2, allow_nan=False)
 
 
 # -------------------------------------------------------------------- HTML

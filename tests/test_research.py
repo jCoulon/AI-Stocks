@@ -5,8 +5,7 @@ from datetime import date, datetime, timedelta
 
 from sp500_analyzer.analysis.backtest import _forward_return, _slice, run_backtest, spearman
 from sp500_analyzer.analysis.research import (
-    TickerInputs, attention_shock, build_research, fit_garch, momentum_crash_risk, news_drift,
-    percentile_ranks, price_factors, variance_ratio,
+    attention_shock, fit_garch, momentum_crash_risk, news_drift, percentile_ranks, price_factors, variance_ratio,
 )
 from sp500_analyzer.engine import run_analysis
 from sp500_analyzer.models import Bar, NewsItem, Security, SocialPost

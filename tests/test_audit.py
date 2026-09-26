@@ -1,0 +1,141 @@
+"""Tests de non-régression issus de l'audit des analyses (un test par écart corrigé)."""
+
+import json
+import math
+import random
+import unittest
+from datetime import date, datetime
+
+from sp500_analyzer.analysis.coherence import explaining_news
+from sp500_analyzer.analysis.indicators import bollinger, closes_on_calendar
+from sp500_analyzer.analysis.macro import analyze_macro
+from sp500_analyzer.analysis.research import fit_garch, variance_ratio
+from sp500_analyzer.analysis.sentiment import score_text
+from sp500_analyzer.analysis.stock import performance
+from sp500_analyzer.analysis.technical import analyze_technical
+from sp500_analyzer.models import Bar, NewsItem
+from sp500_analyzer.orchestrator import Orchestrator
+from sp500_analyzer.providers import MockDataProvider
+from sp500_analyzer.report import to_json
+from tests.test_research import bars_from_returns, weekdays
+
+
+def simulate_garch(a, b, n, seed, var_l=1e-4):
+    rng = random.Random(seed)
+    s2, out = var_l, []
+    for _ in range(n):
+        e = rng.gauss(0, math.sqrt(s2))
+        out.append(e)
+        s2 = var_l * (1 - a - b) + a * e * e + b * s2
+    return out
+
+
+class IndicatorAuditTests(unittest.TestCase):
+    def test_bollinger_uses_population_std(self):
+        closes = [float(x) for x in [1, 2, 3, 4, 5] * 4]
+        mid, up, _ = bollinger(closes, 20, 2)
+        pop_sd = math.sqrt(sum((c - 3) ** 2 for c in closes) / 20)
+        self.assertAlmostEqual(up[-1], 3 + 2 * pop_sd)
+
+
+class CalendarAlignmentTests(unittest.TestCase):
+    def setUp(self):
+        self.provider = MockDataProvider()
+        self.intc = self.provider.price_history("INTC")  # séance du mardi manquante
+        self.index = self.provider.price_history("^GSPC")
+
+    def test_closes_on_calendar_fills_gaps(self):
+        cal = [b.day for b in self.index]
+        aligned = closes_on_calendar(self.intc, cal)
+        self.assertEqual(len(aligned), len(cal))
+        self.assertEqual(aligned[-4], aligned[-5])  # mardi manquant = cours du lundi reporté
+
+    def test_five_session_return_spans_five_sessions(self):
+        start = self.index[-6].day
+        start_close = next(b.close for b in reversed(self.intc) if b.day <= start)
+        expected = self.intc[-1].close / start_close - 1
+        perf, rel = performance(self.intc, self.index)
+        self.assertAlmostEqual(perf["1 semaine"], expected)
+        short, _, _ = analyze_technical(self.intc, self.index)
+        r5 = next(s for s in short.signals if s.name == "Perf. 5 séances").value
+        self.assertAlmostEqual(r5, expected * 100)
+
+
+class SentimentAuditTests(unittest.TestCase):
+    def test_financial_phrases(self):
+        self.assertGreater(score_text("Fed holds rates steady, signals openness to cut later this year"), 0)
+        self.assertGreater(score_text("Treasury yields fall after dovish Fed statement"), 0)
+        self.assertLess(score_text("Jobless claims rise slightly"), 0)
+        self.assertGreater(score_text("Chevron rises with crude after OPEC+ extends output cuts"), 0)
+        self.assertLess(score_text("Treasury yields jump as inflation accelerates"), 0)
+        self.assertLess(score_text("Company cuts guidance"), score_text("Company cuts costs"))
+
+    def test_acquisition_is_not_positive_by_default(self):
+        self.assertEqual(score_text("Acme to acquire rival"), 0.0)
+
+
+class MacroAuditTests(unittest.TestCase):
+    def test_lookbacks_follow_calendar_not_observation_count(self):
+        # Série hebdomadaire des Fed funds : une baisse il y a 10 semaines doit compter
+        # dans « 3 mois », une baisse il y a 20 semaines non.
+        fridays = [d for d in weekdays(400) if d.weekday() == 4]
+
+        def fed(weeks_ago):
+            cut = fridays[-weeks_ago]
+            return [(d, 4.0 if d < cut else 3.75) for d in fridays]
+
+        def monetary_signal(series):
+            _, medium = analyze_macro({"fed_funds": series}, "Index", date(2026, 9, 25))
+            return next(s for s in medium.signals if s.name.startswith("Politique"))
+
+        self.assertLess(monetary_signal(fed(10)).value, 0)
+        self.assertEqual(monetary_signal(fed(20)).value, 0)
+
+
+class RobustnessAuditTests(unittest.TestCase):
+    def test_short_histories_do_not_crash_and_export_valid_json(self):
+        for history in (8, 30, 60):
+            report = Orchestrator(MockDataProvider(history=history), retries=0).run()
+            self.assertEqual(len(report.tickers), 30, history)
+            self.assertFalse([r for r in report.trace if r["status"] != "done"], history)
+            json.loads(to_json(report))  # strict : pas de NaN
+            for t in report.tickers:
+                self.assertIsNotNone(t.stock)
+
+
+class TimingAuditTests(unittest.TestCase):
+    def test_news_timing(self):
+        days = [date(2026, 9, 17), date(2026, 9, 18), date(2026, 9, 21), date(2026, 9, 22)]
+        bars = [Bar(d, 1, 1, 1, 1, 1) for d in days]
+
+        def news(dt, source="Reuters"):
+            return [NewsItem("X", dt, source, "x")]
+
+        self.assertTrue(explaining_news(bars, 2, news(datetime(2026, 9, 19, 10))))   # samedi → lundi
+        self.assertFalse(explaining_news(bars, 2, news(datetime(2026, 9, 21, 18))))  # après clôture
+        self.assertTrue(explaining_news(bars, 3, news(datetime(2026, 9, 21, 18))))   # → mardi
+        self.assertFalse(explaining_news(bars, 2, news(datetime(2026, 9, 17, 9))))   # trop ancienne
+        self.assertFalse(explaining_news(bars, 2, news(datetime(2026, 9, 21, 9), "StockBuzzDaily")))
+
+
+class StatisticsAuditTests(unittest.TestCase):
+    def test_garch_estimates_are_close_to_truth(self):
+        days = weekdays(1000)
+        fits = [fit_garch(bars_from_returns(simulate_garch(0.08, 0.90, 1000, s), days), n=1000) for s in range(4)]
+        self.assertAlmostEqual(sum(f.alpha for f in fits) / 4, 0.08, delta=0.02)
+        self.assertAlmostEqual(sum(f.beta for f in fits) / 4, 0.90, delta=0.03)
+
+    def test_variance_ratio_robust_to_volatility_clustering(self):
+        # Marche aléatoire à volatilité GARCH : pas d'autocorrélation, donc le test ne doit
+        # conclure à un régime qu'environ 5 % du temps.
+        days = weekdays(260)
+        n = 200
+        false_regimes = sum(
+            abs(variance_ratio(bars_from_returns(simulate_garch(0.12, 0.86, 260, s), days))[1]) > 1.96
+            for s in range(n)
+        )
+        self.assertLess(false_regimes / n, 0.09)
+
+
+if __name__ == "__main__":
+    unittest.main()

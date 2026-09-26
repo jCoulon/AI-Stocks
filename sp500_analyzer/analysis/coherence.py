@@ -75,10 +75,7 @@ def check_abnormal_moves(bars: list[Bar], news: list[NewsItem], res: CoherenceRe
         if abs(z) < 4 and vol_ratio < 2.5:
             continue
         day = bars[i].day
-        related = [n for n in news
-                   if day - timedelta(days=1) <= n.published.date() <= day
-                   and source_reliability(n.source) >= RELIABLE_THRESHOLD]
-        if related:
+        if explaining_news(bars, i, news):
             continue
         res.add("UNEXPLAINED_MOVE", "warning",
                 f"Mouvement de {r * 100:+.1f}% ({z:+.1f} σ, volume x{vol_ratio:.1f}) le {day.isoformat()} "
@@ -147,6 +144,23 @@ def reaction_index(bars: list[Bar], published: datetime) -> int | None:
     """
     day = published.date() + (timedelta(days=1) if published.hour >= 16 else timedelta())
     return next((i for i, b in enumerate(bars) if b.day >= day), None)
+
+
+def explaining_news(bars: list[Bar], i: int, news: list[NewsItem]) -> list[NewsItem]:
+    """News de source fiable pouvant expliquer le mouvement de la séance i.
+
+    Une news explique la séance où le marché y réagit (voir reaction_index : après 16h ou
+    le week-end, c'est la séance suivante), ou la séance d'après (réaction étalée sur deux
+    jours). Une news publiée après la clôture de la séance i ne peut pas l'expliquer.
+    """
+    out = []
+    for n in news:
+        if source_reliability(n.source) < RELIABLE_THRESHOLD:
+            continue
+        j = reaction_index(bars, n.published)
+        if j is not None and i - 1 <= j <= i:
+            out.append(n)
+    return out
 
 
 def cross_check(bars: list[Bar], posts: list[SocialPost], now: datetime, res: CoherenceResult) -> None:

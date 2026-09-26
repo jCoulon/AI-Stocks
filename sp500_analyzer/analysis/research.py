@@ -24,8 +24,8 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from ..models import Bar, NewsItem, PillarResult, Signal, SocialPost
-from ..universe import RELIABLE_THRESHOLD, source_reliability
-from .indicators import clip, mean, pct_returns, stdev
+from .coherence import explaining_news
+from .indicators import clip, closes_on_calendar, mean, pct_returns, stdev
 
 
 # --------------------------------------------------------------------------- références
@@ -134,16 +134,26 @@ def price_factors(bars: list[Bar], index_bars: list[Bar]) -> dict[str, Optional[
     out: dict[str, Optional[float]] = {k: None for k in ("mom_12_1", "tsmom", "high52", "ivol", "beta",
                                                           "strev", "max", "abvol")}
     n = len(closes)
+    # Rendements sur N séances mesurés sur le calendrier de l'indice (trous du flux comblés).
+    cal = closes_on_calendar(bars, [b.day for b in index_bars]) if index_bars else closes
+
+    def ret(a: int, b: int = 0) -> Optional[float]:
+        """Rendement entre t-a et t-b séances."""
+        if len(cal) <= a or cal[-a - 1] is None or cal[-b - 1] is None:
+            return None
+        return cal[-b - 1] / cal[-a - 1] - 1
+
     if n > 253:
         # Rendement de t-12 mois à t-1 mois : on saute le dernier mois (effet de retournement).
-        out["mom_12_1"] = closes[-22] / closes[-253] - 1
+        out["mom_12_1"] = ret(252, 21)
         vol_ann = (stdev(rets[-126:]) or 0.01) * math.sqrt(252)
         # Rendement 12 mois divisé par la volatilité : momentum « à risque constant ».
-        out["tsmom"] = (closes[-1] / closes[-253] - 1) / vol_ann
+        r12 = ret(252)
+        out["tsmom"] = r12 / vol_ann if r12 is not None else None
     if n >= 252:
         out["high52"] = closes[-1] / max(b.high for b in bars[-252:])
     if n > 22:
-        out["strev"] = closes[-1] / closes[-22] - 1
+        out["strev"] = ret(21)
         out["max"] = max(rets[-21:])
     if n > 60:
         ys, xs = _aligned_returns(bars, index_bars, 63)
@@ -183,8 +193,6 @@ def news_drift(bars: list[Bar], news: list[NewsItem]) -> Optional[float]:
     if len(rets) < 70:
         return None
     sd = stdev(rets[-66:-5]) or 0.01
-    reliable_days = {n.published.date() + (timedelta(days=1) if n.published.hour >= 16 else timedelta())
-                     for n in news if source_reliability(n.source) >= RELIABLE_THRESHOLD}
     value, events = 0.0, 0
     for k in range(1, 6):
         r = rets[-k]
@@ -193,8 +201,7 @@ def news_drift(bars: list[Bar], news: list[NewsItem]) -> Optional[float]:
             continue
         events += 1
         strength = min(abs(z) / 4, 1.0)
-        day = bars[-k].day
-        explained = any(day - timedelta(days=3) < d <= day for d in reliable_days)
+        explained = bool(explaining_news(bars, len(bars) - k, news))
         # Continuation si la news explique le mouvement ; retournement (plus faible) sinon.
         value += math.copysign(strength, r) if explained else -0.5 * math.copysign(strength, r)
     return clip(value) if events else None
@@ -217,21 +224,32 @@ def attention_shock(posts: list[SocialPost], now: Optional[datetime]) -> Optiona
 # ------------------------------------------------------------------- diagnostics
 
 def variance_ratio(bars: list[Bar], q: int = 5, n: int = 250) -> tuple[float, float]:
-    """Test du ratio de variance de Lo & MacKinlay (1988), version homoscédastique.
+    """Test du ratio de variance de Lo & MacKinlay (1988).
 
     VR > 1 : les rendements s'autocorrèlent positivement (tendance) ;
-    VR < 1 : ils se retournent (retour à la moyenne). Renvoie (VR, statistique z)."""
+    VR < 1 : ils se retournent (retour à la moyenne).
+    Renvoie (VR, z*) où z* est la statistique robuste à l'hétéroscédasticité de l'article :
+    la version homoscédastique signale à tort un régime dans ~10 % des cas sur des rendements
+    à volatilité groupée (type GARCH), contre ~6 % pour z* (au seuil nominal de 5 %).
+    """
     closes = [b.close for b in bars[-(n + 1):]]
     r = [math.log(closes[i] / closes[i - 1]) for i in range(1, len(closes))]
     T = len(r)
     if T < 5 * q:
         return 1.0, 0.0
     mu = mean(r)
-    var1 = sum((x - mu) ** 2 for x in r) / (T - 1)
+    d = [x - mu for x in r]
+    ss = sum(x * x for x in d)
+    if ss == 0:
+        return 1.0, 0.0
+    var1 = ss / (T - 1)
     m = q * (T - q + 1) * (1 - q / T)
     varq = sum((sum(r[i:i + q]) - q * mu) ** 2 for i in range(T - q + 1)) / m
-    vr = varq / var1 if var1 else 1.0
-    z = (vr - 1) / math.sqrt(2 * (2 * q - 1) * (q - 1) / (3 * q * T))
+    vr = varq / var1
+    # θ(q) = Σ_j [2(q-j)/q]² δ(j), δ(j) = T Σ_t d_t² d_{t-j}² / (Σ_t d_t²)²
+    theta = sum((2 * (q - j) / q) ** 2 * T * sum(d[t] ** 2 * d[t - j] ** 2 for t in range(j, T)) / ss ** 2
+                for j in range(1, q))
+    z = (vr - 1) * math.sqrt(T / theta) if theta > 0 else 0.0
     return vr, z
 
 
@@ -266,18 +284,36 @@ def fit_garch(bars: list[Bar], n: int = 500) -> Optional[GarchFit]:
     var = sum(x * x for x in e) / len(e)
     if var <= 0:
         return None
+    def loglik(a: float, b: float) -> tuple[float, float]:
+        omega = var * (1 - a - b)
+        s2, ll = var, 0.0
+        for x in e:
+            ll -= 0.5 * (math.log(s2) + x * x / s2)
+            s2 = omega + a * x * x + b * s2
+        return ll, s2
+
+    def admissible(a: float, b: float) -> bool:
+        return a > 0 and b >= 0 and a + b < 0.995
+
+    # 1) grille grossière ; 2) recherche locale par coordonnées autour du meilleur point.
     best: Optional[tuple[float, float, float, float]] = None
     for a in [0.01, 0.02, 0.04, 0.06, 0.08, 0.10, 0.13, 0.16, 0.20, 0.25]:
         for b in [0.0, 0.2, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.84, 0.87, 0.9, 0.92, 0.94, 0.96, 0.98]:
-            if a + b >= 0.995:
-                continue
-            omega = var * (1 - a - b)
-            s2, ll = var, 0.0
-            for x in e:
-                ll -= 0.5 * (math.log(s2) + x * x / s2)
-                s2 = omega + a * x * x + b * s2
-            if best is None or ll > best[0]:
-                best = (ll, a, b, s2)
+            if admissible(a, b):
+                ll, s2 = loglik(a, b)
+                if best is None or ll > best[0]:
+                    best = (ll, a, b, s2)
+    for step in (0.01, 0.005, 0.0025):
+        improved = True
+        while improved:
+            improved = False
+            _, a0, b0, _ = best
+            for da, db in ((step, 0), (-step, 0), (0, step), (0, -step), (step, -step), (-step, step)):
+                a, b = a0 + da, b0 + db
+                if admissible(a, b):
+                    ll, s2 = loglik(a, b)
+                    if ll > best[0] + 1e-9:
+                        best, improved = (ll, a, b, s2), True
     _, a, b, s2_next = best
     return GarchFit(a, b, var * (1 - a - b), var, s2_next)
 

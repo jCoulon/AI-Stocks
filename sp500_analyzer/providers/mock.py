@@ -179,7 +179,7 @@ class MockDataProvider(DataProvider):
         n = len(self._days)
         self._market = [rng.gauss(0.0006, MARKET_DAILY_VOL) for _ in range(n)]
         # Petite correction il y a ~3 mois pour donner du relief à l'historique.
-        for i in range(n - 70, n - 55):
+        for i in range(max(0, n - 70), max(0, n - 55)):
             self._market[i] -= 0.0045
         self._market[-5:] = LAST_WEEK_MARKET
 
@@ -296,7 +296,7 @@ class MockDataProvider(DataProvider):
         n = len(self._days)
         for ticker, prof in self._profiles.items():
             rets = self._returns[ticker]
-            i = n - 30 - rng.randint(0, 4)
+            i = max(6, n - 30 - rng.randint(0, 4))
             while i < n - 5:
                 recent = sum(rets[i - 5:i])
                 bias = math.tanh(recent / (prof.vol / math.sqrt(252) * 3)) + rng.gauss(0, 0.5)
@@ -320,13 +320,14 @@ class MockDataProvider(DataProvider):
         out: dict[str, list[SocialPost]] = {}
         n = len(self._days)
         window = self._days[-10:]
+        offset = n - len(window)
         for ticker, prof in self._profiles.items():
             posts: list[SocialPost] = []
             events = {sc.day: sc for sc in self._scenarios.get(ticker, [])}
             daily_vol = prof.vol / math.sqrt(252)
             for j, d in enumerate(window):
                 week_idx = j - 5
-                r = self._returns[ticker][n - 10 + j]
+                r = self._returns[ticker][offset + j]
                 bias = 0.6 * math.tanh(r / daily_vol)
                 count = prof.popularity * 2
                 sc = events.get(week_idx) or events.get(week_idx - 1)  # buzz jusqu'au lendemain
@@ -372,7 +373,7 @@ class MockDataProvider(DataProvider):
         spread = [0.30 + 0.15 * i / n + rng.gauss(0, 0.02) for i in range(n)]
         macro["us2y"] = [(d, round(y - s, 3)) for d, y, s in zip(days, y10s, spread)]
 
-        fed_cut = days[n - 70]
+        fed_cut = days[max(0, n - 70)]
         macro["fed_funds"] = [(d, 4.00 if d < fed_cut else 3.75) for d in days]
 
         # VIX dérivé de la volatilité réalisée du marché.

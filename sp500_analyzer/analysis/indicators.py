@@ -83,7 +83,9 @@ def bollinger(closes: Sequence[float], n: int = 20, k: float = 2.0) -> tuple[Val
     lo: Values = [None] * len(closes)
     for i in range(n - 1, len(closes)):
         w = closes[i - n + 1:i + 1]
-        sd = stdev(w)
+        # Convention de John Bollinger : écart-type de population (division par n).
+        m = mid[i]
+        sd = math.sqrt(sum((v - m) ** 2 for v in w) / n)
         up[i] = mid[i] + k * sd
         lo[i] = mid[i] - k * sd
     return mid, up, lo
@@ -102,6 +104,22 @@ def atr(bars: Sequence[Bar], n: int = 14) -> Values:
     for i in range(n + 1, len(bars)):
         prev = (prev * (n - 1) + trs[i]) / n
         out[i] = prev
+    return out
+
+
+def closes_on_calendar(bars: Sequence[Bar], days: Sequence) -> list[Optional[float]]:
+    """Clôture connue à chaque date du calendrier (dernier cours reporté si séance manquante).
+
+    Sert à calculer des rendements « sur N séances de bourse » corrects même quand le flux
+    du titre a un trou : sans cela, un rendement « 5 séances » en couvrirait 6.
+    """
+    out: list[Optional[float]] = []
+    j, last = 0, None
+    for d in days:
+        while j < len(bars) and bars[j].day <= d:
+            last = bars[j].close
+            j += 1
+        out.append(last)
     return out
 
 

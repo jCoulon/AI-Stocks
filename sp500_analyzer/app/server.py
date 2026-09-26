@@ -16,7 +16,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
 from typing import Callable, Optional
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 
 from ..models import MarketReport
 from ..orchestrator import Orchestrator

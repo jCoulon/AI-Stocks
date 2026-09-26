@@ -10,7 +10,7 @@ from ..models import (
     Bar, Catalyst, KeyLevel, NewsItem, Peer, Signal, SocialPost, StockReport, TickerAnalysis,
 )
 from .coherence import CoherenceResult, reaction_index
-from .indicators import mean, pct_returns, sma, stdev
+from .indicators import closes_on_calendar, mean, pct_returns, sma, stdev
 from .sentiment import score_text
 
 HORIZONS = [("1 semaine", 5), ("1 mois", 21), ("3 mois", 63), ("6 mois", 126), ("1 an", 252)]
@@ -20,22 +20,17 @@ PILLAR_NAMES = {"technique": "l'analyse technique", "sentiment": "le sentiment (
 CHART_DAYS = 126
 
 
-def _ret(closes: list[float], n: int) -> Optional[float]:
-    return closes[-1] / closes[-n - 1] - 1 if len(closes) > n else None
-
-
 def performance(bars: list[Bar], index_bars: list[Bar]) -> tuple[dict[str, float], dict[str, float]]:
-    closes = [b.close for b in bars]
-    idx = {b.day: b.close for b in index_bars}
+    """Rendements sur N séances du calendrier de l'indice (séances manquantes comblées)."""
+    closes = closes_on_calendar(bars, [b.day for b in index_bars])
+    idx = [b.close for b in index_bars]
     perf, rel = {}, {}
     for label, n in HORIZONS:
-        r = _ret(closes, n)
-        if r is None:
+        if len(closes) <= n or closes[-n - 1] is None or closes[-1] is None:
             continue
+        r = closes[-1] / closes[-n - 1] - 1
         perf[label] = r
-        start = bars[-n - 1].day
-        if start in idx and bars[-1].day in idx:
-            rel[label] = (1 + r) / (idx[bars[-1].day] / idx[start]) - 1
+        rel[label] = (1 + r) / (idx[-1] / idx[-n - 1]) - 1
     return perf, rel
 
 
@@ -57,8 +52,9 @@ def risk_metrics(bars: list[Bar], index_bars: list[Bar], atr: float) -> dict[str
         if var:
             out["Bêta vs S&P 500"] = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / var
 
-    peak, mdd = closes[-CHART_DAYS], 0.0
-    for c in closes[-CHART_DAYS:]:
+    window = closes[-CHART_DAYS:]  # 6 mois, ou tout l'historique s'il est plus court
+    peak, mdd = window[0], 0.0
+    for c in window:
         peak = max(peak, c)
         mdd = min(mdd, c / peak - 1)
     out["Repli max. 6 mois"] = mdd

@@ -15,15 +15,36 @@ POSITIVE = {
     "strong", "growth", "buyback", "approval", "approves", "win", "wins", "soar", "soars", "jump",
     "jumps", "rally", "rallies", "outperform", "bullish", "boost", "boosts", "tops", "gain", "gains",
     "rise", "rises", "upbeat", "impresses", "improve", "improves", "breakout", "long", "buy",
-    "momentum", "great", "loving", "cools", "dovish", "acquire", "acquisition", "extend",
+    "momentum", "great", "loving", "cools", "dovish", "eases",
 }
 NEGATIVE = {
     "miss", "misses", "cut", "cuts", "downgrade", "downgrades", "probe", "investigation", "lawsuit",
     "halt", "halts", "recall", "fall", "falls", "plunge", "plunges", "weak", "warning", "warns",
-    "slump", "slumps", "decline", "declines", "bearish", "delay", "delays", "layoffs", "fine",
+    "slump", "slumps", "decline", "declines", "bearish", "delay", "delays", "layoffs", "fined",
     "fraud", "inspections", "slips", "pressure", "setback", "concerns", "slowing", "overvalued",
     "sold", "risk", "breaking", "dips", "cautious", "away", "sell",
 }
+# Expressions financières dont le sens diffère de celui des mots isolés (cf. Loughran &
+# McDonald, 2011 : un dictionnaire générique classe mal le vocabulaire financier).
+# Elles sont reconnues avant les mots et « consomment » leurs mots. Point de vue : actionnaire.
+PHRASES: dict[tuple[str, ...], float] = {
+    # Politique monétaire et taux : une détente est favorable aux actions.
+    ("openness", "to", "cut"): 1.0, ("rate", "cut"): 1.0, ("rate", "cuts"): 1.0,
+    ("cut", "rates"): 1.0, ("cuts", "rates"): 1.0, ("yields", "fall"): 1.0, ("yields", "drop"): 1.0,
+    ("yields", "rise"): -1.0, ("yields", "jump"): -1.0, ("yields", "surge"): -1.0,
+    ("rate", "hike"): -1.0, ("rate", "hikes"): -1.0, ("raises", "rates"): -1.0, ("hikes", "rates"): -1.0,
+    # Inflation et emploi : « hausse » est ici une mauvaise nouvelle.
+    ("inflation", "cools"): 1.0, ("inflation", "eases"): 1.0, ("inflation", "falls"): 1.0,
+    ("inflation", "rises"): -1.0, ("inflation", "accelerates"): -1.0, ("inflation", "jumps"): -1.0,
+    ("claims", "rise"): -1.0, ("claims", "jump"): -1.0, ("claims", "fall"): 1.0,
+    ("unemployment", "rises"): -1.0, ("unemployment", "falls"): 1.0,
+    # Pétrole : une réduction de production n'est pas une « coupe » négative pour l'émetteur.
+    ("output", "cuts"): 0.0, ("production", "cuts"): 0.0,
+    # Guidance et dividendes.
+    ("cuts", "guidance"): -1.5, ("guidance", "cut"): -1.5, ("cuts", "dividend"): -1.5,
+    ("raises", "guidance"): 1.5, ("raises", "dividend"): 1.0,
+}
+_MAX_PHRASE = max(len(k) for k in PHRASES)
 NEGATIONS = {"not", "no", "never", "without"}
 EMOJI = {"🚀": 0.6, "📈": 0.5, "📉": -0.5, "💀": -0.5}
 _WORD = re.compile(r"[a-z']+")
@@ -33,11 +54,20 @@ def score_text(text: str) -> float:
     """Score lexical simple dans [-1, 1]."""
     words = _WORD.findall(text.lower())
     total = 0.0
-    for i, w in enumerate(words):
-        v = 1.0 if w in POSITIVE else -1.0 if w in NEGATIVE else 0.0
+    i = 0
+    while i < len(words):
+        for size in range(min(_MAX_PHRASE, len(words) - i), 1, -1):
+            phrase = tuple(words[i:i + size])
+            if phrase in PHRASES:
+                v, step = PHRASES[phrase], size
+                break
+        else:
+            w = words[i]
+            v, step = (1.0 if w in POSITIVE else -1.0 if w in NEGATIVE else 0.0), 1
         if v and i > 0 and words[i - 1] in NEGATIONS:
             v = -v
         total += v
+        i += step
     total += sum(val * text.count(e) for e, val in EMOJI.items())
     return math.tanh(total / 1.5)
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, time, timedelta, datetime
+from datetime import datetime, time, timedelta
 
 from ..analysis.coherence import CoherenceResult, assess
 from ..analysis.macro import analyze_macro, macro_summary
@@ -202,10 +202,16 @@ class MarketStrategistAgent(Agent):
         index = board.get(f"strategy:{p.index().ticker}")
         results: list[TickerAnalysis] = [r for t in self.tickers if (r := board.get(f"strategy:{t}"))]
         n = len(results) or 1
+
+        def share_above(key: str) -> float:
+            # Rapporté aux seuls titres dont la moyenne est calculable (historique suffisant).
+            known = [r for r in results if r.stats.get(key) is not None]
+            return sum(r.last_close > r.stats[key] for r in known) / len(known) if known else 0.0
+
         breadth = {
             "advancers_week": sum(r.week_return > 0 for r in results) / n,
-            "above_sma50": sum(r.last_close > r.stats.get("sma50", float("inf")) for r in results) / n,
-            "above_sma200": sum(r.last_close > r.stats.get("sma200", float("inf")) for r in results) / n,
+            "above_sma50": share_above("sma50"),
+            "above_sma200": share_above("sma200"),
             "short_bullish": sum(r.short.score >= 0.12 for r in results) / n,
             "short_bearish": sum(r.short.score <= -0.12 for r in results) / n,
         }

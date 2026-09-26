@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 
 from ..models import Bar, PillarResult, Signal
-from .indicators import atr, bollinger, clip, ema, macd, mean, pct_returns, rsi, sma, stdev
+from .indicators import atr, bollinger, clip, closes_on_calendar, ema, macd, mean, pct_returns, rsi, sma, stdev
 
 
 def _last(values):
@@ -22,6 +22,25 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
 
     short = PillarResult("technique", "court")
     medium = PillarResult("technique", "moyen")
+
+    # Rendements sur N séances : mesurés sur le calendrier de l'indice (séances manquantes
+    # du titre comblées par le dernier cours), pour comparer des périodes identiques.
+    if index_bars:
+        aligned = closes_on_calendar(bars, [b.day for b in index_bars])
+        idx = [b.close for b in index_bars]
+    else:
+        aligned, idx = list(closes), None
+
+    def ret_n(n: int) -> float | None:
+        if len(aligned) <= n or aligned[-n - 1] is None or aligned[-1] is None:
+            return None
+        return aligned[-1] / aligned[-n - 1] - 1
+
+    def rel_n(n: int) -> float | None:
+        r = ret_n(n)
+        if r is None or idx is None or len(idx) <= n:
+            return None
+        return (1 + r) / (idx[-1] / idx[-n - 1]) - 1
 
     # ---------------------------------------------------------- court terme
     r = _last(rsi(closes, 14))
@@ -46,8 +65,8 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
         short.signals.append(Signal("MACD histogramme", h, score, 0.2,
                                     f"{'haussier' if h > 0 else 'baissier'}, {'accélère' if slope * h > 0 else 'ralentit'}"))
 
-    if len(closes) > 5:
-        r5 = c / closes[-6] - 1
+    r5 = ret_n(5)
+    if r5 is not None:
         short.signals.append(Signal("Perf. 5 séances", r5 * 100, 0.8 * math.tanh(r5 / (vol_d * math.sqrt(5))), 0.15,
                                     f"{r5 * 100:+.1f}% sur la semaine"))
 
@@ -59,16 +78,15 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
                                     "hors bande haute (extension)" if pb > 1 else "hors bande basse" if pb < 0
                                     else "dans les bandes"))
 
-    if len(volumes) >= 55 and len(closes) > 5:
+    if len(volumes) >= 55 and r5 is not None:
         vr = mean(volumes[-5:]) / mean(volumes[-55:-5])
-        direction = 1 if c >= closes[-6] else -1
+        direction = 1 if r5 >= 0 else -1
         score = direction * clip((vr - 1) / 0.8) if vr > 1.1 else 0.0
         short.signals.append(Signal("Volume 5j / 50j", vr, score, 0.1,
                                     "volumes confirment le mouvement" if vr > 1.3 else "volumes normaux"))
 
-    if index_bars and len(index_bars) > 5 and len(closes) > 5:
-        idx = [b.close for b in index_bars]
-        rel = (c / closes[-6]) / (idx[-1] / idx[-6]) - 1
+    rel = rel_n(5)
+    if rel is not None:
         short.signals.append(Signal("Force relative 5j vs S&P", rel * 100, math.tanh(rel / (vol_d * 2)), 0.05,
                                     "surperforme l'indice" if rel > 0 else "sous-performe l'indice"))
 
@@ -81,8 +99,8 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
         d200 = c / s200[-1] - 1
         medium.signals.append(Signal("Cours vs SMA200", d200 * 100, math.tanh(d200 / 0.08), 0.2,
                                      f"{d200 * 100:+.1f}% vs moyenne 200 j"))
-    if len(closes) > 63:
-        r63 = c / closes[-64] - 1
+    r63 = ret_n(63)
+    if r63 is not None:
         medium.signals.append(Signal("Momentum 3 mois", r63 * 100, math.tanh(r63 / (vol_d * math.sqrt(63))), 0.2,
                                      f"{r63 * 100:+.1f}% sur 3 mois"))
     hi252 = max(closes[-252:])
@@ -99,17 +117,17 @@ def analyze_technical(bars: list[Bar], index_bars: list[Bar] | None = None) -> t
         score = -0.4 if vr > 1.5 else 0.2 if vr < 0.8 else 0.0
         medium.signals.append(Signal("Régime de volatilité", vr, score, 0.1,
                                      "volatilité en hausse" if vr > 1.5 else "volatilité contenue" if vr < 0.8 else "volatilité normale"))
-    if index_bars and len(index_bars) > 63 and len(closes) > 63:
-        idx = [b.close for b in index_bars]
-        rel = (c / closes[-64]) / (idx[-1] / idx[-64]) - 1
+    rel = rel_n(63)
+    if rel is not None:
         medium.signals.append(Signal("Force relative 3m vs S&P", rel * 100, math.tanh(rel / 0.08), 0.1,
                                      "surperforme l'indice" if rel > 0 else "sous-performe l'indice"))
 
     stats = {
         "atr": a,
         "daily_vol": vol_d,
-        "rsi": r if r is not None else float("nan"),
-        "sma50": s50[-1] or float("nan"),
-        "sma200": s200[-1] or float("nan"),
+        # None (et non NaN) quand l'historique est trop court : NaN n'est pas du JSON valide.
+        "rsi": r,
+        "sma50": s50[-1],
+        "sma200": s200[-1],
     }
     return short, medium, stats

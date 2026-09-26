@@ -30,7 +30,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 100
+    timeout-minutes: 120
     steps:
       # Dernier état de la branche (et non le commit déclencheur) : un run mis en file
       # d'attente repart des données enregistrées par le run précédent.
@@ -67,6 +67,22 @@ jobs:
         run: |
           python -u scripts/fetch_news_macro.py --only news --start "${{ github.event.inputs.start || '2026-01-01' }}" \
             --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data --budget 62
+
+      - name: Cache du modèle FinBERT
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            ~/.cache/pip
+          key: finbert-${{ runner.os }}-v1
+
+      - name: Ton FinBERT des nouveaux titres
+        timeout-minutes: 20
+        continue-on-error: true
+        run: |
+          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet "transformers>=4.40,<5"
+          python -u scripts/score_finbert.py --data data
 
       - name: Enregistrement dans la branche
         if: always()

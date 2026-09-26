@@ -203,13 +203,18 @@ Deux workflows GitHub Actions téléchargent de vraies données et les enregistr
 | « Données de marché réelles » | Yahoo Finance | `daily/` cours ajustés 2 ans, `intraday_10min/` barres de 10 min |
 | « News et macro réelles » | GDELT | `news/` articles de sources connues (≈ 3 derniers mois seulement) |
 | | SEC EDGAR | `sec/` dépôts 8-K, 10-Q, 10-K (faits officiels, horodatés) |
-| | FRED | `macro/` taux 10 et 2 ans, Fed funds, VIX, pétrole, inflation, chômage |
+| | FRED (sinon Trésor, Fed de NY, BLS, Yahoo) | `macro/` taux 10 et 2 ans, Fed funds, VIX, pétrole, inflation, chômage |
+| « News RSS et FinBERT » (toutes les 3 h une fois sur `main`) | Yahoo Finance, Nasdaq | `news/rss/` titres par action, historique construit au fil des collectes |
+| | FinBERT (open source) | `news/finbert.csv` ton de chaque titre, qui remplace le lexique |
 
 ```bash
 python -m sp500_analyzer --donnees data --backtest-periode 2026-07-01:2026-09-25
 ```
 
 Les dépôts SEC expliquent les mouvements de prix mais n'entrent pas dans le ton des news.
+Le ton d'un titre vient de FinBERT (ProsusAI/finbert, modèle entraîné sur des textes financiers :
+P(positif) − P(négatif)) quand il a été calculé par le workflow, sinon du lexique financier.
+Le modèle ne tourne que sur GitHub Actions : l'outil lit seulement les scores en cache.
 Les séries mensuelles sont datées de leur publication (prudente), pas du mois mesuré.
 Limites : pas de réseaux sociaux (aucune source historique gratuite), pas d'ISM, de ratio
 put/call ni d'enquête AAII ; GDELT couvre mal la presse financière payante.

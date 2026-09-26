@@ -128,6 +128,11 @@ FRED_SERIES: dict[str, tuple[str, str, str]] = {
 _TITLE_KEY = re.compile(r"[^a-z0-9]+")
 
 
+def title_key(title: str) -> str:
+    """Clé de dédoublonnage d'un titre (casse et ponctuation ignorées)."""
+    return _TITLE_KEY.sub(" ", title.lower()).strip()
+
+
 def http_get(url: str, headers: Optional[dict] = None, retries: int = 4, timeout: float = 30.0,
              backoff: float = 5.0,
              retry_if: Callable[[str], bool] = lambda body: False, sleep: Callable[[float], None] = time.sleep) -> str:
@@ -201,7 +206,7 @@ def to_news_rows(articles: list[dict]) -> list[tuple[datetime, str, str, str, st
         except (KeyError, ValueError):
             continue
         published = seen.astimezone(NEW_YORK).replace(tzinfo=None)
-        key = _TITLE_KEY.sub(" ", title.lower()).strip()
+        key = title_key(title)
         if key not in rows or published < rows[key][0]:
             rows[key] = (published, source, a.get("domain", ""), title, a.get("url", ""))
     return sorted(rows.values())
@@ -232,7 +237,7 @@ def rebuild_ticker_file(folder: Path, ticker: str) -> int:
     rows: dict[tuple, tuple] = {}
     for path in sorted((folder / "fenetres" / ticker).glob("*.csv")):
         for row in read_news_rows(path):
-            key = _TITLE_KEY.sub(" ", row[3].lower()).strip()
+            key = title_key(row[3])
             if key not in rows or row[0] < rows[key][0]:
                 rows[key] = row
     write_news_csv(folder / f"{ticker}.csv", sorted(rows.values()))

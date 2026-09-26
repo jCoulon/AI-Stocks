@@ -72,6 +72,11 @@ def score_text(text: str) -> float:
     return math.tanh(total / 1.5)
 
 
+def headline_tone(item: NewsItem) -> float:
+    """Ton d'un titre : score précalculé (FinBERT) s'il existe, sinon lexique financier."""
+    return item.tone if item.tone is not None else score_text(item.headline)
+
+
 def _age_days(ts: datetime, now: datetime) -> float:
     return max(0.0, (now - ts).total_seconds() / 86400)
 
@@ -81,7 +86,7 @@ def news_score(items: list[NewsItem], now: datetime, half_life: float) -> tuple[
     num = den = 0.0
     for it in items:
         w = source_reliability(it.source) * 0.5 ** (_age_days(it.published, now) / half_life)
-        num += w * score_text(it.headline)
+        num += w * headline_tone(it)
         den += w
     return (num / den if den else 0.0), den
 

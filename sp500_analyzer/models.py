@@ -31,6 +31,8 @@ class NewsItem:
     published: datetime
     source: str
     headline: str
+    #: Ton précalculé du titre (-1 à 1, ex. FinBERT) ; None = calculé par le lexique.
+    tone: Optional[float] = None
 
 
 @dataclass(frozen=True)

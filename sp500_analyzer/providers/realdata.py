@@ -3,6 +3,8 @@
 
   <dossier>/daily/<TICKER>.csv   cours quotidiens ajustés (voir CsvPriceProvider)
   <dossier>/news/<TICKER>.csv    articles GDELT de sources connues ; news/MARCHE.csv = marché
+  <dossier>/news/rss/<TICKER>.csv  titres des flux RSS Yahoo Finance / Nasdaq (collecte continue)
+  <dossier>/news/finbert.csv     ton FinBERT de chaque titre (sinon : lexique financier)
   <dossier>/sec/<TICKER>.csv     dépôts réglementaires (8-K, 10-Q, 10-K...)
   <dossier>/macro/<clé>.csv      séries FRED datées de leur publication
 
@@ -20,15 +22,26 @@ from typing import Optional
 
 from ..models import NewsItem, Series, SocialPost
 from .csv_prices import CsvPriceProvider
-from .realnews import MARKET, SEC_SOURCE
+from .finbert import load_scores
+from .realnews import MARKET, SEC_SOURCE, title_key
 
 
-def read_news(path: Path, ticker: Optional[str]) -> list[NewsItem]:
-    if not path.exists():
-        return []
-    with open(path, newline="", encoding="utf-8") as f:
-        return [NewsItem(ticker, datetime.fromisoformat(r["Published"]), r["Source"], r["Title"])
-                for r in csv.DictReader(f) if r.get("Title")]
+def read_news(paths: list[Path], ticker: Optional[str], tones: dict[str, float]) -> list[NewsItem]:
+    """News de plusieurs fichiers (GDELT, RSS), dédoublonnées par titre, avec le ton FinBERT
+    quand il a été calculé."""
+    items: dict[str, NewsItem] = {}
+    for path in paths:
+        if not path.exists():
+            continue
+        with open(path, newline="", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if not r.get("Title"):
+                    continue
+                key = title_key(r["Title"])
+                item = NewsItem(ticker, datetime.fromisoformat(r["Published"]), r["Source"], r["Title"], tones.get(key))
+                if key not in items or item.published < items[key].published:
+                    items[key] = item
+    return list(items.values())
 
 
 def read_sec(path: Path, ticker: str) -> list[NewsItem]:
@@ -50,8 +63,11 @@ class RealDataProvider(CsvPriceProvider):
         super().__init__(root / "daily", as_of)
         self.root = root
         self._news: dict[Optional[str], list[NewsItem]] = {}
+        #: Ton FinBERT par titre (vide : le lexique est utilisé)
+        self.tones = load_scores(root)
         for t in [s.ticker for s in self.universe()] + [None]:
-            items = read_news(root / "news" / f"{t or MARKET}.csv", t)
+            name = f"{t or MARKET}.csv"
+            items = read_news([root / "news" / name, root / "news" / "rss" / name], t, self.tones)
             if t:
                 items += read_sec(root / "sec" / f"{t}.csv", t)
             self._news[t] = sorted(items, key=lambda n: n.published)
@@ -75,6 +91,8 @@ class RealDataProvider(CsvPriceProvider):
         n_press = sum(1 for items in self._news.values() for n in items if n.source != SEC_SOURCE)
         n_sec = sum(1 for items in self._news.values() for n in items if n.source == SEC_SOURCE)
         parts = [f"{n_press} articles de presse" + (f" depuis le {self.news_start:%d/%m/%Y}" if self.news_start else ""),
-                 f"{n_sec} dépôts SEC", f"macro : {', '.join(self._macro) or 'aucune série'}",
+                 f"{n_sec} dépôts SEC",
+                 f"ton FinBERT : {sum(n.tone is not None for items in self._news.values() for n in items)}/{n_press} titres"
+                 if self.tones else "ton : lexique", f"macro : {', '.join(self._macro) or 'aucune série'}",
                  "réseaux sociaux : aucune source"]
         return " ; ".join(parts)

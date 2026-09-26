@@ -20,7 +20,7 @@ from datetime import date, datetime, timedelta
 from ..models import Bar, Flag, NewsItem, SocialPost
 from ..universe import RELIABLE_THRESHOLD, UNRELIABLE_THRESHOLD, source_reliability
 from .indicators import mean, pct_returns, stdev
-from .sentiment import score_text, social_score
+from .sentiment import headline_tone, social_score
 
 _NORMALIZE = re.compile(r"[^a-z0-9$ ]+")
 
@@ -106,7 +106,7 @@ def filter_news(news: list[NewsItem], now: datetime, res: CoherenceResult) -> No
             other is not item
             and source_reliability(other.source) >= RELIABLE_THRESHOLD
             and abs(other.published - item.published) <= window
-            and (score_text(other.headline) > 0) == (score_text(item.headline) > 0)
+            and (headline_tone(other) > 0) == (headline_tone(item) > 0)
             for other in news
         )
         if confirmed:
@@ -183,7 +183,7 @@ def cross_check(bars: list[Bar], posts: list[SocialPost], now: datetime, res: Co
     confirmed, divergent = [], []
     strong_tones = []
     for n in res.trusted_news:
-        tone = score_text(n.headline)
+        tone = headline_tone(n)
         if now - n.published > timedelta(days=7) or abs(tone) <= 0.3:
             continue
         strong_tones.append(tone)

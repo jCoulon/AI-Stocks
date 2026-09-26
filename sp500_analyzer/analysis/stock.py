@@ -12,7 +12,7 @@ from ..models import (
 from .coherence import CoherenceResult, reaction_index
 from .research import aligned_returns, ols
 from .indicators import SessionReturns, pct_returns, sma, stdev
-from .sentiment import score_text
+from .sentiment import headline_tone
 
 HORIZONS = [("1 semaine", 5), ("1 mois", 21), ("3 mois", 63), ("6 mois", 126), ("1 an", 252)]
 PILLAR_NAMES = {"technique": "l'analyse technique", "sentiment": "le sentiment (news et réseaux sociaux)",
@@ -102,7 +102,7 @@ def catalysts(bars: list[Bar], news: list[NewsItem], quality: CoherenceResult, n
             continue
         i = reaction_index(bars, n.published)
         reaction = bars[i].close / bars[i - 1].close - 1 if i else None
-        out.append(Catalyst(n.published, n.source, n.headline, score_text(n.headline), reaction, id(n) in trusted))
+        out.append(Catalyst(n.published, n.source, n.headline, headline_tone(n), reaction, id(n) in trusted))
     return sorted(out, key=lambda c: c.published, reverse=True)
 
 

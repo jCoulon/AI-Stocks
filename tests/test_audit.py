@@ -92,6 +92,21 @@ class MacroAuditTests(unittest.TestCase):
         self.assertEqual(monetary_signal(fed(20)).value, 0)
 
 
+class VarianceRiskPremiumTests(unittest.TestCase):
+    def test_high_premium_is_favourable_at_medium_term(self):
+        rng = random.Random(4)
+        days = weekdays(300)
+        index = bars_from_returns([rng.gauss(0, 0.01) for _ in days], days)  # vol réalisée ≈ 16 %
+
+        def vrp_signal(last_vix):
+            vix = [(d, 18.0 + rng.gauss(0, 0.5)) for d in days[:-1]] + [(days[-1], last_vix)]
+            _, medium = analyze_macro({"vix": vix}, "Index", days[-1], index)
+            return next(s for s in medium.signals if s.name == "Prime de risque de variance")
+
+        self.assertGreater(vrp_signal(30.0).score, 0.5)   # variance implicite >> réalisée
+        self.assertLess(vrp_signal(12.0).score, -0.5)
+
+
 class RobustnessAuditTests(unittest.TestCase):
     def test_short_histories_do_not_crash_and_export_valid_json(self):
         for history in (8, 30, 60):

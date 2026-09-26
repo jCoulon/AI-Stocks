@@ -48,6 +48,8 @@ REFERENCES: dict[str, str] = {
     "BO08": "Barber & Odean (2008), « All That Glitters: The Effect of Attention and News on the Buying Behavior of Individual and Institutional Investors », Review of Financial Studies",
     "LM88": "Lo & MacKinlay (1988), « Stock Market Prices Do Not Follow Random Walks: Evidence from a Simple Specification Test », Review of Financial Studies",
     "B86": "Bollerslev (1986), « Generalized Autoregressive Conditional Heteroskedasticity », Journal of Econometrics",
+    "BTZ09": "Bollerslev, Tauchen & Zhou (2009), « Expected Stock Returns and Variance Risk Premia », Review of Financial Studies",
+    "LMD11": "Loughran & McDonald (2011), « When Is a Liability Not a Liability? Textual Analysis, Dictionaries, and 10-Ks », Journal of Finance",
     "MP16": "McLean & Pontiff (2016), « Does Academic Research Destroy Stock Return Predictability? », Journal of Finance",
     "HXZ20": "Hou, Xue & Zhang (2020), « Replicating Anomalies », Review of Financial Studies",
     "HLZ16": "Harvey, Liu & Zhu (2016), « … and the Cross-Section of Expected Returns », Review of Financial Studies",

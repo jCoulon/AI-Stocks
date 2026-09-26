@@ -5,9 +5,9 @@ from __future__ import annotations
 import math
 from datetime import date, timedelta
 
-from ..models import PillarResult, Series, Signal
+from ..models import Bar, PillarResult, Series, Signal
 from ..universe import SECTOR_PROFILE
-from .indicators import clip
+from .indicators import clip, mean, stdev
 
 
 def _value(series: Series) -> float | None:
@@ -59,7 +59,28 @@ def macro_summary(macro: dict[str, Series]) -> dict[str, float]:
     return out
 
 
-def analyze_macro(macro: dict[str, Series], sector: str, as_of: date) -> tuple[PillarResult, PillarResult]:
+def variance_risk_premium(vix: Series, index_bars: list[Bar], window: int = 21) -> list[tuple[date, float]]:
+    """Prime de risque de variance (Bollerslev, Tauchen & Zhou, 2009), en points de variance
+    annualisée : VIX² (variance implicite, 30 jours) − variance réalisée de l'indice sur
+    les `window` dernières séances. Série quotidienne alignée sur les dates du VIX."""
+    closes = {b.day: b.close for b in index_bars}
+    days = [b.day for b in index_bars]
+    logr = {days[i]: math.log(closes[days[i]] / closes[days[i - 1]]) for i in range(1, len(days))}
+    ordered = [d for d in days[1:]]
+    pos = {d: i for i, d in enumerate(ordered)}
+    out = []
+    for d, v in vix:
+        i = pos.get(d)
+        if i is None or i + 1 < window:
+            continue
+        rv = sum(logr[x] ** 2 for x in ordered[i + 1 - window:i + 1]) * 252 / window
+        out.append((d, (v / 100) ** 2 - rv))
+    return out
+
+
+def analyze_macro(
+    macro: dict[str, Series], sector: str, as_of: date, index_bars: list[Bar] | None = None,
+) -> tuple[PillarResult, PillarResult]:
     prof = SECTOR_PROFILE.get(sector, SECTOR_PROFILE["Index"])
     short = PillarResult("macro", "court")
     medium = PillarResult("macro", "moyen")
@@ -71,6 +92,8 @@ def analyze_macro(macro: dict[str, Series], sector: str, as_of: date) -> tuple[P
     # ------------------------------------------------ régime de marché (court)
     vix = _value(macro.get("vix", []))
     if vix is not None:
+        # Lecture de court terme (appétit pour le risque). À moyen terme, c'est la prime de
+        # risque de variance, et non le niveau du VIX, qui porte l'information (voir plus bas).
         add(short, "VIX", vix, math.tanh((20 - vix) / 6), 0.2,
             "stress élevé" if vix > 25 else "calme" if vix < 16 else "volatilité modérée")
     vix_ch = _change(macro.get("vix", []), WEEK)
@@ -134,6 +157,17 @@ def analyze_macro(macro: dict[str, Series], sector: str, as_of: date) -> tuple[P
     if ff_60 is not None:
         add(medium, "Politique monétaire (3 mois)", ff_60 * 100, -math.tanh(ff_60 / 0.25), 0.1,
             "cycle d'assouplissement" if ff_60 < 0 else "resserrement" if ff_60 > 0 else "statu quo")
+    # Prime de risque de variance : élevée => rendements du marché plus élevés, surtout à
+    # l'horizon trimestriel (Bollerslev, Tauchen & Zhou, 2009). Standardisée sur un an.
+    if index_bars and macro.get("vix"):
+        vrp = variance_risk_premium(macro["vix"], index_bars)
+        hist = [v for _, v in vrp[-252:]]
+        if len(hist) >= 60:
+            sd = stdev(hist)
+            z = (hist[-1] - mean(hist)) / sd if sd else 0.0
+            add(medium, "Prime de risque de variance", z, math.tanh(z / 1.5), 0.15,
+                f"{'élevée' if z > 0.5 else 'faible' if z < -0.5 else 'normale'} ({z:+.1f} écart-type sur 1 an) "
+                "— Bollerslev, Tauchen & Zhou (2009)")
     aaii = _value(macro.get("aaii_spread", []))
     if aaii is not None:
         add(medium, "Sondage AAII (bull-bear)", aaii, -0.5 * math.tanh(aaii / 25), 0.05,

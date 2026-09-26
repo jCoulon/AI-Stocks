@@ -63,6 +63,12 @@ surviennent lors des rebonds de marché qui suivent une baisse prolongée. Si l'
 en baisse sur 12 mois mais en hausse sur le dernier mois, le poids des facteurs de
 momentum est divisé par deux.
 
+**Prime de risque de variance** (Bollerslev, Tauchen & Zhou, 2009) — pilier macro, moyen
+terme. `VRP = (VIX/100)² − variance réalisée annualisée de l'indice sur 21 séances`,
+standardisée par rapport à sa propre année écoulée. Une prime élevée annonce des rendements
+de marché plus élevés, surtout à l'horizon trimestriel. Le niveau du VIX n'est utilisé qu'à
+court terme, comme lecture de l'appétit pour le risque.
+
 **Volatilité prévue — GARCH(1,1)** (Bollerslev, 1986).
 `σ²ₜ₊₁ = ω + α·ε²ₜ + β·σ²ₜ`, estimé par maximum de vraisemblance (grille sur α, β) avec
 ciblage de variance `ω = σ²_LT × (1 − α − β)`, puis recherche locale autour du meilleur
@@ -139,6 +145,8 @@ données historiques, idéalement sur plusieurs décennies et un univers large.
 - Barber, B. & Odean, T. (2008). All That Glitters: The Effect of Attention and News on the Buying Behavior of Individual and Institutional Investors. *Review of Financial Studies*.
 - Barroso, P. & Santa-Clara, P. (2015). Momentum Has Its Moments. *Journal of Financial Economics*.
 - Bollerslev, T. (1986). Generalized Autoregressive Conditional Heteroskedasticity. *Journal of Econometrics*.
+- Bollerslev, T., Tauchen, G. & Zhou, H. (2009). Expected Stock Returns and Variance Risk Premia. *Review of Financial Studies*, 22(11), 4463–4492.
+- Loughran, T. & McDonald, B. (2011). When Is a Liability Not a Liability? Textual Analysis, Dictionaries, and 10-Ks. *Journal of Finance*.
 - Chan, W. S. (2003). Stock Price Reaction to News and No-News: Drift and Reversal After Headlines. *Journal of Financial Economics*, 70, 223–260.
 - Da, Z., Engelberg, J. & Gao, P. (2011). In Search of Attention. *Journal of Finance*, 66(5), 1461–1499.
 - Daniel, K. & Moskowitz, T. (2016). Momentum Crashes. *Journal of Financial Economics*.

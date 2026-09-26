@@ -67,10 +67,11 @@ class MacroEconomistAgent(Agent):
 
     def run(self, task: Task, board: Blackboard) -> dict:
         series = board.provider.macro()
+        index_bars = board.provider.price_history(board.provider.index().ticker)
         sectors = {s.sector for s in board.provider.universe()} | {board.provider.index().sector}
         views = {}
         for sector in sorted(sectors):
-            short, medium = analyze_macro(series, sector, board.provider.as_of)
+            short, medium = analyze_macro(series, sector, board.provider.as_of, index_bars)
             views[sector] = PillarPair(short, medium)
         return {"summary": macro_summary(series), "views": views}
 

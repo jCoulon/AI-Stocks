@@ -166,6 +166,9 @@ class MockDataProvider(DataProvider):
     """Données simulées reproductibles (même graine = mêmes données)."""
 
     def __init__(self, as_of: date = date(2026, 9, 25), seed: int = 42, history: int = 300):
+        if history < 10:
+            # Les scénarios couvrent la dernière semaine et le buzz social les 10 dernières séances.
+            raise ValueError("MockDataProvider : history doit valoir au moins 10 séances")
         self.as_of = as_of
         self.seed = seed
         self._days = trading_calendar(as_of, history)
@@ -397,6 +400,7 @@ class MockDataProvider(DataProvider):
         pc[-5:] = [1.04, 0.97, 0.88, 0.91, 0.84]
         macro["put_call"] = list(zip(days, pc))
 
+        # Séries mensuelles datées de leur publication (1er du mois pour ces chiffres simulés).
         months = [date(self.as_of.year - (1 if m > self.as_of.month else 0), m, 1)
                   for m in list(range(self.as_of.month + 1, 13)) + list(range(1, self.as_of.month + 1))]
         cpi = [3.1, 3.1, 3.0, 3.0, 2.9, 3.0, 2.9, 2.9, 2.8, 2.8, 2.7, 2.6]

@@ -134,6 +134,26 @@ class ReviewFollowUpTests(unittest.TestCase):
         names = {s.name for s in report.index.pillars["technique_moyen"].signals}
         self.assertIn("Momentum temporel (ajusté volatilité)", names)
 
+    def test_relative_performance_compares_same_sessions_when_index_lags(self):
+        from sp500_analyzer.analysis.indicators import SessionReturns
+        provider = MockDataProvider()
+        bars, index = provider.price_history("AAPL"), provider.price_history("^GSPC")
+        lag = SessionReturns(bars, index[:-1]).relative(5)
+        expected = (bars[-2].close / bars[-7].close) / (index[-2].close / index[-7].close) - 1
+        self.assertAlmostEqual(lag, expected)
+
+    def test_fallback_trend_signal_gets_same_adjustments(self):
+        from sp500_analyzer.analysis.research import trend_fallback_signal
+        days = weekdays(300)
+        up = bars_from_returns([0.001] * 300, days)
+        crash_index = bars_from_returns([-0.002] * 278 + [0.004] * 22, days)
+        calm_index = bars_from_returns([0.0005] * 300, days)
+        self.assertLess(trend_fallback_signal(up, crash_index).weight, trend_fallback_signal(up, calm_index).weight)
+
+    def test_mock_rejects_too_short_history(self):
+        with self.assertRaises(ValueError):
+            MockDataProvider(history=5)
+
     def test_returns_use_latest_bar_when_index_lags(self):
         provider = MockDataProvider()
         bars, index = provider.price_history("AAPL"), provider.price_history("^GSPC")
@@ -148,9 +168,12 @@ class VarianceRiskPremiumTests(unittest.TestCase):
         days = weekdays(300)
         index = bars_from_returns([rng.gauss(0, 0.01) for _ in days], days)  # vol réalisée ≈ 16 %
 
+        from sp500_analyzer.analysis.macro import variance_risk_premium, vrp_zscore
+
         def vrp_signal(last_vix):
             vix = [(d, 18.0 + rng.gauss(0, 0.5)) for d in days[:-1]] + [(days[-1], last_vix)]
-            _, medium = analyze_macro({"vix": vix}, "Index", days[-1], index)
+            z = vrp_zscore(variance_risk_premium(vix, index))
+            _, medium = analyze_macro({"vix": vix}, "Index", days[-1], vrp_z=z)
             return next(s for s in medium.signals if s.name == "Prime de risque de variance")
 
         self.assertGreater(vrp_signal(30.0).score, 0.5)   # variance implicite >> réalisée
@@ -159,7 +182,7 @@ class VarianceRiskPremiumTests(unittest.TestCase):
 
 class RobustnessAuditTests(unittest.TestCase):
     def test_short_histories_do_not_crash_and_export_valid_json(self):
-        for history in (8, 30, 60):
+        for history in (10, 30, 60):
             report = Orchestrator(MockDataProvider(history=history), retries=0).run()
             self.assertEqual(len(report.tickers), 30, history)
             self.assertFalse([r for r in report.trace if r["status"] != "done"], history)

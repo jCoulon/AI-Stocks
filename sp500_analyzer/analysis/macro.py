@@ -32,25 +32,40 @@ def _months_back(d: date, months: int) -> date:
     return date(y, m, min(d.day, last_day))
 
 
-def _start(series: Series, days: int | None, months: int | None) -> date:
+def _is_monthly(series: Series) -> bool:
+    gaps = [(series[i][0] - series[i - 1][0]).days for i in range(1, len(series))]
+    return bool(gaps) and sorted(gaps)[len(gaps) // 2] >= 25
+
+
+def _value_before(series: Series, days: int | None, months: int | None) -> float | None:
     last = series[-1][0]
-    return _months_back(last, months) if months else last - timedelta(days=days)
+    if months is not None:
+        target = _months_back(last, months)
+        if _is_monthly(series):
+            # Série mensuelle : on compare des mois, quel que soit le jour de datation
+            # (1er du mois ou fin de mois), pour couvrir exactement `months` mois.
+            key = (target.year, target.month)
+            candidates = [v for d, v in series if (d.year, d.month) <= key]
+            return candidates[-1] if candidates else None
+        return _value_at(series, target)
+    if days is not None:
+        return _value_at(series, last - timedelta(days=days))
+    raise ValueError("_change : préciser days ou months")
 
 
 def _change(series: Series, days: int | None = None, months: int | None = None) -> float | None:
     """Variation sur une durée calendaire (en jours ou en mois civils), quelle que soit la
-    fréquence de la série. Les mois civils évitent qu'une série mensuelle datée du 1er ne
-    couvre 4 mois au lieu de 3 (92 jours avant le 1er décembre = 31 août)."""
+    fréquence de la série (quotidienne, hebdomadaire, mensuelle datée au 1er ou en fin de mois)."""
     if not series:
         return None
-    before = _value_at(series, _start(series, days, months))
+    before = _value_before(series, days, months)
     return None if before is None else series[-1][1] - before
 
 
 def _pct_change(series: Series, days: int) -> float | None:
     if not series:
         return None
-    before = _value_at(series, series[-1][0] - timedelta(days=days))
+    before = _value_before(series, days, None)
     return None if not before else series[-1][1] / before - 1
 
 
@@ -97,11 +112,10 @@ def vrp_zscore(vrp: list[tuple[date, float]]) -> float | None:
 
 
 def analyze_macro(
-    macro: dict[str, Series], sector: str, as_of: date, index_bars: list[Bar] | None = None,
-    vrp_z: float | None = None,
+    macro: dict[str, Series], sector: str, as_of: date, vrp_z: float | None = None,
 ) -> tuple[PillarResult, PillarResult]:
-    """`vrp_z` (prime de risque de variance standardisée) peut être précalculé une fois pour
-    tous les secteurs ; sinon il est calculé à partir de `index_bars` et du VIX."""
+    """`vrp_z` : prime de risque de variance standardisée (voir vrp_zscore), calculée une
+    fois pour tous les secteurs ; None si l'indice ou le VIX sont indisponibles."""
     prof = SECTOR_PROFILE.get(sector, SECTOR_PROFILE["Index"])
     short = PillarResult("macro", "court")
     medium = PillarResult("macro", "moyen")
@@ -180,8 +194,6 @@ def analyze_macro(
             "cycle d'assouplissement" if ff_60 < 0 else "resserrement" if ff_60 > 0 else "statu quo")
     # Prime de risque de variance : élevée => rendements du marché plus élevés, surtout à
     # l'horizon trimestriel (Bollerslev, Tauchen & Zhou, 2009). Standardisée sur un an.
-    if vrp_z is None and index_bars and macro.get("vix"):
-        vrp_z = vrp_zscore(variance_risk_premium(macro["vix"], index_bars))
     if vrp_z is not None:
         z = vrp_z
         add(medium, "Prime de risque de variance", z, math.tanh(z / 1.5), 0.15,

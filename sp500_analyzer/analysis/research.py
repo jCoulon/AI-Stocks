@@ -146,11 +146,8 @@ def price_factors(bars: list[Bar], index_bars: list[Bar]) -> dict[str, Optional[
     if n > 253:
         # Rendement de t-12 mois à t-1 mois : on saute le dernier mois (effet de retournement).
         out["mom_12_1"] = ret(252, 21)
-        vol_ann = (stdev(rets[-126:]) or 0.01) * math.sqrt(252)
-        # Rendement 12 mois divisé par la volatilité : momentum « à risque constant ».
-        r12 = ret(252)
-        # Rendement logarithmique : score symétrique (un aller-retour ne crée pas de biais).
-        out["tsmom"] = math.log1p(r12) / vol_ann if r12 is not None else None
+        # Log-rendement 12 mois / volatilité : momentum « à risque constant », symétrique.
+        out["tsmom"] = tsmom_value(bars, index_bars)
     if n >= 252:
         out["high52"] = closes[-1] / max(b.high for b in bars[-252:])
     if n > 22:
@@ -169,6 +166,40 @@ def price_factors(bars: list[Bar], index_bars: list[Bar]) -> dict[str, Optional[
         base = mean([b.volume for b in bars[-55:-5]]) or 1
         out["abvol"] = math.log(max(recent, 1) / base)
     return out
+
+
+def tsmom_value(bars: list[Bar], index_bars: list[Bar]) -> Optional[float]:
+    """Momentum temporel seul : log-rendement 12 mois / volatilité annualisée (126 j)."""
+    if len(bars) <= 253:
+        return None
+    r12 = SessionReturns(bars, index_bars).ret(252)
+    if r12 is None:
+        return None
+    vol_ann = (stdev(pct_returns([b.close for b in bars])[-126:]) or 0.01) * math.sqrt(252)
+    return math.log1p(r12) / vol_ann
+
+
+def regime_multipliers(bars: list[Bar], index_bars: list[Bar]) -> tuple[float, float, str, float, float]:
+    """(multiplicateur tendance, multiplicateur retournement, régime, VR, z*) — voir §3 de la
+    méthodologie : ratio de variance de Lo & MacKinlay et risque de krach de Daniel & Moskowitz."""
+    vr, z = variance_ratio(bars)
+    regime = "tendance" if z > 1.96 else "retour à la moyenne" if z < -1.96 else "marche aléatoire"
+    tilt = clip(z / 2) * 0.5
+    crash = momentum_crash_risk(index_bars)
+    return (1 + tilt) * (0.5 if crash else 1.0), 1 - tilt, regime, vr, z
+
+
+def trend_fallback_signal(bars: list[Bar], index_bars: list[Bar]) -> Optional[Signal]:
+    """Composante académique du bloc tendance quand aucun classement transversal n'est
+    possible (indice, ou chercheur indisponible) : momentum temporel seul, avec les mêmes
+    ajustements de régime et de krach, et le même poids total qu'un bloc complet (1)."""
+    v = tsmom_value(bars, index_bars)
+    if v is None:
+        return None
+    spec = SPECS["tsmom"]
+    trend_mult, _, _, _, _ = regime_multipliers(bars, index_bars)
+    return Signal(spec.name, v, math.tanh(v), trend_mult,
+                  f"{_fmt('tsmom', v)} — " + " ; ".join(short_ref(r) for r in spec.refs))
 
 
 def industry_momentum(inputs: dict[str, TickerInputs]) -> dict[str, Optional[float]]:
@@ -476,15 +507,13 @@ def build_research(
     crash = momentum_crash_risk(index_bars)
     views: dict[str, ResearchView] = {}
     for t, x in inputs.items():
-        vr, z = variance_ratio(x.bars)
-        regime = "tendance" if z > 1.96 else "retour à la moyenne" if z < -1.96 else "marche aléatoire"
+        trend_mult, reversal_mult, regime, vr, z = regime_multipliers(x.bars, index_bars)
         factors = list(readings[t].values())
         # Le régime statistique module le poids des familles momentum / retournement.
-        tilt = clip(z / 2) * 0.5
         for f in factors:
             if f.key in TREND_FACTORS:
-                f.weight *= (1 + tilt) * (0.5 if crash else 1.0)
+                f.weight *= trend_mult
             elif f.key in ("strev", "max"):
-                f.weight *= (1 - tilt)
+                f.weight *= reversal_mult
         views[t] = ResearchView(factors, vr, z, regime, fit_garch(x.bars), crash)
     return views

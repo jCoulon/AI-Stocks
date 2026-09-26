@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
 
 from ..analysis.coherence import CoherenceResult, assess
 from ..analysis.macro import analyze_macro, macro_summary, variance_risk_premium, vrp_zscore
-from ..analysis.research import ResearchView, TickerInputs, build_research, fit_garch, price_factors
+from ..analysis.research import ResearchView, TickerInputs, build_research, fit_garch, trend_fallback_signal
 from ..analysis.scoring import HORIZON_DAYS
 from ..analysis.scoring import build_outlook
 from ..analysis.sentiment import analyze_sentiment
@@ -139,37 +138,22 @@ class StrategistAgent(Agent):
             coherence -= 0.1
         research_views = board.get("research")
         research: ResearchView | None = research_views.get(t) if research_views else None
-        if research is None:
-            # Indice (ou chercheur indisponible) : pas de classement transversal possible, mais
-            # le momentum temporel (Moskowitz, Ooi & Pedersen, 2012) ne dépend que de la série
-            # elle-même. Il rejoint le bloc tendance pour que celui-ci garde sa composante
-            # académique.
-            index_data: TickerData | None = board.get(f"collect:{board.provider.index().ticker}")
-            ts = price_factors(data.bars, index_data.bars if index_data else [])["tsmom"]
-            if ts is not None:
-                tech_w = sum(sig.weight for sig in tech.medium.signals) or 1.0
-                pillars_m["technique"] = PillarResult("technique", "moyen", [
-                    *[Signal(sig.name, sig.value, sig.score, sig.weight / tech_w, sig.comment)
-                      for sig in tech.medium.signals],
-                    Signal("Momentum temporel (ajusté volatilité)", ts, math.tanh(ts), 1.0,
-                           f"rendement 12 mois (log) = {ts:+.2f} x la volatilité annuelle — "
-                           "Moskowitz, Ooi & Pedersen (2012)"),
-                ])
+        # Bloc tendance à moyen terme : tendance technique (poids total 1) + composante
+        # académique (poids total 1 x ajustement de régime x protection anti-krach). Sans vue
+        # « recherche » (indice, chercheur indisponible), le momentum temporel seul la remplace.
+        tech_w = sum(sig.weight for sig in tech.medium.signals) or 1.0
+        trend_block = [Signal(sig.name, sig.value, sig.score, sig.weight / tech_w, sig.comment)
+                       for sig in tech.medium.signals]
         if research:
             r_short, r_medium, r_trend = research.pillars()
             pillars_s["recherche"], pillars_m["recherche"] = r_short, r_medium
-            # Tendance comptée une seule fois à moyen terme : facteurs académiques de tendance
-            # (Jegadeesh & Titman, Moskowitz et al., George & Hwang…) + tendance technique.
-            # Chaque famille pèse 1 (poids technique normalisés ; poids académiques déjà
-            # normalisés par leur base dans research.pillars(), ce qui préserve l'ajustement de
-            # régime et la protection anti-krach du momentum).
-            tech_w = sum(sig.weight for sig in tech.medium.signals) or 1.0
-            merged = PillarResult("technique", "moyen", [
-                *[Signal(sig.name, sig.value, sig.score, sig.weight / tech_w, sig.comment)
-                  for sig in tech.medium.signals],
-                *r_trend,
-            ])
-            pillars_m["technique"] = merged
+            trend_block += r_trend
+        else:
+            index_data: TickerData | None = board.get(f"collect:{board.provider.index().ticker}")
+            fallback = trend_fallback_signal(data.bars, index_data.bars if index_data else [])
+            if fallback:
+                trend_block.append(fallback)
+        pillars_m["technique"] = PillarResult("technique", "moyen", trend_block)
         if sentiment:
             pillars_s["sentiment"], pillars_m["sentiment"] = sentiment.short, sentiment.medium
         else:

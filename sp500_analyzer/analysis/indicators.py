@@ -133,9 +133,10 @@ class SessionReturns:
 
     def __init__(self, bars: Sequence[Bar], index_bars: Sequence[Bar] | None = None):
         days = [b.day for b in index_bars] if index_bars else []
+        self._n_index = len(days)
         days += [b.day for b in bars if not days or b.day > days[-1]]
         self.closes = closes_on_calendar(bars, days)
-        self.index = closes_on_calendar(index_bars, days) if index_bars else None
+        self.index = [b.close for b in index_bars] if index_bars else None
 
     def ret(self, a: int, b: int = 0) -> Optional[float]:
         """Rendement du titre entre t-a et t-b séances."""
@@ -145,12 +146,18 @@ class SessionReturns:
         return c[-b - 1] / c[-a - 1] - 1
 
     def relative(self, a: int) -> Optional[float]:
-        """Surperformance vs l'indice sur a séances : (1 + r_titre) / (1 + r_indice) - 1."""
-        r = self.ret(a)
+        """Surperformance vs l'indice sur a séances : (1 + r_titre) / (1 + r_indice) - 1.
+
+        Mesurée sur les a séances qui se terminent à la dernière séance de l'indice, pour
+        comparer exactement la même période (même si le flux de l'indice est en retard)."""
         idx = self.index
-        if r is None or idx is None or len(idx) <= a or idx[-a - 1] is None:
+        if idx is None or len(idx) <= a:
             return None
-        return (1 + r) / (idx[-1] / idx[-a - 1]) - 1
+        end = self._n_index - 1
+        c0, c1 = self.closes[end - a], self.closes[end]
+        if c0 is None or c1 is None:
+            return None
+        return (c1 / c0) / (idx[-1] / idx[-a - 1]) - 1
 
 
 def pct_returns(closes: Sequence[float]) -> list[float]:

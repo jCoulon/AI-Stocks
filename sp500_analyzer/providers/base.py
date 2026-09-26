@@ -49,4 +49,9 @@ class DataProvider(ABC):
 
         Clés attendues : us10y, us2y, fed_funds, cpi_yoy, unemployment,
         ism_pmi, vix, wti, put_call, aaii_spread.
+
+        IMPORTANT (point-in-time) : chaque point doit être daté de sa date de
+        **publication**, pas de la période qu'il mesure. Le CPI d'août, publié mi-septembre,
+        est daté de mi-septembre. Sinon l'analyse utiliserait des chiffres qui n'étaient pas
+        encore connus (biais d'anticipation).
         """

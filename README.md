@@ -174,8 +174,12 @@ réalisés 1 et 5 séances plus tard, sans sortir de la période :
   réussite d'un avis « toujours haussier ») et mesurée aussi en relatif au S&P 500 ;
 - **écart haussiers − baissiers** ; tableau des avis de la veille et de la performance du mois.
 
-Une période d'un mois (≈ 18 séances) ne permet pas de conclure statistiquement : les
-résultats sont descriptifs.
+Sur une longue période (ex. `2026-01-02:2026-09-25`, ≈ 1 min 45 s), le rapport ajoute
+l'horizon d'un mois (21 séances), la **statistique t de l'IC** calculée sur des fenêtres
+disjointes, un tableau **mois par mois** et une **stratégie** (panier équipondéré des titres
+jugés haussiers, renouvelé toutes les 5 séances) comparée à l'univers équipondéré et au
+S&P 500. Une période d'un mois (≈ 18 séances) ne permet pas de conclure statistiquement :
+les résultats sont alors descriptifs.
 
 ### Avec de vrais cours
 

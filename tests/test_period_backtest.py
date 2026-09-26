@@ -87,6 +87,34 @@ class PeriodBacktestTests(unittest.TestCase):
         self.assertAlmostEqual(self.report.index_return, by_day[date(2026, 9, 25)] / by_day[date(2026, 8, 31)] - 1)
 
 
+class LongPeriodTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.report = run_period_backtest(MockDataProvider(history=400), date(2026, 7, 1), date(2026, 9, 25),
+                                         horizons=(1, 5, 21))
+
+    def test_monthly_breakdown_covers_period(self):
+        self.assertEqual([m.month for m in self.report.months], ["2026-07", "2026-08", "2026-09"])
+        self.assertEqual(sum(m.dates for m in self.report.months),
+                         len({c.day for c in self.report.calls if 5 in c.fwd}))
+
+    def test_strategy_uses_disjoint_windows(self):
+        st = self.report.strategy
+        self.assertEqual(st.horizon, 5)
+        self.assertEqual(st.periods, len([d for d in self.report.signal_days[::5]
+                                          if any(c.day == d and 5 in c.fwd for c in self.report.calls)]))
+        self.assertTrue(0 <= st.beat_equal_weight_share <= 1)
+
+    def test_ic_t_stat_on_independent_dates(self):
+        s5 = next(s for s in self.report.stats if s.horizon == 5)
+        s21 = next(s for s in self.report.stats if s.horizon == 21)
+        self.assertLessEqual(s5.independent_dates, s5.dates // 5 + 1)
+        self.assertIsNotNone(s5.ic_t)
+        # 3 mois ne contiennent que 2 fenêtres disjointes de 21 séances : pas de statistique t.
+        self.assertLessEqual(s21.independent_dates, 2)
+        self.assertIsNone(s21.ic_t)
+
+
 class CsvProviderTests(unittest.TestCase):
     def test_reads_stooq_and_yahoo_formats(self):
         with tempfile.TemporaryDirectory() as tmp:

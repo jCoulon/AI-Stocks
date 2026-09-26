@@ -69,7 +69,14 @@ def main(argv: list[str] | None = None) -> int:
         if provider.missing:
             print(f"Titres sans fichier de cours (ignorés) : {', '.join(provider.missing)}", file=sys.stderr)
     else:
-        history = 400 if args.backtest_periode else 300  # marge pour les indicateurs longs avant la période
+        history = 300
+        if args.backtest_periode:
+            # Historique couvrant la période + ~13 mois avant son début (indicateurs sur 252 séances).
+            try:
+                start = date.fromisoformat(args.backtest_periode.split(":")[0])
+                history = max(400, int((args.as_of - start).days * 5 / 7) + 290)
+            except ValueError:
+                pass  # l'erreur de format est signalée plus bas
         provider = MockDataProvider(as_of=args.as_of, seed=args.seed, history=history)
 
     known = {s.ticker for s in provider.universe()}
@@ -85,7 +92,9 @@ def main(argv: list[str] | None = None) -> int:
         try:
             start_s, end_s = args.backtest_periode.split(":")
             start, end = date.fromisoformat(start_s), date.fromisoformat(end_s)
-            report = run_period_backtest(provider, start, end,
+            sessions = sum(1 for d in provider.trading_days() if start <= d <= end)
+            horizons = (1, 5, 21) if sessions >= 60 else (1, 5)
+            report = run_period_backtest(provider, start, end, horizons=horizons,
                                          progress=lambda d: print(f"  analyse au {d.isoformat()}…", file=sys.stderr))
         except ValueError as e:
             print(f"Période invalide : {e}", file=sys.stderr)

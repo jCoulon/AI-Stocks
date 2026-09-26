@@ -37,12 +37,40 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--workers", type=int, default=8, help="Nombre d'agents exécutés en parallèle (défaut 8)")
     p.add_argument("--backtest", action="store_true",
                    help="Backtest point-in-time des facteurs de recherche (≈ 3 ans d'historique) puis quitter")
+    p.add_argument("--backtest-periode", metavar="DEBUT:FIN",
+                   help="Backtest de l'outil complet sur une période, ex. 2026-09-01:2026-09-25 (septembre)")
+    p.add_argument("--cours", metavar="DOSSIER",
+                   help="Utiliser de vrais cours : fichiers CSV <TICKER>.csv et SPX.csv (format Stooq / Yahoo)")
+    p.add_argument("--telecharger-cours", metavar="DOSSIER",
+                   help="Télécharger les cours quotidiens depuis Stooq dans ce dossier puis quitter")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    provider = MockDataProvider(as_of=args.as_of, seed=args.seed)
+
+    if args.telecharger_cours:
+        from .providers.csv_prices import download_stooq
+
+        errors = download_stooq(args.telecharger_cours)
+        for e in errors:
+            print(f"  ✗ {e}", file=sys.stderr)
+        print(f"Cours enregistrés dans {args.telecharger_cours} ({len(errors)} erreur(s)).")
+        return 1 if errors else 0
+
+    if args.cours:
+        from .providers.csv_prices import CsvPriceProvider
+
+        try:
+            provider = CsvPriceProvider(args.cours)
+        except (OSError, ValueError) as e:
+            print(f"Erreur de lecture des cours : {e}", file=sys.stderr)
+            return 2
+        if provider.missing:
+            print(f"Titres sans fichier de cours (ignorés) : {', '.join(provider.missing)}", file=sys.stderr)
+    else:
+        history = 400 if args.backtest_periode else 300  # marge pour les indicateurs longs avant la période
+        provider = MockDataProvider(as_of=args.as_of, seed=args.seed, history=history)
 
     known = {s.ticker for s in provider.universe()}
     unknown = [t for t in args.ticker + args.detail + args.stock if t.upper() not in known]
@@ -50,6 +78,20 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Titre(s) inconnu(s) : {', '.join(unknown)}. Disponibles : {', '.join(sorted(known))}",
               file=sys.stderr)
         return 2
+
+    if args.backtest_periode:
+        from .analysis.period_backtest import render_period_backtest, run_period_backtest
+
+        try:
+            start_s, end_s = args.backtest_periode.split(":")
+            start, end = date.fromisoformat(start_s), date.fromisoformat(end_s)
+            report = run_period_backtest(provider, start, end,
+                                         progress=lambda d: print(f"  analyse au {d.isoformat()}…", file=sys.stderr))
+        except ValueError as e:
+            print(f"Période invalide : {e}", file=sys.stderr)
+            return 2
+        print(render_period_backtest(report))
+        return 0
 
     if args.backtest:
         from .analysis.backtest import render_backtest, run_backtest

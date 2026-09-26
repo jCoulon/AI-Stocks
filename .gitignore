@@ -6,3 +6,4 @@ build/
 dist/
 rapport*.html
 rapport*.json
+backtest_*.txt

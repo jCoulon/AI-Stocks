@@ -157,6 +157,39 @@ HTML, chaque titre a la sienne (ouverte d'office quand on cible 3 titres ou moin
 - **Pairs** : comparaison avec les autres titres du même secteur.
 - **Graphique 6 mois** (HTML) : cours, moyennes 50/200 j, supports / résistances, info-bulle au survol.
 
+## Backtest sur une période (ex. septembre)
+
+```bash
+python -m sp500_analyzer --backtest-periode 2026-09-01:2026-09-25
+```
+
+L'outil **complet** (toute l'équipe d'agents) est relancé à la clôture de la veille de la
+période, puis de chaque séance, sur une vue « point-in-time » des données : cours, news,
+messages et chiffres macro postérieurs sont invisibles (un test vérifie qu'une falsification
+des cours futurs ne change aucun avis). Chaque avis court terme est confronté aux cours
+réalisés 1 et 5 séances plus tard, sans sortir de la période :
+
+- **IC** : corrélation de rang entre scores et rendements futurs ;
+- **réussite directionnelle**, comparée au **taux de base** (part des titres en hausse, soit la
+  réussite d'un avis « toujours haussier ») et mesurée aussi en relatif au S&P 500 ;
+- **écart haussiers − baissiers** ; tableau des avis de la veille et de la performance du mois.
+
+Une période d'un mois (≈ 18 séances) ne permet pas de conclure statistiquement : les
+résultats sont descriptifs.
+
+### Avec de vrais cours
+
+```bash
+python -m sp500_analyzer --telecharger-cours cours/        # depuis Stooq (sans clé)
+python -m sp500_analyzer --cours cours/ --backtest-periode 2026-09-01:2026-09-25
+```
+
+`--cours` lit un dossier de fichiers CSV `<TICKER>.csv` et `SPX.csv` (format Stooq ou
+Yahoo Finance : Date, Open, High, Low, Close, Volume). Seuls les cours sont réels : sans
+news, messages ni macro, les piliers correspondants restent vides et le backtest porte sur
+les signaux de cours (technique, recherche). Dans l'environnement cloud, le domaine
+`stooq.com` doit être autorisé dans les paramètres réseau.
+
 ## Facteurs issus de la recherche académique
 
 L'agent `chercheur` ajoute un pilier fondé sur des résultats publiés en finance empirique,
@@ -239,7 +272,10 @@ sp500_analyzer/
   analysis/scoring.py     Pondération des piliers, confiance, fourchettes
   analysis/stock.py       Fiche par action : thèse, niveaux clés, catalyseurs, risques, pairs
   analysis/research.py    Facteurs académiques, ratio de variance, GARCH(1,1)
-  analysis/backtest.py    Backtest point-in-time (IC de Spearman)
+  analysis/backtest.py    Backtest point-in-time des facteurs (IC de Spearman)
+  analysis/period_backtest.py  Backtest de l'outil complet sur une période (ex. septembre)
+  providers/pointintime.py     Vue sans données futures (backtest)
+  providers/csv_prices.py      Vrais cours depuis des CSV, téléchargement Stooq
   engine.py             Point d'entrée programmatique (run_analysis)
   app/                  Application de bureau : serveur local, interface (ui.html), lanceur pywebview
 packaging/macos/        Icône, spécification PyInstaller, script de build .app / .dmg

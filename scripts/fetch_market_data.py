@@ -1,6 +1,6 @@
 """Télécharge de vrais cours (Yahoo Finance) : intraday 10 min sur une période + quotidien ajusté.
 
-Usage : python scripts/fetch_market_data.py --start 2026-09-01 [--end 2026-09-25] [--out data]
+Usage : python scripts/fetch_market_data.py --start 2026-09-01 [--end 2026-09-25] [--out data] [--extra IREN]
 Lancé par le workflow GitHub Actions « Données de marché réelles » (les runners ont accès à
 Internet), qui enregistre ensuite les fichiers CSV dans le dépôt.
 """
@@ -23,8 +23,10 @@ def main() -> int:
     p.add_argument("--end", type=date.fromisoformat, default=today_ny)
     p.add_argument("--out", default="data")
     p.add_argument("--daily-years", type=int, default=2)
+    p.add_argument("--extra", default="", help="Titres supplémentaires hors univers, séparés par des virgules (ex. IREN)")
     args = p.parse_args()
-    errors = download_all(args.out, args.start, args.end, args.daily_years)
+    extra = tuple(t.strip() for t in args.extra.split(",") if t.strip())
+    errors = download_all(args.out, args.start, args.end, args.daily_years, extra=extra)
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)
     files = list(Path(args.out).rglob("*.csv"))

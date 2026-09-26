@@ -131,15 +131,18 @@ def write_daily_csv(path: Path, rows) -> None:
 
 
 def download_all(out_dir: str | Path, start: date, end: date, daily_years: int = 2,
-                 pause: float = 0.6) -> list[str]:
-    """Télécharge intraday 10 min (start..end) et quotidien ajusté pour l'univers et le S&P 500."""
+                 pause: float = 0.6, extra: tuple[str, ...] = ()) -> list[str]:
+    """Télécharge intraday 10 min (start..end) et quotidien ajusté pour l'univers, le S&P 500
+    et d'éventuels titres supplémentaires hors univers (`extra`, ex. ("IREN",))."""
     out = Path(out_dir)
     intraday_dir = out / "intraday_10min" / f"{start:%Y-%m}"
     daily_dir = out / "daily"
     intraday_dir.mkdir(parents=True, exist_ok=True)
     daily_dir.mkdir(parents=True, exist_ok=True)
     errors = []
-    for ticker in [p.security.ticker for p in SP500_SAMPLE] + [INDEX_FILE]:
+    tickers = [p.security.ticker for p in SP500_SAMPLE] + [INDEX_FILE]
+    tickers += [t.upper() for t in extra if t.upper() not in tickers]
+    for ticker in tickers:
         try:
             bars = fetch_intraday_10min(ticker, start, end)
             if not bars:

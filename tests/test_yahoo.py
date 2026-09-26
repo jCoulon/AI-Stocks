@@ -54,6 +54,26 @@ class YahooTests(unittest.TestCase):
             write_daily_csv(Path(tmp) / "D.csv", [(date(2026, 9, 21), 1, 2, 0.5, 1.5, 10)])
             self.assertEqual(read_bars(Path(tmp) / "D.csv")[0].close, 1.5)
 
+    def test_download_all_includes_extra_tickers(self):
+        from unittest import mock
+        from sp500_analyzer.providers import yahoo
+
+        day = datetime(2026, 9, 21, 9, 30, tzinfo=NEW_YORK)
+        payload = chart([int((day + timedelta(minutes=5 * i)).timestamp()) for i in range(4)], [1.0, 2.0, 3.0, 4.0])
+        symbols = []
+
+        def fake(url, *a, **kw):
+            symbols.append(url.split("/chart/")[1].split("?")[0])
+            return payload
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(yahoo, "_get_json", fake):
+            errors = yahoo.download_all(tmp, date(2026, 9, 21), date(2026, 9, 21), pause=0, extra=("iren", "AAPL"))
+            self.assertEqual(errors, [])
+            self.assertTrue((Path(tmp) / "intraday_10min" / "2026-09" / "IREN.csv").exists())
+            self.assertTrue((Path(tmp) / "daily" / "IREN.csv").exists())
+        self.assertEqual(symbols.count("IREN"), 2)
+        self.assertEqual(symbols.count("AAPL"), 2)  # déjà dans l'univers : pas de doublon
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -11,6 +11,9 @@ on:
       end:
         description: "Fin de la période intraday (vide = aujourd'hui)"
         default: ""
+      extra:
+        description: "Titres supplémentaires hors univers, séparés par des virgules"
+        default: "IREN"
   push:
     branches: ["claude/**"]
     paths:
@@ -36,7 +39,7 @@ jobs:
         run: |
           END="${{ github.event.inputs.end }}"
           python scripts/fetch_market_data.py --start "${{ github.event.inputs.start || '2026-09-01' }}" \
-            ${END:+--end "$END"} --out data
+            ${END:+--end "$END"} --out data --extra "${{ github.event.inputs.extra || 'IREN' }}"
 
       - name: Enregistrement dans la branche
         run: |

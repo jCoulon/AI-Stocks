@@ -7,7 +7,7 @@ from datetime import datetime, time, timedelta
 
 from ..analysis.coherence import CoherenceResult, assess
 from ..analysis.macro import analyze_macro, macro_summary
-from ..analysis.research import ResearchView, TickerInputs, build_research
+from ..analysis.research import ResearchView, TickerInputs, build_research, fit_garch
 from ..analysis.scoring import HORIZON_DAYS
 from ..analysis.scoring import build_outlook
 from ..analysis.sentiment import analyze_sentiment
@@ -158,7 +158,10 @@ class StrategistAgent(Agent):
         trust = {"technique": quality.price_trust}
         last = data.bars[-1].close
         vol = tech.stats["daily_vol"]
-        garch = research.garch if research else None
+        # Volatilité prévue GARCH(1,1) : issue du chercheur pour les titres, estimée ici pour
+        # l'indice (qui n'a pas de vue « recherche »), afin que toutes les fourchettes aient
+        # la même méthode.
+        garch = research.garch if research else fit_garch(data.bars)
         short = build_outlook("court", pillars_s, last, vol, quality.data_quality, coherence, trust,
                               garch.horizon_vol(HORIZON_DAYS["court"]) if garch else None)
         medium = build_outlook("moyen", pillars_m, last, vol, quality.data_quality, coherence, trust,
@@ -200,7 +203,7 @@ class QuantResearchAgent(Agent):
                 continue
             quality: CoherenceResult | None = board.get(f"quality:{t}")
             inputs[t] = TickerInputs(data.bars, data.security.sector,
-                                     quality.trusted_news if quality else [], data.posts, board.now)
+                                     quality.trusted_news if quality else None, data.posts, board.now)
         return build_research(inputs, index_data.bars)
 
 

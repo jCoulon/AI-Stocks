@@ -104,7 +104,9 @@ class TickerInputs:
 
     bars: list[Bar]
     sector: str
-    news: list[NewsItem] = field(default_factory=list)  # news retenues par le contrôleur
+    # News retenues par le contrôleur ; None = inconnues (contrôle indisponible), à ne pas
+    # confondre avec [] = aucune news (ce qui, chez Chan, annonce un retournement).
+    news: Optional[list[NewsItem]] = field(default_factory=list)
     posts: list[SocialPost] = field(default_factory=list)
     now: Optional[datetime] = None
 
@@ -190,9 +192,11 @@ def industry_momentum(inputs: dict[str, TickerInputs]) -> dict[str, Optional[flo
 
 # ----------------------------------------------------- facteurs news et attention
 
-def news_drift(bars: list[Bar], news: list[NewsItem]) -> Optional[float]:
+def news_drift(bars: list[Bar], news: Optional[list[NewsItem]]) -> Optional[float]:
     """Chan (2003) : un fort mouvement accompagné d'une news tend à se prolonger (dérive),
     un fort mouvement sans news tend à se retourner. Renvoie None en l'absence de fort mouvement."""
+    if news is None:
+        return None
     closes = [b.close for b in bars]
     rets = pct_returns(closes)
     if len(rets) < 70:

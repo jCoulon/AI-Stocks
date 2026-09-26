@@ -92,6 +92,27 @@ class MacroAuditTests(unittest.TestCase):
         self.assertEqual(monetary_signal(fed(20)).value, 0)
 
 
+class MissingDataSemanticsTests(unittest.TestCase):
+    def test_unknown_news_is_not_no_news(self):
+        from sp500_analyzer.analysis.research import news_drift
+        rng = random.Random(5)
+        days = weekdays(120)
+        rets = [rng.gauss(0, 0.01) for _ in days]
+        rets[-2] = 0.06
+        bars = bars_from_returns(rets, days)
+        self.assertLess(news_drift(bars, []), 0)   # aucune news : retournement attendu
+        self.assertIsNone(news_drift(bars, None))  # news inconnues : pas de conclusion
+
+    def test_index_ranges_use_garch(self):
+        from sp500_analyzer.analysis.research import fit_garch
+        from sp500_analyzer.engine import run_analysis
+        provider = MockDataProvider()
+        report = run_analysis(provider, ["AAPL"])
+        g = fit_garch(provider.price_history("^GSPC"))
+        idx = report.index
+        self.assertAlmostEqual(idx.short.high / idx.last_close - 1, g.horizon_vol(5), places=9)
+
+
 class VarianceRiskPremiumTests(unittest.TestCase):
     def test_high_premium_is_favourable_at_medium_term(self):
         rng = random.Random(4)

@@ -13,9 +13,15 @@ dependencies = []
 [project.optional-dependencies]
 # Agent rédacteur propulsé par Claude (option --llm)
 llm = ["anthropic>=1.8"]
+# Fenêtre native de l'application de bureau (WebKit sur macOS)
+app = ["pywebview>=5"]
 
 [project.scripts]
 sp500-analyzer = "sp500_analyzer.cli:main"
+sp500-analyzer-app = "sp500_analyzer.app.main:main"
 
 [tool.setuptools.packages.find]
 include = ["sp500_analyzer*"]
+
+[tool.setuptools.package-data]
+"sp500_analyzer.app" = ["ui.html"]

@@ -1,8 +1,8 @@
-__pycache__/
-*.pyc
 *.egg-info/
+*.pyc
+.venv/
+__pycache__/
 build/
 dist/
-.venv/
 rapport*.html
 rapport*.json

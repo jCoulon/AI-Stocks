@@ -1,0 +1,48 @@
+name: Application macOS
+
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths:
+      - "sp500_analyzer/**"
+      - "packaging/macos/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/macos-app.yml"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build .app / .dmg (Apple Silicon)
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[app,llm]" pyinstaller
+
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Test de fumée (serveur de l'application)
+        run: python -m sp500_analyzer.app --self-test
+
+      - name: Construction de l'application
+        run: bash packaging/macos/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SP500-Analyzer-macOS
+          path: dist/*.dmg
+          if-no-files-found: error

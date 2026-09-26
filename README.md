@@ -35,6 +35,49 @@ python -m sp500_analyzer --seed 7             # autre jeu de données simulées
 
 Tests : `python -m unittest discover -s tests`
 
+## Application Mac
+
+L'analyseur existe aussi en **application de bureau** : fenêtre native macOS (WebKit),
+liste des 30 titres avec recherche et tri, vue marché, fiche détaillée de chaque action
+avec graphique interactif, relance de l'analyse (date, jeu de données, synthèse Claude)
+et export du rapport HTML. Navigation au clavier : `↑` / `↓` pour changer de titre,
+`/` pour rechercher, `⌘R` pour relancer l'analyse.
+
+### Installer la version construite
+
+Chaque push construit l'application sur un runner macOS (GitHub Actions, workflow
+*Application macOS*) et publie `SP500-Analyzer-macOS-arm64.dmg` dans les artefacts du run.
+
+1. Télécharger l'artefact, ouvrir le `.dmg`, glisser **SP500 Analyzer** dans *Applications*.
+2. L'application est signée ad hoc mais **non notariée** par Apple : au premier lancement,
+   faire clic droit → **Ouvrir** → **Ouvrir** (ou `xattr -dr com.apple.quarantine "/Applications/SP500 Analyzer.app"`).
+
+La version construite cible les Mac Apple Silicon (M1 et suivants).
+
+### Construire soi-même (sur un Mac)
+
+```bash
+pip install ".[app,llm]" pyinstaller
+bash packaging/macos/build.sh        # → dist/SP500 Analyzer.app et dist/SP500-Analyzer-macOS-<arch>.dmg
+```
+
+### Lancer sans empaqueter
+
+```bash
+pip install ".[app]"                 # pywebview
+python -m sp500_analyzer.app         # fenêtre native
+python -m sp500_analyzer.app --browser   # ou dans le navigateur (tout système)
+```
+
+Pour la synthèse Claude dans l'application : une application lancée depuis le Finder
+ne voit pas les variables du terminal ; se connecter plutôt avec `ant auth login`
+(profil lu automatiquement par le SDK Anthropic).
+
+Sécurité : l'interface est servie par un serveur interne qui n'écoute que sur
+`127.0.0.1`. L'API exige un jeton de session propre à chaque lancement et un en-tête
+`Host` local, pour qu'aucune page web ne puisse piloter l'application ni déclencher
+d'appels payants à Claude.
+
 ## Architecture multi-agents
 
 L'analyse est confiée à une **équipe d'agents spécialisés** coordonnés par un
@@ -143,6 +186,8 @@ sp500_analyzer/
   analysis/scoring.py     Pondération des piliers, confiance, fourchettes
   analysis/stock.py       Fiche par action : thèse, niveaux clés, catalyseurs, risques, pairs
   engine.py             Point d'entrée programmatique (run_analysis)
+  app/                  Application de bureau : serveur local, interface (ui.html), lanceur pywebview
+packaging/macos/        Icône, spécification PyInstaller, script de build .app / .dmg
   report.py             Rendu terminal / JSON / HTML
   universe.py           30 valeurs du S&P 500, profils sectoriels, fiabilité des sources
 ```

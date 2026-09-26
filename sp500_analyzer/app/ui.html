@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S&amp;P 500 Analyzer</title>
+<style>
+/*REPORT_CSS*/
+
+/* ---------------------------------------------------------------- application */
+html, body { height: 100%; }
+body { display: grid; grid-template-rows: auto auto 1fr; overflow: hidden; }
+.toolbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border);
+  background: var(--surface-2); flex-wrap: wrap; -webkit-user-select: none; user-select: none; }
+.toolbar .brand { font-weight: 700; font-size: 15px; margin-right: 8px; white-space: nowrap; }
+.toolbar label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
+.toolbar input[type=date], .toolbar input[type=number] { font: inherit; font-size: 13px; padding: 4px 6px;
+  border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+.toolbar input[type=number] { width: 70px; }
+.toolbar .spacer { flex: 1; }
+button { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); cursor: pointer; }
+button.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; font-weight: 600; }
+button:disabled { opacity: .55; cursor: default; }
+.status { font-size: 12px; color: var(--muted); min-height: 1em; }
+.status.error { color: var(--neg); }
+.banner { padding: 6px 16px; font-size: 12px; color: var(--text-2); border-bottom: 1px solid var(--border); }
+.layout { display: grid; grid-template-columns: 290px 1fr; min-height: 0; }
+aside { border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; background: var(--surface-2); }
+.side-tools { display: flex; gap: 6px; padding: 10px; border-bottom: 1px solid var(--border); }
+.side-tools input, .side-tools select { font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--border);
+  border-radius: 6px; background: var(--surface); color: var(--text); min-width: 0; }
+.side-tools input { flex: 1; }
+#list { overflow-y: auto; flex: 1; padding: 4px 0; outline: none; }
+.item { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 7px 12px; cursor: pointer;
+  border-left: 3px solid transparent; }
+.item:hover { background: var(--surface); }
+.item.active { background: var(--surface); border-left-color: var(--series-1); }
+.item .tk { font-weight: 650; }
+.item .nm { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item .wk { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
+.item .ct { text-align: right; font-size: 11px; }
+.item .alert { color: var(--text-2); font-size: 11px; margin-left: 4px; }
+.item.market { border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.pos { color: var(--pos); } .neg { color: var(--neg); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.dot.pos { background: var(--pos); } .dot.neg { background: var(--neg); } .dot.neu { background: var(--muted); }
+#content { overflow-y: auto; min-height: 0; }
+#content main { max-width: 1100px; }
+.loading { opacity: .5; pointer-events: none; transition: opacity .15s; }
+.empty { color: var(--muted); padding: 24px; }
+@media (max-width: 760px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: 240px 1fr; }
+  aside { border-right: none; border-bottom: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+<header class="toolbar">
+  <span class="brand">S&amp;P 500 Analyzer</span>
+  <label>Séance <input type="date" id="asof"></label>
+  <label>Jeu de données <input type="number" id="seed" min="0" step="1" title="Graine des données simulées"></label>
+  <label title="Synthèse rédigée par Claude (appel payant à l'API Anthropic)"><input type="checkbox" id="llm"> Synthèse Claude</label>
+  <button class="primary" id="run">Analyser</button>
+  <span class="status" id="status" role="status" aria-live="polite"></span>
+  <span class="spacer"></span>
+  <button id="export" title="Enregistrer le rapport HTML complet">Exporter…</button>
+</header>
+<div class="banner" id="banner"></div>
+<div class="layout">
+  <aside>
+    <div class="side-tools">
+      <input type="search" id="search" placeholder="Rechercher (/)" aria-label="Rechercher un titre">
+      <select id="sort" aria-label="Trier">
+        <option value="short">Court terme</option>
+        <option value="medium">Moyen terme</option>
+        <option value="week">Semaine</option>
+        <option value="alerts">Alertes</option>
+        <option value="ticker">A → Z</option>
+      </select>
+    </div>
+    <div id="list" tabindex="0" role="listbox" aria-label="Titres"></div>
+  </aside>
+  <section id="content"><main><p class="empty">Chargement de l'analyse…</p></main></section>
+</div>
+
+<script>
+/*CHART_JS*/
+
+const TOKEN = "__TOKEN__";
+const $ = (id) => document.getElementById(id);
+let summary = null;
+let current = "__market__";
+
+async function api(path, options = {}) {
+  const res = await fetch(path, {...options, headers: {"X-App-Token": TOKEN, ...(options.headers || {})}});
+  if (!res.ok) {
+    let msg = res.statusText;
+    try { msg = (await res.json()).error || msg; } catch (e) {}
+    throw new Error(msg);
+  }
+  return res;
+}
+
+function setStatus(text, isError = false) {
+  const el = $("status");
+  el.textContent = text;
+  el.classList.toggle("error", isError);
+}
+
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+function cls(score) { return score >= 0.12 ? "pos" : score <= -0.12 ? "neg" : "neu"; }
+function pct(v) { return (v >= 0 ? "+" : "") + (v * 100).toFixed(1).replace(".", ",") + " %"; }
+
+function sortedTickers() {
+  const q = $("search").value.trim().toLowerCase();
+  const key = $("sort").value;
+  const list = summary.tickers.filter(t => !q || t.ticker.toLowerCase().includes(q)
+    || t.name.toLowerCase().includes(q) || t.sector.toLowerCase().includes(q));
+  const by = {
+    short: (a, b) => b.short.score - a.short.score,
+    medium: (a, b) => b.medium.score - a.medium.score,
+    week: (a, b) => b.week - a.week,
+    alerts: (a, b) => b.alerts - a.alerts || b.short.score - a.short.score,
+    ticker: (a, b) => a.ticker.localeCompare(b.ticker),
+  };
+  return list.sort(by[key]);
+}
+
+function renderList() {
+  const idx = summary.index;
+  const rows = [`<div class="item market ${current === "__market__" ? "active" : ""}" data-t="__market__" role="option">
+      <span class="tk">Vue marché</span><span class="wk ${idx.week >= 0 ? "pos" : "neg"}">${pct(idx.week)}</span>
+      <span class="nm">S&amp;P 500 · ${idx.close.toLocaleString("fr-FR", {maximumFractionDigits: 0})}</span>
+      <span class="ct">${esc(idx.short)}</span></div>`];
+  for (const t of sortedTickers()) {
+    rows.push(`<div class="item ${current === t.ticker ? "active" : ""}" data-t="${esc(t.ticker)}" role="option"
+        aria-selected="${current === t.ticker}">
+      <span class="tk">${esc(t.ticker)}${t.alerts ? `<span class="alert" title="${t.alerts} alerte(s) de données">⚠ ${t.alerts}</span>` : ""}</span>
+      <span class="wk ${t.week >= 0 ? "pos" : "neg"}">${pct(t.week)}</span>
+      <span class="nm">${esc(t.name)}</span>
+      <span class="ct"><span class="dot ${cls(t.short.score)}"></span>${esc(t.short.label)}</span></div>`);
+  }
+  $("list").innerHTML = rows.join("");
+}
+
+async function show(ticker) {
+  current = ticker;
+  renderList();
+  const content = $("content");
+  content.classList.add("loading");
+  try {
+    const path = ticker === "__market__" ? "/api/market" : `/api/stock/${encodeURIComponent(ticker)}`;
+    const html = await (await api(path)).text();
+    const head = ticker === "__market__"
+      ? `<h1>Analyse S&amp;P 500 — séance du ${new Date(summary.as_of).toLocaleDateString("fr-FR")}</h1>` : "";
+    content.innerHTML = `<main>${head}${html}</main>`;
+    content.scrollTop = 0;
+    initCharts(content);
+  } catch (e) {
+    content.innerHTML = `<main><p class="empty">Erreur : ${esc(e.message)}</p></main>`;
+  } finally {
+    content.classList.remove("loading");
+  }
+}
+
+function applySummary(s) {
+  summary = s;
+  $("asof").value = s.as_of;
+  $("seed").value = s.seed;
+  $("llm").checked = s.llm;
+  let banner = s.disclaimer;
+  if (s.llm_status && s.llm_status.status !== "done") {
+    banner += ` — Synthèse Claude indisponible : ${s.llm_status.error || s.llm_status.status}`;
+  }
+  $("banner").textContent = banner;
+  if (current !== "__market__" && !s.tickers.some(t => t.ticker === current)) current = "__market__";
+}
+
+async function load() {
+  try {
+    setStatus("Chargement…");
+    applySummary(await (await api("/api/summary")).json());
+    await show(current);
+    setStatus(`${summary.tickers.length} titres analysés`);
+  } catch (e) { setStatus(e.message, true); }
+}
+
+async function runAnalysis() {
+  const btn = $("run");
+  btn.disabled = true;
+  setStatus($("llm").checked ? "Les agents analysent… (synthèse Claude en cours)" : "Les agents analysent…");
+  const t0 = performance.now();
+  try {
+    const res = await api("/api/refresh", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({as_of: $("asof").value, seed: $("seed").value, llm: $("llm").checked}),
+    });
+    applySummary(await res.json());
+    await show(current);
+    const tasks = summary.agents.reduce((n, a) => n + a.done + a.failed + a.skipped, 0);
+    setStatus(`Analyse terminée : ${tasks} tâches d'agents en ${((performance.now() - t0) / 1000).toFixed(1)} s`);
+  } catch (e) {
+    setStatus(e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function exportReport() {
+  try {
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.save_report) {
+      const path = await window.pywebview.api.save_report();
+      if (path) setStatus(`Rapport enregistré : ${path}`);
+      return;
+    }
+    const res = await api("/api/export");
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `analyse-sp500-${summary.as_of}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (e) { setStatus(e.message, true); }
+}
+
+$("list").addEventListener("click", (e) => {
+  const item = e.target.closest(".item");
+  if (item) show(item.dataset.t);
+});
+$("content").addEventListener("click", (e) => {
+  const link = e.target.closest("a[data-ticker], a[href^='#']");
+  if (!link) return;
+  const t = link.dataset.ticker || link.getAttribute("href").slice(1);
+  if (summary.tickers.some(x => x.ticker === t)) { e.preventDefault(); show(t); }
+});
+$("search").addEventListener("input", renderList);
+$("sort").addEventListener("change", renderList);
+$("run").addEventListener("click", runAnalysis);
+$("export").addEventListener("click", exportReport);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); $("search").focus(); return; }
+  if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !["INPUT", "SELECT"].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    const ids = ["__market__", ...sortedTickers().map(t => t.ticker)];
+    const i = ids.indexOf(current);
+    const next = ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
+    if (next !== current) {
+      show(next);
+      const el = $("list").querySelector(`[data-t="${next}"]`);
+      if (el) el.scrollIntoView({block: "nearest"});
+    }
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === "r") { e.preventDefault(); runAnalysis(); }
+});
+load();
+</script>
+</body>
+</html>

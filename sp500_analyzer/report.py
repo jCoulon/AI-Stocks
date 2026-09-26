@@ -335,11 +335,16 @@ def _price_chart(t: TickerAnalysis) -> str:
                              f'{MOIS[row[0].month - 1]}</text>')
             prev_month = row[0].month
     # Supports / résistances visibles dans la fenêtre.
+    last_label_y = None
     for lv in t.stock.levels:
         if lv.kind in ("support", "resistance") and lo < lv.price < hi:
-            parts.append(f'<line class="level {lv.kind}" x1="{left}" x2="{w - right}" y1="{y(lv.price):.1f}" '
-                         f'y2="{y(lv.price):.1f}"/><text class="level-label" x="{left + 4}" '
-                         f'y="{y(lv.price) - 4:.1f}">{html.escape(lv.label)} {lv.price:,.2f}</text>')
+            ly = y(lv.price)
+            parts.append(f'<line class="level {lv.kind}" x1="{left}" x2="{w - right}" y1="{ly:.1f}" y2="{ly:.1f}"/>')
+            # Libellé omis s'il chevaucherait le précédent (le niveau reste listé dans le tableau).
+            if last_label_y is None or abs(ly - last_label_y) >= 14:
+                parts.append(f'<text class="level-label" x="{left + 4}" y="{ly - 4:.1f}">'
+                             f'{html.escape(lv.label)} {lv.price:,.2f}</text>')
+                last_label_y = ly
     # Séries : un tracé par série, étiquette directe en bout de courbe.
     ends = []
     for col, (label, var, dash) in enumerate(CHART_SERIES, start=1):
@@ -437,9 +442,11 @@ def _stock_html(t: TickerAnalysis) -> str:
 <h4>Détail des signaux</h4>"""
 
 
-CHART_SCRIPT = """
-<script>
-document.querySelectorAll('svg.pricechart').forEach(function (svg) {
+CHART_JS = """
+// Active les graphiques de cours (info-bulle, taille des textes) présents sous `root`.
+window.initCharts = function (root) {
+(root || document).querySelectorAll('svg.pricechart:not([data-ready])').forEach(function (svg) {
+  svg.dataset.ready = '1';
   var pts = JSON.parse(svg.dataset.points), left = +svg.dataset.left, right = +svg.dataset.right;
   var lo = +svg.dataset.lo, hi = +svg.dataset.hi, top = +svg.dataset.top, bottom = +svg.dataset.bottom;
   var xhair = svg.querySelector('.xhair'), dots = svg.querySelectorAll('.hover-dot');
@@ -477,7 +484,9 @@ document.querySelectorAll('svg.pricechart').forEach(function (svg) {
     dots.forEach(function (d) { d.setAttribute('cx', -10); });
   });
 });
-</script>"""
+};
+"""
+CHART_SCRIPT = f"<script>{CHART_JS}\ninitCharts(document);</script>"
 
 
 def _score_badge(o: Outlook) -> str:
@@ -505,9 +514,148 @@ def _signals_table(t: TickerAnalysis, horizon: str) -> str:
     return f'<table class="signals">{"".join(rows)}</table>'
 
 
-def render_html(report: MarketReport) -> str:
+REPORT_CSS = """
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb; --surface-2: #f3f2ef; --border: #e2e0da;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7873;
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --pos: #1c5cab; --pos-bg: #cde2fb; --neg: #b3302f; --neg-bg: #f9d9d6;
+  --neu-bg: #f0efec; --warning: #fab219; --critical: #d03b3b; --info: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface: #1a1a19; --surface-2: #232321; --border: #383835;
+    --text: #ffffff; --text-2: #c3c2b7; --muted: #9a998f;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --pos: #86b6ef; --pos-bg: #184f95; --neg: #f0a3a0; --neg-bg: #6e2222;
+    --neu-bg: #383835;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #1a1a19; --surface-2: #232321; --border: #383835;
+  --text: #ffffff; --text-2: #c3c2b7; --muted: #9a998f;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --pos: #86b6ef; --pos-bg: #184f95; --neg: #f0a3a0; --neg-bg: #6e2222;
+  --neu-bg: #383835;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 16px; margin: 28px 0 10px; }
+h4 { margin: 8px 0; font-size: 13px; color: var(--text-2); }
+.disclaimer { background: var(--surface-2); border-left: 3px solid var(--warning); padding: 8px 12px;
+  color: var(--text-2); font-size: 13px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.card .big { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.kvs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 4px 20px; }
+.kv { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 3px 0; }
+.kv span { color: var(--text-2); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+th { font-size: 12px; color: var(--text-2); font-weight: 600; white-space: nowrap; }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); } .small { font-size: 12px; }
+td.pos, .signals .pos { color: var(--pos); } td.neg, .signals .neg { color: var(--neg); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; white-space: nowrap; }
+.badge.pos { background: var(--pos-bg); color: var(--text); }
+.badge.neg { background: var(--neg-bg); color: var(--text); }
+.badge.neu { background: var(--neu-bg); color: var(--text); }
+.badge + .num { margin-left: 6px; } .conf { margin-left: 6px; color: var(--muted); font-size: 12px; }
+.flag { display: inline-block; margin: 1px 4px 1px 0; padding: 1px 6px; border-radius: 4px; font-size: 11px;
+  border: 1px solid var(--border); white-space: nowrap; color: var(--text); }
+.flag.warning { border-color: var(--warning); } .flag.critical { border-color: var(--critical); }
+.flag.info { border-color: var(--info); }
+.spark .line { fill: none; stroke: var(--series-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.spark .dot { fill: var(--series-1); stroke: var(--surface); stroke-width: 2; opacity: 0; }
+.spark .hit { fill: transparent; }
+.spark .pt:hover .dot { opacity: 1; }
+details { border: 1px solid var(--border); border-radius: 8px; margin: 8px 0; padding: 8px 12px; background: var(--surface-2); }
+summary { cursor: pointer; }
+a { color: inherit; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.signals td { font-size: 12px; padding: 4px 6px; } .signals .pillar td { font-weight: 650; background: var(--surface); }
+ul.flags, ul.news { padding-left: 18px; } ul.flags li, ul.news li { margin: 4px 0; }
+.thesis { font-size: 15px; margin: 10px 0 14px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.chart-wrap { position: relative; margin: 8px 0 12px; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-2); margin-bottom: 4px; flex-wrap: wrap; }
+.legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.pricechart { width: 100%; height: auto; display: block; }
+.pricechart .series { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
+  vector-effect: non-scaling-stroke; }
+.pricechart line { vector-effect: non-scaling-stroke; }
+.pricechart .grid { stroke: var(--border); stroke-width: 1; }
+.pricechart .tick { fill: var(--muted); font-size: calc(11px * var(--k, 1)); }
+.pricechart .level { stroke: var(--text-2); stroke-width: 1; stroke-dasharray: 2 4; opacity: .7; }
+.pricechart .level-label { fill: var(--text-2); font-size: calc(10px * var(--k, 1)); }
+.pricechart .xhair { stroke: var(--text-2); stroke-width: 1; }
+.pricechart .hover-dot { stroke: var(--surface-2); stroke-width: 2; r: calc(4px * var(--k, 1));
+  vector-effect: non-scaling-stroke; }
+.pricechart .end-dot { r: calc(3px * var(--k, 1)); }
+.pricechart .hit { fill: transparent; cursor: crosshair; }
+.tooltip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.tooltip .sw { display: inline-block; width: 10px; height: 3px; margin-right: 6px; vertical-align: middle; }
+.tooltip .s1 { background: var(--series-1); } .tooltip .s2 { background: var(--series-2); }
+.tooltip .s3 { background: var(--series-3); }
+ul.pros, ul.cons { padding-left: 18px; margin: 4px 0; } ul.pros li, ul.cons li { margin: 3px 0; }
+.signals th { font-size: 11px; }
+tr.lv-support td:first-child, tr.lv-resistance td:first-child { font-weight: 600; }
+.narrative p { margin: 6px 0; white-space: pre-line; }
+time { color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } .pricechart .level-label { display: none; } }
+"""
+
+
+def _flags_list(t: TickerAnalysis) -> str:
+    items = "".join(
+        f'<li class="flag-line {f.severity}"><span class="flag {f.severity}">{SEVERITY_ICON[f.severity]} '
+        f'{SEVERITY_LABEL[f.severity]}</span> {html.escape(f.message)}</li>' for f in t.flags
+    )
+    return f'<ul class="flags">{items}</ul>' if items else ""
+
+
+def html_stock_detail(t: TickerAnalysis) -> str:
+    """Fiche d'une action (sans enveloppe) : synthèse, graphique, signaux, alertes."""
+    return (
+        _stock_html(t)
+        + f'<div class="grid2"><div><h4>Court terme — fourchette {t.short.low:,.2f} – {t.short.high:,.2f}</h4>'
+        f'{_signals_table(t, "court")}</div><div><h4>Moyen terme — fourchette '
+        f'{t.medium.low:,.2f} – {t.medium.high:,.2f}</h4>{_signals_table(t, "moyen")}</div></div>'
+        + _flags_list(t)
+    )
+
+
+def html_stock_header(t: TickerAnalysis) -> str:
+    s = t.security
+    return (f'<h1>{html.escape(s.ticker)} <span class="muted">— {html.escape(s.name)}</span></h1>'
+            f'<p class="muted">{html.escape(s.sector)} · cours {t.last_close:,.2f} · semaine {t.week_return:+.2%} · '
+            f'qualité des données {t.data_quality:.0%} · cohérence des sources {t.coherence:.0%}</p>'
+            f'<div class="cards"><div class="card"><div class="muted">Court terme (1-2 semaines)</div>'
+            f'<p>{_score_badge(t.short)}</p><div class="small muted">Fourchette {t.short.low:,.2f} – {t.short.high:,.2f}</div></div>'
+            f'<div class="card"><div class="muted">Moyen terme (1-3 mois)</div><p>{_score_badge(t.medium)}</p>'
+            f'<div class="small muted">Fourchette {t.medium.low:,.2f} – {t.medium.high:,.2f}</div></div></div>')
+
+
+def html_agents(report: MarketReport) -> str:
+    rows = "".join(
+        f'<tr><td>{html.escape(a["agent"])}</td><td class="num">{a["done"]}</td><td class="num">{a["failed"]}</td>'
+        f'<td class="num">{a["skipped"]}</td><td class="num">{a["ms"]:.0f} ms</td></tr>'
+        for a in summarize_trace(report.trace)
+    )
+    return ('<h2>Équipe d\'agents</h2><div class="scroll"><table><thead><tr><th>Agent</th><th class="num">Réussies</th>'
+            '<th class="num">Échecs</th><th class="num">Annulées</th><th class="num">Temps cumulé</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div>')
+
+
+def html_market(report: MarketReport) -> str:
+    """Vue marché : indice, macro, news, synthèse éventuelle et tableau des avis."""
     idx = report.index
     m = report.macro_summary
+    b = report.breadth
     macro_rows = "".join(
         f'<div class="kv"><span>{html.escape(label.strip())}</span><strong>{fmt.format(m[key])}</strong></div>'
         for key, label, fmt in MACRO_LABELS if key in m
@@ -516,15 +664,14 @@ def render_html(report: MarketReport) -> str:
         f'<li><time>{_jour(n.published.date())}</time> <b>{html.escape(n.source)}</b> '
         f'{html.escape(n.headline)}</li>' for n in report.market_news
     )
-    rows, details = [], []
+    rows = []
     for t in sorted(report.tickers, key=lambda x: -x.short.score):
-        alerts = [f for f in t.flags if f.severity != "info"]
         alert_html = "".join(
             f'<span class="flag {f.severity}" title="{html.escape(f.message)}">'
-            f'{SEVERITY_ICON[f.severity]} {html.escape(f.code)}</span>' for f in alerts
+            f'{SEVERITY_ICON[f.severity]} {html.escape(f.code)}</span>' for f in t.flags if f.severity != "info"
         )
         rows.append(
-            f'<tr><td><a href="#{t.security.ticker}"><b>{t.security.ticker}</b></a>'
+            f'<tr><td><a href="#{t.security.ticker}" data-ticker="{t.security.ticker}"><b>{t.security.ticker}</b></a>'
             f'<div class="muted small">{html.escape(t.security.name)}</div></td>'
             f'<td class="muted small">{html.escape(t.security.sector)}</td>'
             f'<td class="num">{t.last_close:,.2f}</td>'
@@ -533,133 +680,11 @@ def render_html(report: MarketReport) -> str:
             f'<td>{_score_badge(t.short)}</td><td>{_score_badge(t.medium)}</td>'
             f'<td class="num">{t.data_quality * t.coherence:.0%}</td><td>{alert_html}</td></tr>'
         )
-        flags = "".join(
-            f'<li class="flag-line {f.severity}"><span class="flag {f.severity}">{SEVERITY_ICON[f.severity]} '
-            f'{SEVERITY_LABEL[f.severity]}</span> {html.escape(f.message)}</li>' for f in t.flags
-        )
-        details.append(
-            f'<details id="{t.security.ticker}"{" open" if len(report.tickers) <= 3 else ""}><summary><b>{t.security.ticker}</b> — '
-            f'{html.escape(t.security.name)} <span class="muted">· CT {html.escape(t.short.label)} · '
-            f'MT {html.escape(t.medium.label)}</span></summary>'
-            + _stock_html(t) +
-            f'<div class="grid2"><div><h4>Court terme — fourchette {t.short.low:,.2f} – {t.short.high:,.2f}</h4>'
-            f'{_signals_table(t, "court")}</div><div><h4>Moyen terme — fourchette '
-            f'{t.medium.low:,.2f} – {t.medium.high:,.2f}</h4>{_signals_table(t, "moyen")}</div></div>'
-            + (f'<ul class="flags">{flags}</ul>' if flags else "") + '</details>'
-        )
-
-    b = report.breadth
     narrative_html = ""
     if report.narrative:
         paras = "".join(f"<p>{html.escape(p)}</p>" for p in report.narrative.split("\n\n") if p.strip())
         narrative_html = f'<h2>Synthèse de l\'agent rédacteur (Claude)</h2><div class="card narrative">{paras}</div>'
-    trace_rows = "".join(
-        f'<tr><td>{html.escape(a["agent"])}</td><td class="num">{a["done"]}</td><td class="num">{a["failed"]}</td>'
-        f'<td class="num">{a["skipped"]}</td><td class="num">{a["ms"]:.0f} ms</td></tr>'
-        for a in summarize_trace(report.trace)
-    )
-    return f"""<!doctype html>
-<html lang="fr"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Analyse S&amp;P 500</title>
-<style>
-:root {{
-  color-scheme: light;
-  --surface: #fcfcfb; --surface-2: #f3f2ef; --border: #e2e0da;
-  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7873;
-  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --pos: #1c5cab; --pos-bg: #cde2fb; --neg: #b3302f; --neg-bg: #f9d9d6;
-  --neu-bg: #f0efec; --warning: #fab219; --critical: #d03b3b; --info: #2a78d6;
-}}
-@media (prefers-color-scheme: dark) {{
-  :root:not([data-theme="light"]) {{
-    color-scheme: dark;
-    --surface: #1a1a19; --surface-2: #232321; --border: #383835;
-    --text: #ffffff; --text-2: #c3c2b7; --muted: #9a998f;
-    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --pos: #86b6ef; --pos-bg: #184f95; --neg: #f0a3a0; --neg-bg: #6e2222;
-    --neu-bg: #383835;
-  }}
-}}
-:root[data-theme="dark"] {{
-  color-scheme: dark;
-  --surface: #1a1a19; --surface-2: #232321; --border: #383835;
-  --text: #ffffff; --text-2: #c3c2b7; --muted: #9a998f;
-  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --pos: #86b6ef; --pos-bg: #184f95; --neg: #f0a3a0; --neg-bg: #6e2222;
-  --neu-bg: #383835;
-}}
-* {{ box-sizing: border-box; }}
-body {{ margin: 0; background: var(--surface); color: var(--text);
-  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }}
-main {{ max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }}
-h1 {{ font-size: 22px; margin: 0 0 4px; }} h2 {{ font-size: 16px; margin: 28px 0 10px; }}
-h4 {{ margin: 8px 0; font-size: 13px; color: var(--text-2); }}
-.disclaimer {{ background: var(--surface-2); border-left: 3px solid var(--warning); padding: 8px 12px;
-  color: var(--text-2); font-size: 13px; }}
-.cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }}
-.card {{ background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }}
-.card .big {{ font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }}
-.kvs {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 4px 20px; }}
-.kv {{ display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding: 3px 0; }}
-.kv span {{ color: var(--text-2); }}
-.scroll {{ overflow-x: auto; }}
-table {{ border-collapse: collapse; width: 100%; }}
-th, td {{ padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }}
-th {{ font-size: 12px; color: var(--text-2); font-weight: 600; white-space: nowrap; }}
-.num {{ text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }}
-.muted {{ color: var(--muted); }} .small {{ font-size: 12px; }}
-td.pos, .signals .pos {{ color: var(--pos); }} td.neg, .signals .neg {{ color: var(--neg); }}
-.badge {{ display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; white-space: nowrap; }}
-.badge.pos {{ background: var(--pos-bg); color: var(--text); }}
-.badge.neg {{ background: var(--neg-bg); color: var(--text); }}
-.badge.neu {{ background: var(--neu-bg); color: var(--text); }}
-.badge + .num {{ margin-left: 6px; }} .conf {{ margin-left: 6px; color: var(--muted); font-size: 12px; }}
-.flag {{ display: inline-block; margin: 1px 4px 1px 0; padding: 1px 6px; border-radius: 4px; font-size: 11px;
-  border: 1px solid var(--border); white-space: nowrap; color: var(--text); }}
-.flag.warning {{ border-color: var(--warning); }} .flag.critical {{ border-color: var(--critical); }}
-.flag.info {{ border-color: var(--info); }}
-.spark .line {{ fill: none; stroke: var(--series-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }}
-.spark .dot {{ fill: var(--series-1); stroke: var(--surface); stroke-width: 2; opacity: 0; }}
-.spark .hit {{ fill: transparent; }}
-.spark .pt:hover .dot {{ opacity: 1; }}
-details {{ border: 1px solid var(--border); border-radius: 8px; margin: 8px 0; padding: 8px 12px; background: var(--surface-2); }}
-summary {{ cursor: pointer; }}
-a {{ color: inherit; }}
-.grid2 {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }}
-.signals td {{ font-size: 12px; padding: 4px 6px; }} .signals .pillar td {{ font-weight: 650; background: var(--surface); }}
-ul.flags, ul.news {{ padding-left: 18px; }} ul.flags li, ul.news li {{ margin: 4px 0; }}
-.thesis {{ font-size: 15px; margin: 10px 0 14px; }}
-.grid3 {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }}
-.chart-wrap {{ position: relative; margin: 8px 0 12px; }}
-.legend {{ display: flex; gap: 16px; font-size: 12px; color: var(--text-2); margin-bottom: 4px; flex-wrap: wrap; }}
-.legend .key {{ display: inline-flex; align-items: center; gap: 6px; }}
-.pricechart {{ width: 100%; height: auto; display: block; }}
-.pricechart .series {{ fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
-  vector-effect: non-scaling-stroke; }}
-.pricechart line {{ vector-effect: non-scaling-stroke; }}
-.pricechart .grid {{ stroke: var(--border); stroke-width: 1; }}
-.pricechart .tick {{ fill: var(--muted); font-size: calc(11px * var(--k, 1)); }}
-.pricechart .level {{ stroke: var(--text-2); stroke-width: 1; stroke-dasharray: 2 4; opacity: .7; }}
-.pricechart .level-label {{ fill: var(--text-2); font-size: calc(10px * var(--k, 1)); }}
-.pricechart .xhair {{ stroke: var(--text-2); stroke-width: 1; }}
-.pricechart .hover-dot {{ stroke: var(--surface-2); stroke-width: 2; r: calc(4px * var(--k, 1));
-  vector-effect: non-scaling-stroke; }}
-.pricechart .end-dot {{ r: calc(3px * var(--k, 1)); }}
-.pricechart .hit {{ fill: transparent; cursor: crosshair; }}
-.tooltip {{ position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 6px; padding: 6px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }}
-.tooltip .sw {{ display: inline-block; width: 10px; height: 3px; margin-right: 6px; vertical-align: middle; }}
-.tooltip .s1 {{ background: var(--series-1); }} .tooltip .s2 {{ background: var(--series-2); }}
-.tooltip .s3 {{ background: var(--series-3); }}
-ul.pros, ul.cons {{ padding-left: 18px; margin: 4px 0; }} ul.pros li, ul.cons li {{ margin: 3px 0; }}
-.signals th {{ font-size: 11px; }}
-tr.lv-support td:first-child, tr.lv-resistance td:first-child {{ font-weight: 600; }}
-.narrative p {{ margin: 6px 0; white-space: pre-line; }}
-time {{ color: var(--muted); font-variant-numeric: tabular-nums; }}
-@media (max-width: 600px) {{ .grid2 {{ grid-template-columns: 1fr; }} .pricechart .level-label {{ display: none; }} }}
-</style></head>
-<body><main>
-<h1>Analyse S&amp;P 500 — semaine au {report.as_of.strftime('%d/%m/%Y')}</h1>
-<p class="disclaimer">{html.escape(DISCLAIMER)}</p>
-
+    return f"""
 <h2>Marché</h2>
 <div class="cards">
   <div class="card"><div class="muted">S&amp;P 500</div><div class="big">{idx.last_close:,.2f}</div>
@@ -674,24 +699,38 @@ time {{ color: var(--muted); font-variant-numeric: tabular-nums; }}
     <div class="kv"><span>Au-dessus MM50</span><strong>{b['above_sma50']:.0%}</strong></div>
     <div class="kv"><span>Au-dessus MM200</span><strong>{b['above_sma200']:.0%}</strong></div></div>
 </div>
-
 <h2>Macro &amp; sentiment de marché</h2>
 <div class="kvs">{macro_rows}</div>
 <h2>News de marché</h2>
 <ul class="news">{news}</ul>
-
 {narrative_html}
 <h2>Avis par action</h2>
 <div class="scroll"><table>
 <thead><tr><th>Titre</th><th>Secteur</th><th class="num">Cours</th><th class="num">Semaine</th><th>5 séances</th>
 <th>Court terme</th><th>Moyen terme</th><th class="num">Fiabilité</th><th>Alertes</th></tr></thead>
-<tbody>{''.join(rows)}</tbody></table></div>
+<tbody>{''.join(rows)}</tbody></table></div>"""
 
+
+def render_html(report: MarketReport) -> str:
+    details = "".join(
+        f'<details id="{t.security.ticker}"{" open" if len(report.tickers) <= 3 else ""}><summary>'
+        f'<b>{t.security.ticker}</b> — {html.escape(t.security.name)} <span class="muted">· CT '
+        f'{html.escape(t.short.label)} · MT {html.escape(t.medium.label)}</span></summary>'
+        f'{html_stock_detail(t)}</details>'
+        for t in sorted(report.tickers, key=lambda x: -x.short.score)
+    )
+    return f"""<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyse S&amp;P 500</title>
+<style>{REPORT_CSS}</style></head>
+<body><main>
+<h1>Analyse S&amp;P 500 — semaine au {report.as_of.strftime('%d/%m/%Y')}</h1>
+<p class="disclaimer">{html.escape(DISCLAIMER)}</p>
+{html_market(report)}
 <h2>Détail par action</h2>
-{''.join(details)}
-<h2>Équipe d'agents</h2>
-<div class="scroll"><table><thead><tr><th>Agent</th><th class="num">Réussies</th><th class="num">Échecs</th>
-<th class="num">Annulées</th><th class="num">Temps cumulé</th></tr></thead><tbody>{trace_rows}</tbody></table></div>
+{details}
+{html_agents(report)}
 <p class="muted small">Généré le {datetime.now().strftime('%d/%m/%Y %H:%M')} — score de -1 (baissier) à +1 (haussier) ;
 la confiance intègre l'accord entre piliers, la qualité et la cohérence des données.</p>
 </main>{CHART_SCRIPT}</body></html>

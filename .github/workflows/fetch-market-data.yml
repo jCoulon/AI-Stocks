@@ -1,0 +1,57 @@
+name: Données de marché réelles
+
+# Les runners GitHub ont accès à Internet (contrairement à l'environnement de développement) :
+# ce workflow télécharge les vrais cours et les enregistre en CSV dans la branche.
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Début de la période intraday (AAAA-MM-JJ)"
+        default: "2026-09-01"
+      end:
+        description: "Fin de la période intraday (vide = aujourd'hui)"
+        default: ""
+  push:
+    branches: ["claude/**"]
+    paths:
+      - ".github/workflows/fetch-market-data.yml"
+      - "scripts/fetch_market_data.py"
+      - "sp500_analyzer/providers/yahoo.py"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Téléchargement (Yahoo Finance)
+        run: |
+          END="${{ github.event.inputs.end }}"
+          python scripts/fetch_market_data.py --start "${{ github.event.inputs.start || '2026-09-01' }}" \
+            ${END:+--end "$END"} --out data
+
+      - name: Enregistrement dans la branche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "Aucune donnée nouvelle."
+          else
+            git commit -m "Données de marché réelles (Yahoo Finance) : intraday 10 min + quotidien"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: donnees-marche
+          path: data/

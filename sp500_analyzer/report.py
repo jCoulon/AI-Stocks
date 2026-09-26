@@ -110,11 +110,41 @@ def render_text(report: MarketReport, color: bool = False, detail: list[str] | N
                     out.append(f"  {SEVERITY_ICON[f.severity]} {t.security.ticker:<5} {f.message}")
         out.append(line)
 
+    if report.narrative:
+        out.append(st("SYNTHÈSE DE L'AGENT RÉDACTEUR (Claude)", "1"))
+        out.extend("  " + l for l in report.narrative.splitlines())
+        out.append(line)
+
     for ticker in detail or []:
         t = next((x for x in report.tickers if x.security.ticker == ticker.upper()), None)
         if t:
             out.extend(render_detail(t, st))
             out.append(line)
+    return "\n".join(out)
+
+
+def summarize_trace(trace: list[dict]) -> list[dict]:
+    """Agrège le journal de l'orchestrateur par agent."""
+    by_agent: dict[str, dict] = {}
+    for r in trace:
+        a = by_agent.setdefault(r["agent"], {"agent": r["agent"], "done": 0, "failed": 0, "skipped": 0,
+                                             "ms": 0.0, "errors": []})
+        a[r["status"]] = a.get(r["status"], 0) + 1
+        a["ms"] += r["duration_ms"]
+        if r["error"]:
+            a["errors"].append(f"{r['task_id']} : {r['error']}")
+    return list(by_agent.values())
+
+
+def render_trace(report: MarketReport, verbose: bool = False) -> str:
+    rows = summarize_trace(report.trace)
+    out = ["JOURNAL DE L'ORCHESTRATEUR",
+           f"  {'Agent':<18} {'OK':>5} {'Échec':>6} {'Annulé':>7} {'Temps cumulé':>13}"]
+    for a in rows:
+        out.append(f"  {a['agent']:<18} {a['done']:>5} {a['failed']:>6} {a['skipped']:>7} {a['ms']:>10.0f} ms")
+        for e in a["errors"][: None if verbose else 3]:
+            out.append(f"      ↳ {e}")
+    out.append(f"  {len(report.trace)} tâches au total")
     return "\n".join(out)
 
 
@@ -250,6 +280,15 @@ def render_html(report: MarketReport) -> str:
         )
 
     b = report.breadth
+    narrative_html = ""
+    if report.narrative:
+        paras = "".join(f"<p>{html.escape(p)}</p>" for p in report.narrative.split("\n\n") if p.strip())
+        narrative_html = f'<h2>Synthèse de l\'agent rédacteur (Claude)</h2><div class="card narrative">{paras}</div>'
+    trace_rows = "".join(
+        f'<tr><td>{html.escape(a["agent"])}</td><td class="num">{a["done"]}</td><td class="num">{a["failed"]}</td>'
+        f'<td class="num">{a["skipped"]}</td><td class="num">{a["ms"]:.0f} ms</td></tr>'
+        for a in summarize_trace(report.trace)
+    )
     return f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -318,6 +357,7 @@ a {{ color: inherit; }}
 .grid2 {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }}
 .signals td {{ font-size: 12px; padding: 4px 6px; }} .signals .pillar td {{ font-weight: 650; background: var(--surface); }}
 ul.flags, ul.news {{ padding-left: 18px; }} ul.flags li, ul.news li {{ margin: 4px 0; }}
+.narrative p {{ margin: 6px 0; white-space: pre-line; }}
 time {{ color: var(--muted); font-variant-numeric: tabular-nums; }}
 @media (max-width: 600px) {{ .grid2 {{ grid-template-columns: 1fr; }} }}
 </style></head>
@@ -345,6 +385,7 @@ time {{ color: var(--muted); font-variant-numeric: tabular-nums; }}
 <h2>News de marché</h2>
 <ul class="news">{news}</ul>
 
+{narrative_html}
 <h2>Avis par action</h2>
 <div class="scroll"><table>
 <thead><tr><th>Titre</th><th>Secteur</th><th class="num">Cours</th><th class="num">Semaine</th><th>5 séances</th>
@@ -353,6 +394,9 @@ time {{ color: var(--muted); font-variant-numeric: tabular-nums; }}
 
 <h2>Détail par action</h2>
 {''.join(details)}
+<h2>Équipe d'agents</h2>
+<div class="scroll"><table><thead><tr><th>Agent</th><th class="num">Réussies</th><th class="num">Échecs</th>
+<th class="num">Annulées</th><th class="num">Temps cumulé</th></tr></thead><tbody>{trace_rows}</tbody></table></div>
 <p class="muted small">Généré le {datetime.now().strftime('%d/%m/%Y %H:%M')} — score de -1 (baissier) à +1 (haussier) ;
 la confiance intègre l'accord entre piliers, la qualité et la cohérence des données.</p>
 </main></body></html>

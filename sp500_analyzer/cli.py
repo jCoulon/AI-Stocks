@@ -6,9 +6,10 @@ import argparse
 import sys
 from datetime import date
 
-from .engine import run_analysis
+from .agents.base import TaskRecord
+from .orchestrator import OrchestrationError, Orchestrator
 from .providers.mock import MockDataProvider
-from .report import render_html, render_text, to_json
+from .report import render_html, render_text, render_trace, to_json
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -26,6 +27,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json", metavar="FICHIER", help="Exporter le rapport complet en JSON")
     p.add_argument("--html", metavar="FICHIER", help="Exporter un rapport HTML autonome")
     p.add_argument("--no-color", action="store_true", help="Désactiver les couleurs du terminal")
+    p.add_argument("--llm", action="store_true",
+                   help="Activer l'agent rédacteur (Claude) pour une synthèse en langage naturel "
+                        "(nécessite 'pip install anthropic' et une clé API)")
+    p.add_argument("--trace", action="store_true", help="Afficher le journal d'exécution des agents")
+    p.add_argument("-v", "--verbose", action="store_true", help="Suivre l'avancement des agents en direct")
+    p.add_argument("--workers", type=int, default=8, help="Nombre d'agents exécutés en parallèle (défaut 8)")
     return p
 
 
@@ -40,9 +47,27 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
 
-    report = run_analysis(provider, args.ticker or None)
+    def progress(rec: TaskRecord) -> None:
+        if args.verbose or rec.status == "failed":
+            extra = f" — {rec.error}" if rec.error else ""
+            print(f"[{rec.status:>7}] {rec.agent:<16} {rec.task_id}{extra}", file=sys.stderr)
+
+    orchestrator = Orchestrator(provider, use_llm=args.llm, max_workers=args.workers, listener=progress)
+    try:
+        report = orchestrator.run(focus=args.ticker or None)
+    except OrchestrationError as e:
+        print(f"Erreur : {e}", file=sys.stderr)
+        for r in e.records:
+            if r.status != "done":
+                print(f"  {r.task_id} [{r.status}] {r.error}", file=sys.stderr)
+        return 1
     color = sys.stdout.isatty() and not args.no_color
     print(render_text(report, color=color, detail=args.ticker + args.detail))
+    if args.trace:
+        print(render_trace(report, verbose=args.verbose))
+    if args.llm and not report.narrative:
+        writer = next((r for r in report.trace if r["agent"] == "redacteur"), None)
+        print(f"Agent rédacteur indisponible : {writer['error'] if writer else 'non exécuté'}", file=sys.stderr)
 
     if args.json:
         with open(args.json, "w", encoding="utf-8") as f:

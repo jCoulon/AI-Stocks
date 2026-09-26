@@ -118,3 +118,7 @@ class MarketReport:
     macro_summary: dict[str, float]
     breadth: dict[str, float]
     market_news: list[NewsItem]
+    #: Synthèse rédigée par l'agent rédacteur (optionnel, via Claude).
+    narrative: Optional[str] = None
+    #: Journal d'exécution de l'orchestrateur (une entrée par tâche d'agent).
+    trace: list = field(default_factory=list)

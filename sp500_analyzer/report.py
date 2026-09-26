@@ -204,12 +204,43 @@ def render_stock(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
                f"buzz x{so['Buzz vs normale']:.1f}, comptes récents {so['Comptes < 30 jours']:.0%}, "
                f"score de manipulation {so['Score de manipulation']:.2f}")
 
+    out += render_research(t, st)
+
     rank, total = sr.sector_rank
     out += ["", st(f"  Pairs du secteur (rang court terme : {rank}/{total})", "1")]
     for p in sr.peers:
         out.append(f"    {p.ticker:<6} semaine {_pct(p.week_return):>7}   CT {p.short_score:+.2f}   MT {p.medium_score:+.2f}")
     out += ["", st("  Détail des signaux", "1")]
     out += render_detail(t, st)[2:]
+    return out
+
+
+def _research_diagnostics(rv) -> list[str]:
+    lines = [f"Régime statistique : {rv.regime} (ratio de variance {rv.variance_ratio:.2f}, z = {rv.vr_z:+.2f} ; "
+             "Lo & MacKinlay, 1988)"]
+    if rv.garch:
+        g = rv.garch
+        lines.append(f"Volatilité prévue (GARCH(1,1), Bollerslev, 1986) : ±{g.horizon_vol(5):.1%} sur 5 séances, "
+                     f"±{g.horizon_vol(63):.1%} sur 3 mois (persistance {g.persistence:.2f})")
+    if rv.momentum_crash_risk:
+        lines.append("Risque de krach du momentum : marché en rebond après une baisse sur 12 mois — "
+                     "poids du momentum divisé par deux (Daniel & Moskowitz, 2016)")
+    return lines
+
+
+def render_research(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
+    st = st or _Style(False)
+    rv = t.research
+    if rv is None:
+        return []
+    out = ["", st("  Facteurs de recherche (littérature académique)", "1")]
+    for f in rv.factors:
+        if f.value is None:
+            continue
+        horizon = "/".join("CT" if h == "court" else "MT" for h in f.horizons)
+        out.append(f"    {f.name:<46} {horizon:<5} " + st.score(f"{f.score:+.2f}", f.score) + f"  {f.note}")
+        out.append(f"    {'':<46} {'':<5}        {f.reference}")
+    out += ["    " + line for line in _research_diagnostics(rv)]
     return out
 
 
@@ -245,7 +276,7 @@ def render_detail(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
         out.append(f"    Fourchette indicative : {o.low:.2f} — {o.high:.2f}")
         out.append("    Contributions : " + ", ".join(f"{k} {v:+.2f}" for k, v in o.contributions.items()))
         horizon = "court" if o is t.short else "moyen"
-        for pillar in ("technique", "sentiment", "macro"):
+        for pillar in ("technique", "sentiment", "macro", "recherche"):
             p = t.pillars.get(f"{pillar}_{horizon}")
             if not p:
                 continue
@@ -439,7 +470,30 @@ def _stock_html(t: TickerAnalysis) -> str:
   <div><h4>Pairs du secteur — rang {rank}/{total} à court terme</h4><table class="signals">
     <tr><th>Titre</th><th class="num">Semaine</th><th class="num">CT</th><th class="num">MT</th></tr>{peers}</table></div>
 </div>
+{_research_html(t)}
 <h4>Détail des signaux</h4>"""
+
+
+def _research_html(t: TickerAnalysis) -> str:
+    rv = t.research
+    if rv is None:
+        return ""
+    rows = []
+    for f in rv.factors:
+        if f.value is None:
+            continue
+        horizon = " / ".join("CT" if h == "court" else "MT" for h in f.horizons)
+        cls = "pos" if f.score >= 0.12 else "neg" if f.score <= -0.12 else "neu"
+        pct = f"{f.percentile:.0%}" if f.percentile is not None else "—"
+        rows.append(f'<tr><td>{html.escape(f.name)}</td><td class="muted">{horizon}</td>'
+                    f'<td>{html.escape(f.note.split(" → ")[0].split(", percentile")[0])}</td>'
+                    f'<td class="num">{pct}</td><td class="num {cls}">{f.score:+.2f}</td>'
+                    f'<td class="muted small">{html.escape(f.reference)}</td></tr>')
+    diag = "".join(f"<li>{html.escape(line)}</li>" for line in _research_diagnostics(rv))
+    return (f'<h4>Facteurs de recherche (littérature académique)</h4><div class="scroll"><table class="signals">'
+            f'<tr><th>Facteur</th><th>Horizon</th><th>Mesure</th><th class="num">Percentile</th>'
+            f'<th class="num">Score</th><th>Source</th></tr>{"".join(rows)}</table></div>'
+            f'<ul class="news">{diag}</ul>')
 
 
 CHART_JS = """
@@ -499,7 +553,7 @@ def _score_badge(o: Outlook) -> str:
 
 def _signals_table(t: TickerAnalysis, horizon: str) -> str:
     rows = []
-    for pillar in ("technique", "sentiment", "macro"):
+    for pillar in ("technique", "sentiment", "macro", "recherche"):
         p = t.pillars.get(f"{pillar}_{horizon}")
         if not p:
             continue

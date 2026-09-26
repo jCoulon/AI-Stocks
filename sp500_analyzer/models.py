@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass(frozen=True)
@@ -155,6 +155,8 @@ class TickerAnalysis:
     medium: Outlook
     stats: dict[str, float] = field(default_factory=dict)
     stock: Optional[StockReport] = None
+    #: Vue « recherche » (facteurs académiques, régime, GARCH) — voir analysis/research.py
+    research: Optional[Any] = None
 
 
 @dataclass

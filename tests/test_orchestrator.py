@@ -70,8 +70,8 @@ class OrchestratorTests(unittest.TestCase):
         for t in tasks:
             self.assertTrue(set(t.depends_on) | set(t.optional_deps) <= ids, t.id)
         self.assertIn("strategy:AAPL", ids)
-        # macro + collecte indice, 4 tâches pour l'indice, 6 par titre (dont la fiche), synthèse marché
-        self.assertEqual(len(tasks), 2 + 4 + 2 * 6 + 1)
+        # macro + collecte indice, 4 tâches pour l'indice, 6 par titre (dont la fiche), chercheur, marché
+        self.assertEqual(len(tasks), 2 + 4 + 2 * 6 + 1 + 1)
 
     def test_dependencies_respected(self):
         log, lock = [], threading.Lock()
@@ -139,7 +139,7 @@ class OrchestratorTests(unittest.TestCase):
         report = run_analysis(self.provider)
         text = render_trace(report)
         self.assertIn("strategiste", text)
-        self.assertIn("187 tâches", text)
+        self.assertIn("188 tâches", text)
         self.assertIn("Équipe d'agents", render_html(report))
 
 

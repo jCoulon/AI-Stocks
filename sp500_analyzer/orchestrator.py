@@ -4,6 +4,7 @@ Plan (un graphe de tâches par titre, plus des tâches globales) :
 
     collecteur(^GSPC) ──────────────┐
     economiste (macro) ─────────────┼─────────────────────┐
+    chercheur (tous les titres)* ───┼─────────────────────┤
     collecteur(T) ─┬─ controleur(T) ─┴─ sentiment(T)* ─┐   │
                    └─ technicien(T) ───────────────────┴─ strategiste(T) ─┐
                                                                          ├─ chef-strategiste ─┬─ redacteur*
@@ -30,6 +31,7 @@ from .agents.specialists import (
     MacroEconomistAgent,
     MarketStrategistAgent,
     QualityControlAgent,
+    QuantResearchAgent,
     SentimentAnalystAgent,
     StockAnalystAgent,
     StrategistAgent,
@@ -90,8 +92,12 @@ class Orchestrator:
                 Task(f"sentiment:{t}", "sentiment", t, (f"quality:{t}",)),
                 Task(f"strategy:{t}", "strategiste", t,
                      (f"collect:{t}", f"quality:{t}", f"technical:{t}"),
-                     optional_deps=("macro", f"sentiment:{t}")),
+                     optional_deps=("macro", f"sentiment:{t}", "research")),
             ]
+        # Le chercheur classe les titres entre eux : il attend toutes les collectes.
+        tasks.append(Task("research", "chercheur", None, (f"collect:{index}",),
+                          optional_deps=tuple(f"collect:{t}" for t in tickers)
+                          + tuple(f"quality:{t}" for t in tickers)))
         tasks.append(Task("market", "chef-strategiste", None, (f"strategy:{index}",),
                           optional_deps=tuple(f"strategy:{t}" for t in tickers) + ("macro",)))
         tasks += [Task(f"stock:{t}", "analyste-titre", t, ("market", f"collect:{t}", f"quality:{t}"))
@@ -179,6 +185,9 @@ class Orchestrator:
         tickers = tickers or universe
         board = Blackboard(self.provider, datetime.combine(self.provider.as_of, time(22, 0)))
         self.agents["chef-strategiste"] = MarketStrategistAgent(tickers)
+        self.agents.setdefault("chercheur", QuantResearchAgent(tickers))
+        if isinstance(self.agents["chercheur"], QuantResearchAgent):
+            self.agents["chercheur"].tickers = tickers
 
         records = self.execute(self.plan(tickers), board)
         trace = [asdict(r) for r in records.values()]

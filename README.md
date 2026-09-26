@@ -8,6 +8,7 @@ chaque action du S&P 500 :
 | **Technique** (charts) | Cours OHLCV journaliers | RSI, MACD, EMA20, SMA50/200, Bollinger, volumes, force relative vs S&P |
 | **Sentiment** | News + réseaux sociaux | Ton des titres pondéré par la fiabilité de la source et la fraîcheur, ton social, buzz |
 | **Macro / éco** | Taux, inflation, emploi, PMI, pétrole, VIX, put/call, AAII | Régime de marché, sensibilité sectorielle (taux, pétrole, cycle, courbe) |
+| **Recherche** | Cours, volumes, news retenues, social | Facteurs publiés : momentum, retournement, plus haut 52 sem., volatilité idiosyncratique, effet MAX, prime de volume, dérive après news, attention, GARCH… ([méthodologie](docs/METHODOLOGIE.md)) |
 | **Cohérence** | Toutes les sources | Contrôle qualité et recoupement des sources (voir ci-dessous) |
 
 Il produit un **avis à court terme (1-2 semaines)** et **à moyen terme (1-3 mois)** :
@@ -31,6 +32,7 @@ python -m sp500_analyzer -s NVDA -s TSLA      # analyse par action : uniquement 
 python -m sp500_analyzer --html rapport.html  # rapport HTML autonome (clair/sombre, mobile)
 python -m sp500_analyzer --json rapport.json  # export complet pour d'autres outils
 python -m sp500_analyzer --seed 7             # autre jeu de données simulées
+python -m sp500_analyzer --backtest           # validation point-in-time des facteurs de recherche
 ```
 
 Tests : `python -m unittest discover -s tests`
@@ -91,7 +93,8 @@ publie son résultat sur un **tableau partagé** (*blackboard*) et lit ceux de s
 | `controleur` | Audite la qualité et recoupe les sources ; fixe les consignes (news exclues, poids du social, confiance dans les cours) | collecteur |
 | `technicien` | Analyse les graphiques (tendance, momentum, volumes, force relative) | collecteur (titre + indice) |
 | `sentiment` | Mesure le ton des news fiables et du social, **selon les consignes du contrôleur** | controleur |
-| `strategiste` | Confronte les avis et rend le verdict court / moyen terme | technicien, controleur, *economiste*, *sentiment* |
+| `strategiste` | Confronte les avis et rend le verdict court / moyen terme | technicien, controleur, *economiste*, *sentiment*, *chercheur* |
+| `chercheur` | Calcule les facteurs académiques et les classe dans l'univers ; régime (ratio de variance), GARCH | collecteur (indice), *collecteurs et contrôleurs de tous les titres* |
 | `chef-strategiste` | Agrège : indice, largeur de marché, news macro | strategiste (indice), *tous les titres* |
 | `analyste-titre` | Rédige la fiche détaillée de chaque action (voir ci-dessous) | chef-strategiste, collecteur, controleur |
 | `redacteur` (option `--llm`) | Claude rédige une synthèse en français à partir des seules conclusions chiffrées | chef-strategiste |
@@ -100,7 +103,7 @@ publie son résultat sur un **tableau partagé** (*blackboard*) et lit ceux de s
 
 L'orchestrateur :
 
-- **planifie** un graphe de tâches (6 tâches par titre, 187 pour l'univers complet) ;
+- **planifie** un graphe de tâches (6 tâches par titre, 188 pour l'univers complet) ;
 - **exécute en parallèle** toute tâche dont les dépendances sont prêtes (`--workers`) — le résultat est identique à une exécution séquentielle ;
 - **retente** une tâche en échec (erreur passagère) ;
 - **dégrade proprement** : si un agent facultatif échoue (ex. sentiment), l'avis est rendu sans ce pilier avec une alerte `AGENT_FAILURE` et une confiance réduite ; si une donnée indispensable manque pour un titre, seul ce titre est retiré du rapport ;
@@ -137,6 +140,31 @@ HTML, chaque titre a la sienne (ouverte d'office quand on cible 3 titres ou moin
 - **Réseaux sociaux** : volume, ton, buzz, part de comptes récents, score de manipulation.
 - **Pairs** : comparaison avec les autres titres du même secteur.
 - **Graphique 6 mois** (HTML) : cours, moyennes 50/200 j, supports / résistances, info-bulle au survol.
+
+## Facteurs issus de la recherche académique
+
+L'agent `chercheur` ajoute un pilier fondé sur des résultats publiés en finance empirique,
+chacun cité dans la fiche du titre. Le détail des formules, des pondérations et des
+limites est dans **[docs/METHODOLOGIE.md](docs/METHODOLOGIE.md)**.
+
+- **Momentum** : 12-1 mois (Jegadeesh & Titman, 1993), temporel ajusté de la volatilité
+  (Moskowitz, Ooi & Pedersen, 2012 ; Barroso & Santa-Clara, 2015), plus haut 52 semaines
+  (George & Hwang, 2004), sectoriel (Moskowitz & Grinblatt, 1999).
+- **Retournement et « loterie »** : retournement 1 mois (Jegadeesh, 1990 ; Lehmann, 1990),
+  effet MAX (Bali, Cakici & Whitelaw, 2011).
+- **Risque** : volatilité idiosyncratique (Ang et al., 2006), bêta (Frazzini & Pedersen, 2014).
+- **Volume, news, attention** : prime de volume (Gervais, Kaniel & Mingelgrin, 2001),
+  dérive après news / retournement sans news (Chan, 2003), attention
+  (Da, Engelberg & Gao, 2011 ; Barber & Odean, 2008).
+- **Diagnostics** : régime tendance / retour à la moyenne par le ratio de variance
+  (Lo & MacKinlay, 1988), risque de krach du momentum (Daniel & Moskowitz, 2016),
+  volatilité prévue GARCH(1,1) (Bollerslev, 1986).
+
+Les poids tiennent compte du déclin des anomalies après publication (McLean & Pontiff, 2016)
+et de leur faiblesse sur les grandes capitalisations (Hou, Xue & Zhang, 2020).
+`--backtest` mesure le pouvoir prédictif de chaque facteur sans biais d'anticipation
+(IC de Spearman, seuil |t| > 3 de Harvey, Liu & Zhu, 2016). Sur les données simulées,
+il valide la mécanique, pas les facteurs.
 
 ## Le moteur de cohérence
 
@@ -185,6 +213,8 @@ sp500_analyzer/
   analysis/coherence.py   Contrôles de qualité et recoupement des sources
   analysis/scoring.py     Pondération des piliers, confiance, fourchettes
   analysis/stock.py       Fiche par action : thèse, niveaux clés, catalyseurs, risques, pairs
+  analysis/research.py    Facteurs académiques, ratio de variance, GARCH(1,1)
+  analysis/backtest.py    Backtest point-in-time (IC de Spearman)
   engine.py             Point d'entrée programmatique (run_analysis)
   app/                  Application de bureau : serveur local, interface (ui.html), lanceur pywebview
 packaging/macos/        Icône, spécification PyInstaller, script de build .app / .dmg
@@ -194,10 +224,12 @@ packaging/macos/        Icône, spécification PyInstaller, script de build .app
 
 Poids des piliers (`analysis/scoring.py`) :
 
-| Horizon | Technique | Sentiment | Macro |
-|---|---|---|---|
-| Court terme | 50 % | 30 % | 20 % |
-| Moyen terme | 45 % | 15 % | 40 % |
+| Horizon | Technique | Sentiment | Macro | Recherche |
+|---|---|---|---|---|
+| Court terme | 40 % | 25 % | 15 % | 20 % |
+| Moyen terme | 30 % | 10 % | 30 % | 30 % |
+
+Les fourchettes de cours reposent sur une prévision de volatilité GARCH(1,1).
 
 ## Brancher de vraies données
 

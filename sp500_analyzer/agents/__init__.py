@@ -6,6 +6,7 @@ from .specialists import (
     MacroEconomistAgent,
     MarketStrategistAgent,
     QualityControlAgent,
+    QuantResearchAgent,
     SentimentAnalystAgent,
     StockAnalystAgent,
     StrategistAgent,
@@ -15,6 +16,6 @@ from .writer import ClaudeWriterAgent
 
 __all__ = [
     "Agent", "AgentUnavailable", "Blackboard", "Task", "TaskRecord",
-    "DataCollectorAgent", "MacroEconomistAgent", "MarketStrategistAgent", "QualityControlAgent",
+    "DataCollectorAgent", "MacroEconomistAgent", "MarketStrategistAgent", "QualityControlAgent", "QuantResearchAgent",
     "SentimentAnalystAgent", "StockAnalystAgent", "StrategistAgent", "TechnicalAnalystAgent", "ClaudeWriterAgent",
 ]

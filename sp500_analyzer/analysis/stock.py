@@ -15,7 +15,8 @@ from .sentiment import score_text
 
 HORIZONS = [("1 semaine", 5), ("1 mois", 21), ("3 mois", 63), ("6 mois", 126), ("1 an", 252)]
 PILLAR_NAMES = {"technique": "l'analyse technique", "sentiment": "le sentiment (news et réseaux sociaux)",
-                "macro": "le contexte macro-économique"}
+                "macro": "le contexte macro-économique",
+                "recherche": "l'ensemble des facteurs issus de la recherche académique"}
 CHART_DAYS = 126
 
 
@@ -151,7 +152,7 @@ def strengths_and_risks(t: TickerAnalysis, levels: list[KeyLevel], metrics: dict
                 count += 1
 
     # Signaux propres au titre d'abord ; le contexte macro (commun à tous) ensuite, en appoint.
-    specific = _all_signals(t, ("technique", "sentiment"))
+    specific = _all_signals(t, ("technique", "sentiment", "recherche"))
     context = _all_signals(t, ("macro",))
     pick(specific, +1, 4, strengths, 0.4)
     pick(context, +1, 1, strengths, 0.5)

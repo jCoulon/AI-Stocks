@@ -35,6 +35,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--trace", action="store_true", help="Afficher le journal d'exécution des agents")
     p.add_argument("-v", "--verbose", action="store_true", help="Suivre l'avancement des agents en direct")
     p.add_argument("--workers", type=int, default=8, help="Nombre d'agents exécutés en parallèle (défaut 8)")
+    p.add_argument("--backtest", action="store_true",
+                   help="Backtest point-in-time des facteurs de recherche (≈ 3 ans d'historique) puis quitter")
     return p
 
 
@@ -48,6 +50,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Titre(s) inconnu(s) : {', '.join(unknown)}. Disponibles : {', '.join(sorted(known))}",
               file=sys.stderr)
         return 2
+
+    if args.backtest:
+        from .analysis.backtest import render_backtest, run_backtest
+
+        bt_provider = MockDataProvider(as_of=args.as_of, seed=args.seed, history=800)
+        print(render_backtest(run_backtest(bt_provider), simulated=True))
+        return 0
 
     def progress(rec: TaskRecord) -> None:
         if args.verbose or rec.status == "failed":

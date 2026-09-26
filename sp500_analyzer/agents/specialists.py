@@ -7,6 +7,8 @@ from datetime import date, time, timedelta, datetime
 
 from ..analysis.coherence import CoherenceResult, assess
 from ..analysis.macro import analyze_macro, macro_summary
+from ..analysis.research import ResearchView, TickerInputs, build_research
+from ..analysis.scoring import HORIZON_DAYS
 from ..analysis.scoring import build_outlook
 from ..analysis.sentiment import analyze_sentiment
 from ..analysis.stock import build_stock_report
@@ -128,6 +130,10 @@ class StrategistAgent(Agent):
         else:
             flags.append(Flag("AGENT_FAILURE", "warning", "Vue macro indisponible : avis rendu sans ce pilier"))
             coherence -= 0.1
+        research_views = board.get("research")
+        research: ResearchView | None = research_views.get(t) if research_views else None
+        if research:
+            pillars_s["recherche"], pillars_m["recherche"] = research.pillars()
         if sentiment:
             pillars_s["sentiment"], pillars_m["sentiment"] = sentiment.short, sentiment.medium
         else:
@@ -138,8 +144,11 @@ class StrategistAgent(Agent):
         trust = {"technique": quality.price_trust}
         last = data.bars[-1].close
         vol = tech.stats["daily_vol"]
-        short = build_outlook("court", pillars_s, last, vol, quality.data_quality, coherence, trust)
-        medium = build_outlook("moyen", pillars_m, last, vol, quality.data_quality, coherence, trust)
+        garch = research.garch if research else None
+        short = build_outlook("court", pillars_s, last, vol, quality.data_quality, coherence, trust,
+                              garch.horizon_vol(HORIZON_DAYS["court"]) if garch else None)
+        medium = build_outlook("moyen", pillars_m, last, vol, quality.data_quality, coherence, trust,
+                               garch.horizon_vol(HORIZON_DAYS["moyen"]) if garch else None)
 
         as_of = board.provider.as_of
         week_ref = next((b.close for b in reversed(data.bars) if b.day <= as_of - timedelta(days=7)),
@@ -157,7 +166,28 @@ class StrategistAgent(Agent):
             short=short,
             medium=medium,
             stats={**tech.stats, **(sentiment.stats if sentiment else {}), **quality.stats},
+            research=research,
         )
+
+
+class QuantResearchAgent(Agent):
+    name = "chercheur"
+    role = "Calcule les facteurs issus de la recherche académique et les classe dans l'univers"
+
+    def __init__(self, tickers: list[str]):
+        self.tickers = tickers
+
+    def run(self, task: Task, board: Blackboard) -> dict[str, ResearchView]:
+        index_data: TickerData = board.get(f"collect:{board.provider.index().ticker}")
+        inputs: dict[str, TickerInputs] = {}
+        for t in self.tickers:
+            data: TickerData | None = board.get(f"collect:{t}")
+            if data is None:  # collecte en échec : titre exclu du classement
+                continue
+            quality: CoherenceResult | None = board.get(f"quality:{t}")
+            inputs[t] = TickerInputs(data.bars, data.security.sector,
+                                     quality.trusted_news if quality else [], data.posts, board.now)
+        return build_research(inputs, index_data.bars)
 
 
 class MarketStrategistAgent(Agent):

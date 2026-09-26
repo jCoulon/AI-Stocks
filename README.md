@@ -166,6 +166,14 @@ et de leur faiblesse sur les grandes capitalisations (Hou, Xue & Zhang, 2020).
 (IC de Spearman, seuil |t| > 3 de Harvey, Liu & Zhu, 2016). Sur les données simulées,
 il valide la mécanique, pas les facteurs.
 
+## Audit des analyses
+
+Les calculs ont été audités en profondeur : comparaison des indicateurs à une implémentation
+de référence, tests d'absence de biais sur marchés neutres (trajectoires antithétiques),
+stabilité, indépendance des piliers, calibration hors échantillon des fourchettes, contrôles
+positif et négatif du backtest, robustesse aux données dégradées. Vingt écarts ont été
+corrigés, chacun couvert par un test. Détail : **[docs/AUDIT.md](docs/AUDIT.md)**.
+
 ## Le moteur de cohérence
 
 Le but est de ne retenir que les données **cohérentes entre elles** et d'abaisser la

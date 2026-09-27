@@ -201,7 +201,8 @@ Deux workflows GitHub Actions téléchargent de vraies données et les enregistr
 | Workflow | Source | Contenu |
 |---|---|---|
 | « Données de marché réelles » | Yahoo Finance | `daily/` cours ajustés 2 ans, `intraday_10min/` barres de 10 min |
-| « News et macro réelles » | GDELT | `news/` articles de sources connues (≈ 3 derniers mois seulement) |
+| « News et macro réelles » | Google News (flux RSS de recherche) | `news/google/` titres financiers par action et par semaine, sources connues uniquement |
+| | GDELT | `news/` articles de sources connues (≈ 3 derniers mois seulement) |
 | | SEC EDGAR | `sec/` dépôts 8-K, 10-Q, 10-K (faits officiels, horodatés) |
 | | FRED (sinon Trésor, Fed de NY, BLS, Yahoo) | `macro/` taux 10 et 2 ans, Fed funds, VIX, pétrole, inflation, chômage |
 | « News RSS et FinBERT » (toutes les 3 h une fois sur `main`) | Yahoo Finance, Nasdaq | `news/rss/` titres par action, historique construit au fil des collectes |

@@ -12,14 +12,15 @@ on:
         description: "Titres supplémentaires hors univers, séparés par des virgules"
         default: "IREN"
       only:
-        description: "Sources : news, sec, macro"
-        default: "news,sec,macro"
+        description: "Sources : google (Google News), news (GDELT), sec, macro"
+        default: "google,news,sec,macro"
   push:
     branches: ["claude/**"]
     paths:
       - ".github/workflows/fetch-news-macro.yml"
       - "scripts/fetch_news_macro.py"
       - "sp500_analyzer/providers/realnews.py"
+      - "sp500_analyzer/providers/googlenews.py"
 
 permissions:
   contents: write
@@ -47,26 +48,34 @@ jobs:
       - name: Macro (FRED, sinon Trésor / Fed de New York / BLS / Yahoo)
         timeout-minutes: 10
         continue-on-error: true
-        if: contains(github.event.inputs.only || 'news,sec,macro', 'macro')
+        if: contains(github.event.inputs.only || 'google,news,sec,macro', 'macro')
         run: python -u scripts/fetch_news_macro.py --only macro --start "${{ github.event.inputs.start || '2026-01-01' }}" --out data
 
       - name: Dépôts SEC (EDGAR)
         timeout-minutes: 10
         continue-on-error: true
-        if: contains(github.event.inputs.only || 'news,sec,macro', 'sec')
+        if: contains(github.event.inputs.only || 'google,news,sec,macro', 'sec')
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: |
           python -u scripts/fetch_news_macro.py --only sec --start "${{ github.event.inputs.start || '2026-01-01' }}" \
             --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data
 
-      - name: News (GDELT)
-        timeout-minutes: 70
+      - name: News financières (Google News)
+        timeout-minutes: 45
         continue-on-error: true
-        if: contains(github.event.inputs.only || 'news,sec,macro', 'news')
+        if: contains(github.event.inputs.only || 'google,news,sec,macro', 'google')
+        run: |
+          python -u scripts/fetch_news_macro.py --only google --start "${{ github.event.inputs.start || '2026-01-01' }}" \
+            --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data --budget 40
+
+      - name: News (GDELT)
+        timeout-minutes: 30
+        continue-on-error: true
+        if: contains(github.event.inputs.only || 'google,news,sec,macro', 'news')
         run: |
           python -u scripts/fetch_news_macro.py --only news --start "${{ github.event.inputs.start || '2026-01-01' }}" \
-            --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data --budget 62
+            --extra "${{ github.event.inputs.extra || 'IREN' }}" --out data --budget 25
 
       - name: Cache du modèle FinBERT
         uses: actions/cache@v4

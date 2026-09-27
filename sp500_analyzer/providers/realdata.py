@@ -3,6 +3,7 @@
 
   <dossier>/daily/<TICKER>.csv   cours quotidiens ajustés (voir CsvPriceProvider)
   <dossier>/news/<TICKER>.csv    articles GDELT de sources connues ; news/MARCHE.csv = marché
+  <dossier>/news/google/<TICKER>.csv  titres financiers via Google News (historique)
   <dossier>/news/rss/<TICKER>.csv  titres des flux RSS Yahoo Finance / Nasdaq (collecte continue)
   <dossier>/news/finbert.csv     ton FinBERT de chaque titre (sinon : lexique financier)
   <dossier>/sec/<TICKER>.csv     dépôts réglementaires (8-K, 10-Q, 10-K...)
@@ -67,7 +68,8 @@ class RealDataProvider(CsvPriceProvider):
         self.tones = load_scores(root)
         for t in [s.ticker for s in self.universe()] + [None]:
             name = f"{t or MARKET}.csv"
-            items = read_news([root / "news" / name, root / "news" / "rss" / name], t, self.tones)
+            items = read_news([root / "news" / name, root / "news" / "google" / name, root / "news" / "rss" / name],
+                              t, self.tones)
             if t:
                 items += read_sec(root / "sec" / f"{t}.csv", t)
             self._news[t] = sorted(items, key=lambda n: n.published)

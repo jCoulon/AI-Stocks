@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from sp500_analyzer.providers.realnews import (  # noqa: E402
     GDELT_MAX_DAYS, MARKET, download_macro, download_news, download_sec,
 )
+from sp500_analyzer.providers.googlenews import download_google_news  # noqa: E402
 from sp500_analyzer.universe import SP500_SAMPLE  # noqa: E402
 
 
@@ -30,7 +31,8 @@ def main() -> int:
     p.add_argument("--end", type=date.fromisoformat, default=today)
     p.add_argument("--out", default="data")
     p.add_argument("--extra", default="", help="Titres supplémentaires, séparés par des virgules (ex. IREN)")
-    p.add_argument("--only", default="news,sec,macro", help="Sources à télécharger (news, sec, macro)")
+    p.add_argument("--only", default="google,news,sec,macro",
+                   help="Sources à télécharger (google = Google News, news = GDELT, sec, macro)")
     p.add_argument("--budget", type=float, default=60.0, help="News : durée maximale en minutes")
     args = p.parse_args()
     out = Path(args.out)
@@ -45,6 +47,10 @@ def main() -> int:
         print("Dépôts SEC (EDGAR)…")
         agent = os.environ.get("SEC_USER_AGENT") or "AI-Stocks research tool (github.com/jCoulon/AI-Stocks)"
         errors += download_sec(out, tickers, args.start, agent)
+    if "google" in only:
+        print(f"News financières (Google News) du {args.start} au {args.end}…")
+        errors += download_google_news(out, tickers + [MARKET], args.start, args.end, budget_minutes=args.budget,
+                                       today=today)
     if "news" in only:
         news_start = max(args.start, today - timedelta(days=GDELT_MAX_DAYS))
         print(f"News (GDELT) du {news_start} au {args.end}…")
@@ -52,7 +58,8 @@ def main() -> int:
                                 today=today)
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)
-    files = [f for d in only for f in (out / d).glob("*.csv")] if out.exists() else []
+    dirs = {"google": "news/google", "news": "news", "sec": "sec", "macro": "macro"}
+    files = [f for d in only if d in dirs for f in (out / dirs[d]).glob("*.csv")] if out.exists() else []
     print(f"{len(files)} fichiers ({', '.join(sorted(only))}), {len(errors)} erreur(s).")
     return 0 if files else 1
 

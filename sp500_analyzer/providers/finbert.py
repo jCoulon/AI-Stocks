@@ -25,7 +25,9 @@ Classifier = Callable[[list[str]], list[dict[str, float]]]
 def news_files(root: Path) -> list[Path]:
     folder = root / "news"
     files = [p for p in folder.glob("*.csv") if p.name not in _NOT_NEWS]
-    return sorted(files + list((folder / "rss").glob("*.csv")))
+    for sub in ("google", "rss"):
+        files += [p for p in (folder / sub).glob("*.csv") if p.name not in _NOT_NEWS]
+    return sorted(files)
 
 
 def load_scores(root: Path) -> dict[str, float]:

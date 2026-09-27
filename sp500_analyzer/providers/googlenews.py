@@ -30,13 +30,16 @@ GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&c
 GOOGLE_PAUSE = 3.0
 FINANCE_TERMS = "(stock OR shares OR earnings OR revenue OR analyst OR guidance OR investors)"
 MARKET_QUERY = '("Wall Street" OR "S&P 500" OR "stock market" OR "Federal Reserve" OR "Treasury yields")'
+# Requêtes Google propres à certains titres : le terme boursier obligatoire écarte déjà les
+# homonymes, un nom plus large ramène donc plus d'articles pertinents qu'avec GDELT.
+GOOGLE_NAMES = {"AMZN": '"Amazon"', "CAT": '"Caterpillar"', "V": '("Visa Inc" OR "Visa shares" OR "Visa stock" OR "Visa earnings")'}
 BROWSER_HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 "
                                  "(KHTML, like Gecko) Version/17.0 Safari/605.1.15"}
 
 
 def google_query(ticker: str, start: date, end: date) -> str:
     """Requête financière d'un titre sur [start, end) : entreprise ET terme boursier."""
-    base = MARKET_QUERY if ticker == MARKET else f"{GDELT_QUERIES[ticker]} {FINANCE_TERMS}"
+    base = MARKET_QUERY if ticker == MARKET else f"{GOOGLE_NAMES.get(ticker, GDELT_QUERIES[ticker])} {FINANCE_TERMS}"
     # before: est exclusif et after: inclusif côté Google : [start, end)
     return f"{base} after:{(start - timedelta(days=1)).isoformat()} before:{end.isoformat()}"
 

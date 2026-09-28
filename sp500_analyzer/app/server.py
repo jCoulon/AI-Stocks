@@ -128,6 +128,18 @@ class AppState:
             rows.append(row)
         return html_asymmetry(score_rows(rows))
 
+    def besttry_html(self, horizon: int = 60) -> str:
+        """Écran « Best try » : catalyseurs datés des titres de l'univers courant (données réelles)."""
+        from ..analysis.besttry import html_besttry, screen
+
+        r = self.current()
+        if self.source != "reel":
+            return '<p class="empty">L\'écran « Best try » nécessite les données réelles.</p>'
+        provider = self._provider()
+        labels = {t.security.ticker: (t.short.label, t.medium.label) for t in r.tickers}
+        rows, market, fetched = screen(provider, self.data_dir, horizon, labels)
+        return html_besttry(rows, provider.as_of, horizon, market, fetched)
+
     def advice_key(self, ticker: str) -> tuple[int, str]:
         self.current()
         return self.generation, ticker
@@ -150,6 +162,7 @@ class AppState:
             "coverage": self.real_provider(self.universe).coverage() if real else None,
             "asymmetry": real and self.universe != "sp500"
                          and any((self.data_dir / "fundamentals").glob("*.json")),
+            "besttry": real,
             "seed": self.seed,
             "llm": self.use_llm,
             "llm_status": None if writer is None else {"status": writer["status"], "error": writer["error"]},
@@ -230,6 +243,8 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     return self._send(200, html_market(r) + html_agents(r), "text/html; charset=utf-8")
                 if path == "/api/asymmetry":
                     return self._send(200, state.asymmetry_html(), "text/html; charset=utf-8")
+                if path == "/api/besttry":
+                    return self._send(200, state.besttry_html(), "text/html; charset=utf-8")
                 if path.startswith("/api/stock/"):
                     ticker = path.rsplit("/", 1)[-1].upper()
                     t = next((x for x in state.current().tickers if x.security.ticker == ticker), None)

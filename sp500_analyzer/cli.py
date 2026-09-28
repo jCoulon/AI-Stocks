@@ -47,6 +47,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Univers analysé avec des données réelles : sp500 (défaut), ia (focus IA) ou tout")
     p.add_argument("--asymetrie", action="store_true",
                    help="Écran d'asymétrie du focus IA (potentiel vs risque) ; nécessite --donnees")
+    p.add_argument("--best-try", action="store_true",
+                   help="Écran « Best try » : titres ayant un catalyseur daté prochainement (résultats, lock-up...) ; "
+                        "nécessite --donnees")
+    p.add_argument("--horizon", type=int, default=60, help="Horizon de l'écran « Best try », en jours (défaut 60)")
     p.add_argument("--telecharger-cours", metavar="DOSSIER",
                    help="Télécharger les cours quotidiens depuis Stooq dans ce dossier puis quitter")
     return p
@@ -78,6 +82,20 @@ def _asymmetry(provider, args) -> int:
     return 0
 
 
+def _best_try(provider, args) -> int:
+    from .analysis.besttry import render_besttry, screen
+
+    try:
+        report = Orchestrator(provider, max_workers=args.workers).run()
+        labels = {t.security.ticker: (t.short.label, t.medium.label) for t in report.tickers}
+    except OrchestrationError as e:
+        print(f"Analyse des agents indisponible ({e}) : écran sans avis", file=sys.stderr)
+        labels = {}
+    rows, market, _ = screen(provider, args.donnees, args.horizon, labels)
+    print(render_besttry(rows, provider.as_of, args.horizon, market))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
@@ -90,10 +108,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Cours enregistrés dans {args.telecharger_cours} ({len(errors)} erreur(s)).")
         return 1 if errors else 0
 
-    if args.asymetrie and not args.donnees:
-        print("L'écran d'asymétrie nécessite des données réelles : ajoutez --donnees data", file=sys.stderr)
+    if (args.asymetrie or args.best_try) and not args.donnees:
+        print("Les écrans d'asymétrie et « Best try » nécessitent des données réelles : ajoutez --donnees data",
+              file=sys.stderr)
         return 2
-    universe = args.univers or ("ia" if args.asymetrie else "sp500")
+    universe = args.univers or ("ia" if args.asymetrie else "tout" if args.best_try else "sp500")
     if universe != "sp500" and not (args.donnees or args.cours):
         print("Les univers « ia » et « tout » nécessitent des données réelles (--donnees ou --cours)", file=sys.stderr)
         return 2
@@ -137,6 +156,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.asymetrie:
         return _asymmetry(provider, args)
+    if args.best_try:
+        return _best_try(provider, args)
 
     if args.backtest_periode:
         from .analysis.period_backtest import render_period_backtest, run_period_backtest

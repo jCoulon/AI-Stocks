@@ -219,6 +219,20 @@ rapportée à la valorisation (VE/CA), et signale les pièges : profil « loteri
 sous-performe en moyenne), trésorerie courte (dilution), consensus maigre. Les fondamentaux
 (Yahoo Finance) sont une photographie du jour : l'écran est descriptif, non backtesté.
 
+### Écran « Best try » : catalyseurs à venir
+
+```bash
+python -m sp500_analyzer --donnees data --best-try [--horizon 60]
+```
+
+Titres ayant un catalyseur daté dans l'horizon — publication de résultats (calendrier Nasdaq,
+`data/events/<TICKER>.json`), fin de lock-up estimée après une introduction récente
+(introduction + 180 j), événements saisis dans `data/events/calendar.csv` (dont les décisions
+de la Fed) — classés par **mouvement attendu** : médiane des réactions passées du titre à ses
+publications (sur 2 séances), comparée à son mouvement normal. Aussi dans l'application
+(entrée « Best try »). L'écran mesure l'**amplitude** probable, pas le sens : il signale un
+risque autant qu'une opportunité, et n'est pas un conseil.
+
 ### Avec toutes les données réelles (dossier `data/`)
 
 Deux workflows GitHub Actions téléchargent de vraies données et les enregistrent dans `data/` :

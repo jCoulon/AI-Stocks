@@ -114,6 +114,10 @@ class RealDataAppTests(unittest.TestCase):
             (root / "fundamentals" / f"{t}.json").write_text(json.dumps({
                 "fetched": "2026-09-28", "source": "Nasdaq", "target_mean": last * 1.3, "target_high": last * 2,
                 "target_low": last * 0.8, "analysts": 9, "revenue_growth": 0.4, "ev_to_revenue": 10.0}))
+        (root / "events").mkdir()
+        (root / "events" / "NBIS.json").write_text(json.dumps({
+            "fetched": "2026-09-28", "past_earnings": ["2026-08-06"],
+            "next_earnings": {"date": "2026-10-29", "estimated": True, "timing": ""}}))
         cls.server = AppServer(AppState(data_dir=root)).start()
 
     @classmethod
@@ -153,6 +157,15 @@ class RealDataAppTests(unittest.TestCase):
         self.assertEqual(s["as_of"], "2026-09-25")  # date réinitialisée au changement de source
         s = json.loads(self.request("/api/refresh", method="POST", body={"source": "reel"})[2])
         self.assertEqual((s["source"], s["universe"]), ("reel", "tout"))
+
+    def test_besttry_screen(self):
+        s = json.loads(self.request("/api/refresh", method="POST", body={"source": "reel", "universe": "tout"})[2])
+        self.assertTrue(s["besttry"])
+        status, _, html = self.request("/api/besttry")
+        self.assertEqual(status, 200)
+        self.assertIn("Best try", html)
+        self.assertIn('data-ticker="NBIS"', html)
+        self.assertIn("29/10", html)
 
     def test_real_mode_refused_without_data(self):
         server = AppServer(AppState()).start()

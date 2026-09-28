@@ -21,6 +21,7 @@ on:
       - "scripts/fetch_market_data.py"
       - "sp500_analyzer/providers/yahoo.py"
       - "sp500_analyzer/providers/fundamentals.py"
+      - "sp500_analyzer/providers/events.py"
 
 permissions:
   contents: write

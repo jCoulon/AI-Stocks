@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sp500_analyzer.providers.yahoo import download_all  # noqa: E402
 from sp500_analyzer.providers.fundamentals import download_fundamentals  # noqa: E402
+from sp500_analyzer.providers.events import download_events  # noqa: E402
 from sp500_analyzer.universe import EXTRA_TICKERS, SP500_SAMPLE  # noqa: E402
 
 
@@ -32,7 +33,10 @@ def main() -> int:
     extra = tuple(dict.fromkeys(EXTRA_TICKERS + [t.strip().upper() for t in args.extra.split(",") if t.strip()]))
     # Fondamentaux du jour (objectifs d'analystes, croissance, valorisation) : écran d'asymétrie.
     # En premier : Yahoo limite plus volontiers une session ouverte après une rafale de requêtes.
-    errors = download_fundamentals(Path(args.out), [p.security.ticker for p in SP500_SAMPLE] + list(extra))
+    tickers = [p.security.ticker for p in SP500_SAMPLE] + list(extra)
+    errors = download_fundamentals(Path(args.out), tickers)
+    # Calendrier des résultats (prochaine publication + dates passées) : écran « Best try ».
+    errors += download_events(Path(args.out), tickers)
     errors += download_all(args.out, args.start, args.end, args.daily_years, extra=extra)
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)

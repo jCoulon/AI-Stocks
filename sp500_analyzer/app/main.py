@@ -93,6 +93,9 @@ def self_test(server: AppServer) -> int:
     if summary["asymmetry"] and "Écran d'asymétrie" not in get("/api/asymmetry").decode():
         print("ÉCHEC du test : écran d'asymétrie indisponible", file=sys.stderr)
         return 1
+    if summary.get("besttry") and "Best try" not in get("/api/besttry").decode():
+        print("ÉCHEC du test : écran « Best try » indisponible", file=sys.stderr)
+        return 1
     print(f"OK — {len(summary['tickers'])} titres analysés ({source}), interface servie sur {server.url}")
     return 0
 

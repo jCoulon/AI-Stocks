@@ -1,0 +1,5 @@
+# Événements saisis à la main. Ticker = MARCHE pour un événement de marché.
+# Réunions du FOMC 2026 (Réserve fédérale) : date de la décision (2e jour de la réunion).
+Date,Ticker,Event,Note
+2026-10-28,MARCHE,Décision de la Fed (FOMC),taux directeurs ; conférence de presse du président
+2026-12-09,MARCHE,Décision de la Fed (FOMC),taux directeurs ; projections économiques (dot plot)

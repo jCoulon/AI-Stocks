@@ -21,7 +21,7 @@ except ImportError:
 DATA = os.path.join(ROOT, "data")
 data_files = []
 for sub in ("daily", "news", "news/google", "news/rss", "social/stocktwits", "social/reddit", "macro",
-            "fundamentals", "sec"):
+            "fundamentals", "sec", "events"):
     folder = os.path.join(DATA, sub)
     if os.path.isdir(folder) and any(f.endswith((".csv", ".json")) for f in os.listdir(folder)):
         for ext in ("*.csv", "*.json"):

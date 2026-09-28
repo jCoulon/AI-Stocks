@@ -138,6 +138,25 @@ des news et des réseaux sociaux n'est pas disponible dans les sources actuelles
 marche aléatoire) : il valide la mécanique. La validation des facteurs exige de vraies
 données historiques, idéalement sur plusieurs décennies et un univers large.
 
+### Test sur données réelles : le ton des news prédit-il le rendement ? (2026)
+
+Données : ≈ 33 000 titres de presse financière (Google News, GDELT, RSS) sur les 30 titres,
+janvier–septembre 2026, ton FinBERT ; cible : rendement relatif au S&P 500 ; IC de Spearman
+en coupe, jours avec au moins 15 titres couverts.
+
+| Période | Ton de la veille → 1 séance | Ton 3 jours → 1 séance | Ton 3 jours → 5 séances |
+|---|---|---|---|
+| Mai–sept. (où l'effet a été repéré) | IC −0,031 (t −1,3) | −0,022 (t −1,0) | −0,079 (t −1,0) |
+| Janv.–avril (hors échantillon) | IC −0,009 (t −0,3) | +0,013 (t +0,5) | +0,043 (t −0,0) |
+
+Un premier test sur une couverture partielle suggérait un léger effet de retournement
+(ton positif → sous-performance le lendemain, t = −2,2). Il s'affaiblit avec des données
+complètes et **disparaît hors échantillon** : c'était du bruit. Aucun signal contrarien
+n'est donc ajouté ; le ton des news reste un élément descriptif de la fiche (catalyseurs,
+cohérence prix/news), pas un prédicteur validé. Tester plusieurs variantes et ne retenir
+que la meilleure produit presque toujours un faux positif (Harvey, Liu & Zhu, 2016) : toute
+nouvelle règle doit être confirmée sur une période qui n'a pas servi à la trouver.
+
 ## 7. Références
 
 - Ang, A., Hodrick, R., Xing, Y. & Zhang, X. (2006). The Cross-Section of Volatility and Expected Returns. *Journal of Finance*.

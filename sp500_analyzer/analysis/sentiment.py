@@ -95,7 +95,7 @@ def social_score(posts: list[SocialPost]) -> tuple[float, float]:
     num = den = 0.0
     for p in posts:
         w = math.log1p(p.likes + 1) * (1.0 if p.author_age_days >= 90 else 0.3)
-        num += w * score_text(p.text)
+        num += w * (p.tone if p.tone is not None else score_text(p.text))
         den += w
     return (num / den if den else 0.0), den
 

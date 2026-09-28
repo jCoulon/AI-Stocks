@@ -207,6 +207,7 @@ Deux workflows GitHub Actions téléchargent de vraies données et les enregistr
 | | FRED (sinon Trésor, Fed de NY, BLS, Yahoo) | `macro/` taux 10 et 2 ans, Fed funds, VIX, pétrole, inflation, chômage |
 | « News RSS et FinBERT » (toutes les 3 h une fois sur `main`) | Yahoo Finance, Nasdaq | `news/rss/` titres par action, historique construit au fil des collectes |
 | | FinBERT (open source) | `news/finbert.csv` ton de chaque titre, qui remplace le lexique |
+| | StockTwits (API publique) | `social/stocktwits/` messages par action, avec l'étiquette haussier / baissier de l'auteur |
 
 ```bash
 python -m sp500_analyzer --donnees data --backtest-periode 2026-07-01:2026-09-25
@@ -217,7 +218,7 @@ Le ton d'un titre vient de FinBERT (ProsusAI/finbert, modèle entraîné sur des
 P(positif) − P(négatif)) quand il a été calculé par le workflow, sinon du lexique financier.
 Le modèle ne tourne que sur GitHub Actions : l'outil lit seulement les scores en cache.
 Les séries mensuelles sont datées de leur publication (prudente), pas du mois mesuré.
-Limites : pas de réseaux sociaux (aucune source historique gratuite), pas d'ISM, de ratio
+Limites : réseaux sociaux limités à StockTwits, historique construit à partir de la mise en place (Reddit demande une application déclarée, X est payant), pas d'ISM, de ratio
 put/call ni d'enquête AAII ; GDELT couvre mal la presse financière payante.
 
 ## Facteurs issus de la recherche académique

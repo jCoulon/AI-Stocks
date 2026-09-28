@@ -1,4 +1,4 @@
-name: News RSS et FinBERT
+name: News RSS, StockTwits et FinBERT
 
 # Collecte les flux RSS de news par action (Yahoo Finance, Nasdaq) plusieurs fois par jour,
 # puis calcule le ton FinBERT des nouveaux titres (y compris ceux de GDELT).
@@ -19,6 +19,7 @@ on:
       - "scripts/score_finbert.py"
       - "sp500_analyzer/providers/rss.py"
       - "sp500_analyzer/providers/finbert.py"
+      - "sp500_analyzer/providers/stocktwits.py"
 
 permissions:
   contents: write
@@ -39,7 +40,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Flux RSS (Yahoo Finance, Nasdaq)
+      - name: Flux RSS (Yahoo Finance, Nasdaq) et StockTwits
         timeout-minutes: 10
         continue-on-error: true
         run: python -u scripts/collect_rss.py --out data --extra "${{ github.event.inputs.extra || 'IREN' }}"
@@ -69,7 +70,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "Aucune donnée nouvelle."
           else
-            git commit -m "News RSS et ton FinBERT"
+            git commit -m "News RSS, StockTwits et ton FinBERT"
             git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi

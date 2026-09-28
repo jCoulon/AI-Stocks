@@ -7,10 +7,11 @@
   <dossier>/news/rss/<TICKER>.csv  titres des flux RSS Yahoo Finance / Nasdaq (collecte continue)
   <dossier>/news/finbert.csv     ton FinBERT de chaque titre (sinon : lexique financier)
   <dossier>/sec/<TICKER>.csv     dépôts réglementaires (8-K, 10-Q, 10-K...)
+  <dossier>/social/stocktwits/<TICKER>.csv  messages StockTwits (collecte continue)
   <dossier>/macro/<clé>.csv      séries FRED datées de leur publication
 
 Chaque partie est facultative sauf les cours : ce qui manque reste vide et l'outil le signale.
-Pas de réseaux sociaux (aucune source historique gratuite).
+Réseaux sociaux : StockTwits seulement, historique construit à partir de la mise en place.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from ..models import NewsItem, Series, SocialPost
 from .csv_prices import CsvPriceProvider
 from .finbert import load_scores
 from .realnews import MARKET, SEC_SOURCE, title_key
+from .stocktwits import load_posts
 
 
 def read_news(paths: list[Path], ticker: Optional[str], tones: dict[str, float]) -> list[NewsItem]:
@@ -73,6 +75,8 @@ class RealDataProvider(CsvPriceProvider):
             if t:
                 items += read_sec(root / "sec" / f"{t}.csv", t)
             self._news[t] = sorted(items, key=lambda n: n.published)
+        self._posts = {t: load_posts(root / "social" / "stocktwits" / f"{t}.csv", t)
+                       for t in [s.ticker for s in self.universe()]}
         macro_dir = root / "macro"
         self._macro = {p.stem: read_series(p) for p in sorted(macro_dir.glob("*.csv"))} if macro_dir.exists() else {}
         press = [n.published for t, items in self._news.items() for n in items if n.source != SEC_SOURCE]
@@ -84,7 +88,8 @@ class RealDataProvider(CsvPriceProvider):
         return items[bisect_left(items, since, key=lambda n: n.published):]
 
     def social_posts(self, ticker: str, since: datetime) -> list[SocialPost]:
-        return []
+        posts = self._posts.get(ticker, [])
+        return posts[bisect_left(posts, since, key=lambda p: p.posted):]
 
     def macro(self) -> dict[str, Series]:
         return {k: list(v) for k, v in self._macro.items()}
@@ -96,5 +101,6 @@ class RealDataProvider(CsvPriceProvider):
                  f"{n_sec} dépôts SEC",
                  f"ton FinBERT : {sum(n.tone is not None for items in self._news.values() for n in items)}/{n_press} titres"
                  if self.tones else "ton : lexique", f"macro : {', '.join(self._macro) or 'aucune série'}",
-                 "réseaux sociaux : aucune source"]
+                 f"réseaux sociaux : {sum(map(len, self._posts.values()))} messages StockTwits"
+                 if any(self._posts.values()) else "réseaux sociaux : aucune source"]
         return " ; ".join(parts)

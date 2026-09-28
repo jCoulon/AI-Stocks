@@ -44,6 +44,9 @@ class SocialPost:
     author_age_days: int
     likes: int
     text: str
+    #: Ton déclaré ou précalculé (-1 à 1, ex. étiquette Bullish/Bearish de StockTwits) ;
+    #: None = calculé par le lexique.
+    tone: Optional[float] = None
 
 
 # Série macro : liste ordonnée de (date, valeur)

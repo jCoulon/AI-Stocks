@@ -76,8 +76,9 @@ class RealDataProvider(CsvPriceProvider):
             if t:
                 items += read_sec(root / "sec" / f"{t}.csv", t)
             self._news[t] = sorted(items, key=lambda n: n.published)
-        # Reddit : ancienneté des comptes inconnue (neutre, 365 j) et ton FinBERT.
-        self._posts = {t: sorted(load_posts(root / "social" / "stocktwits" / f"{t}.csv", t)
+        # Ton : étiquette de l'auteur (StockTwits), sinon FinBERT. Reddit : ancienneté des
+        # comptes inconnue (neutre, 365 j).
+        self._posts = {t: sorted(load_posts(root / "social" / "stocktwits" / f"{t}.csv", t, tones=self.tones)
                                  + load_posts(root / "social" / "reddit" / f"{t}.csv", t, "Reddit", 365, self.tones),
                                  key=lambda p: p.posted)
                        for t in [s.ticker for s in self.universe()]}

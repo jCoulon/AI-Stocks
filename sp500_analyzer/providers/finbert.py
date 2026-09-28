@@ -31,11 +31,12 @@ def news_files(root: Path) -> list[Path]:
 
 
 def social_texts(root: Path) -> list[str]:
-    """Textes des messages sociaux sans étiquette d'auteur (Reddit), à noter par FinBERT."""
+    """Textes des messages sociaux sans étiquette d'auteur (Reddit, StockTwits non étiquetés),
+    à noter par FinBERT."""
     out = []
-    for path in sorted((root / "social" / "reddit").glob("*.csv")):
+    for path in sorted((root / "social").glob("*/*.csv")):
         with open(path, newline="", encoding="utf-8") as f:
-            out += [r["Text"] for r in csv.DictReader(f) if r.get("Text")]
+            out += [r["Text"] for r in csv.DictReader(f) if r.get("Text") and not r.get("Sentiment")]
     return out
 
 

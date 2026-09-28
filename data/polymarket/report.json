@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T20:16:10.718399+00:00",
+ "generated": "2026-09-28T20:44:29.596643+00:00",
  "markets": 250,
  "orders": 486776,
  "wallets": 54805,
@@ -358,6 +358,140 @@
    "markets": 6
   }
  ],
+ "calibration_split": {
+  "cut": "2026-08-27",
+  "a": [
+   {
+    "bucket": "0%–10%",
+    "orders": 43001,
+    "stake": 836962.4577287016,
+    "price": 0.03866658760297077,
+    "win_freq": 0.004913407403172341,
+    "edge": -0.033753180199798435,
+    "roi": -0.8729288590546624
+   },
+   {
+    "bucket": "10%–25%",
+    "orders": 35871,
+    "stake": 2770146.8944236324,
+    "price": 0.1688389694523146,
+    "win_freq": 0.057251838373182415,
+    "edge": -0.11158713107913219,
+    "roi": -0.660908624597166
+   },
+   {
+    "bucket": "25%–40%",
+    "orders": 35032,
+    "stake": 6163738.08355709,
+    "price": 0.32736889213366904,
+    "win_freq": 0.3105492264542941,
+    "edge": -0.01681966567937493,
+    "roi": -0.051378326052150425
+   },
+   {
+    "bucket": "40%–60%",
+    "orders": 44855,
+    "stake": 14362149.24840448,
+    "price": 0.49221860451955435,
+    "win_freq": 0.5800837481005011,
+    "edge": 0.08786514358094677,
+    "roi": 0.17850837569764422
+   },
+   {
+    "bucket": "60%–75%",
+    "orders": 37736,
+    "stake": 15541593.194061464,
+    "price": 0.6643517650547676,
+    "win_freq": 0.7533696324308384,
+    "edge": 0.08901786737607087,
+    "roi": 0.13399206874799607
+   },
+   {
+    "bucket": "75%–90%",
+    "orders": 40545,
+    "stake": 14613382.077065717,
+    "price": 0.8263992711028254,
+    "win_freq": 0.9205682345427034,
+    "edge": 0.09416896343987802,
+    "roi": 0.11395092751498925
+   },
+   {
+    "bucket": "90%–100%",
+    "orders": 42704,
+    "stake": 20842613.985934913,
+    "price": 0.9591814108596893,
+    "win_freq": 0.9873857920665947,
+    "edge": 0.028204381206905382,
+    "roi": 0.02940463700357432
+   }
+  ],
+  "b": [
+   {
+    "bucket": "0%–10%",
+    "orders": 11448,
+    "stake": 277895.9875132028,
+    "price": 0.04187493981291145,
+    "win_freq": 0.0035570921545521623,
+    "edge": -0.03831784765835929,
+    "roi": -0.9150543936195608
+   },
+   {
+    "bucket": "10%–25%",
+    "orders": 12205,
+    "stake": 1590347.0430622285,
+    "price": 0.17367134665251924,
+    "win_freq": 0.17106033671615722,
+    "edge": -0.002611009936362013,
+    "roi": -0.015034201016395077
+   },
+   {
+    "bucket": "25%–40%",
+    "orders": 19157,
+    "stake": 4414378.782385389,
+    "price": 0.34136534969209653,
+    "win_freq": 0.23757164109097323,
+    "edge": -0.1037937086011233,
+    "roi": -0.30405461097543374
+   },
+   {
+    "bucket": "40%–60%",
+    "orders": 44771,
+    "stake": 22594768.154143594,
+    "price": 0.49756802916762055,
+    "win_freq": 0.4876312801026893,
+    "edge": -0.00993674906493125,
+    "roi": -0.019970634129275577
+   },
+   {
+    "bucket": "60%–75%",
+    "orders": 21960,
+    "stake": 10712649.100235555,
+    "price": 0.6485368946680246,
+    "win_freq": 0.6894430195327222,
+    "edge": 0.04090612486469769,
+    "roi": 0.06307447610307015
+   },
+   {
+    "bucket": "75%–90%",
+    "orders": 16360,
+    "stake": 9498551.882720469,
+    "price": 0.8183662661753073,
+    "win_freq": 0.876666412636822,
+    "edge": 0.05830014646151471,
+    "roi": 0.07123967454570757
+   },
+   {
+    "bucket": "90%–100%",
+    "orders": 13002,
+    "stake": 8378437.788635852,
+    "price": 0.9542790592103464,
+    "win_freq": 0.9882905709172533,
+    "edge": 0.03401151170690686,
+    "roi": 0.035641054237374625
+   }
+  ]
+ },
+ "qualified": 3215,
  "habits": {
   "top": {
    "hour": {
@@ -414,7 +548,7 @@
     "1 – 7 j": 0.20800219529757472,
     "7 – 30 j": 0.0638609843580491,
     "< 1 h": 0.00919833814929379,
-    "après la fin": 0.3812217152140529
+    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.3812217152140529
    },
    "median_stake": 12.15
   },
@@ -477,12 +611,96 @@
     "7 – 30 j": 0.04453618559170215,
     "< 1 h": 0.12411533274607336,
     "> 30 j": 0.0076758641460998355,
-    "après la fin": 0.24945014559375892
+    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.24945014559375892
    },
    "median_stake": 12.019996999933344
   }
  },
  "monitor": [
+  {
+   "wallet": "0xc976cbfea6636488fabce2b29ed7d5c1d12ac147",
+   "name": "Urban-Complex",
+   "ts": 1790628362,
+   "question": "Eagles vs. Bears: O/U 41.5",
+   "slug": "nfl-phi-chi-2026-09-29-total-41pt5",
+   "outcome": "Over",
+   "paid": 0.5299999973,
+   "now": 0.525,
+   "sure": false,
+   "stake": 19.899999998622643,
+   "end": "2026-09-29T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0xc976cbfea6636488fabce2b29ed7d5c1d12ac147",
+   "name": "Urban-Complex",
+   "ts": 1790628321,
+   "question": "Spread: Eagles (-3.5)",
+   "slug": "nfl-phi-chi-2026-09-29-spread-away-3pt5",
+   "outcome": "Bears",
+   "paid": 0.5199999969,
+   "now": 0.515,
+   "sure": false,
+   "stake": 19.90000000136538,
+   "end": "2026-09-29T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0xc976cbfea6636488fabce2b29ed7d5c1d12ac147",
+   "name": "Urban-Complex",
+   "ts": 1790628296,
+   "question": "Eagles vs. Bears",
+   "slug": "nfl-phi-chi-2026-09-29",
+   "outcome": "Bears",
+   "paid": 0.3699999854,
+   "now": 0.365,
+   "sure": false,
+   "stake": 1.7799999997621596,
+   "end": "2026-09-29T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0xc976cbfea6636488fabce2b29ed7d5c1d12ac147",
+   "name": "Urban-Complex",
+   "ts": 1790628293,
+   "question": "Eagles vs. Bears",
+   "slug": "nfl-phi-chi-2026-09-29",
+   "outcome": "Bears",
+   "paid": 0.3699999985,
+   "now": 0.365,
+   "sure": false,
+   "stake": 19.899999999324322,
+   "end": "2026-09-29T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0xc976cbfea6636488fabce2b29ed7d5c1d12ac147",
+   "name": "Urban-Complex",
+   "ts": 1790628291,
+   "question": "Eagles vs. Bears",
+   "slug": "nfl-phi-chi-2026-09-29",
+   "outcome": "Bears",
+   "paid": 0.3699999985,
+   "now": 0.365,
+   "sure": false,
+   "stake": 19.899999999324322,
+   "end": "2026-09-29T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0xd89b14c50162bb600b6c2584421c481ccaa4e23f",
+   "name": "Cold-Transit",
+   "ts": 1790628167,
+   "question": "Will France win on 2026-09-28?",
+   "slug": "unl-bel-fra-2026-09-28-fra",
+   "outcome": "No",
+   "paid": 0.010000000000000009,
+   "now": 0.0005,
+   "sure": false,
+   "stake": 0.050000000000000044,
+   "end": "2026-09-28T18:45:00+00:00",
+   "category": "Sports"
+  },
   {
    "wallet": "0xadefe3834ea1cad5123a25a65fe7df67c5a98fff",
    "name": "Pessimistic-Savior",
@@ -491,7 +709,7 @@
    "slug": "unl-bel-fra-2026-09-28-fra",
    "outcome": "Yes",
    "paid": 0.46,
-   "now": 0.345,
+   "now": 0.9995,
    "sure": false,
    "stake": 92.0,
    "end": "2026-09-28T18:45:00+00:00",
@@ -505,7 +723,7 @@
    "slug": "will-south-carolina-have-more-than-5pt5-wins-during-the-2026-cfb-season-20260810194036927",
    "outcome": "No",
    "paid": 0.58,
-   "now": 0.605,
+   "now": 0.6,
    "sure": false,
    "stake": 6.292999999999999,
    "end": "2026-12-12T23:59:00+00:00",
@@ -519,7 +737,7 @@
    "slug": "will-south-carolina-have-more-than-5pt5-wins-during-the-2026-cfb-season-20260810194036927",
    "outcome": "No",
    "paid": 0.580000021,
-   "now": 0.605,
+   "now": 0.6,
    "sure": false,
    "stake": 10.49523900000002,
    "end": "2026-12-12T23:59:00+00:00",
@@ -533,7 +751,7 @@
    "slug": "will-south-carolina-have-more-than-5pt5-wins-during-the-2026-cfb-season-20260810194036927",
    "outcome": "No",
    "paid": 0.58,
-   "now": 0.605,
+   "now": 0.6,
    "sure": false,
    "stake": 10.486399999999998,
    "end": "2026-12-12T23:59:00+00:00",
@@ -547,7 +765,7 @@
    "slug": "unl-bel-fra-2026-09-28-fra",
    "outcome": "Yes",
    "paid": 0.5,
-   "now": 0.345,
+   "now": 0.9995,
    "sure": false,
    "stake": 2.5,
    "end": "2026-09-28T18:45:00+00:00",
@@ -813,7 +1031,7 @@
    "slug": "nfl-phi-chi-2026-09-29-total-41pt5",
    "outcome": "Over",
    "paid": 0.5199999963,
-   "now": 0.515,
+   "now": 0.525,
    "sure": false,
    "stake": 50.08000000366154,
    "end": "2026-09-29T00:15:00+00:00",
@@ -855,7 +1073,7 @@
    "slug": "nfl-phi-chi-2026-09-29",
    "outcome": "Eagles",
    "paid": 0.65,
-   "now": 0.645,
+   "now": 0.635,
    "sure": false,
    "stake": 192.4455,
    "end": "2026-09-29T00:15:00+00:00",
@@ -869,7 +1087,7 @@
    "slug": "will-ohio-state-have-more-than-9pt5-wins-during-the-2026-cfb-season-20260810194030776",
    "outcome": "Yes",
    "paid": 0.5700001095,
-   "now": 0.605,
+   "now": 0.6,
    "sure": false,
    "stake": 2.1341869999884766,
    "end": "2026-12-27T04:59:00+00:00",
@@ -883,7 +1101,7 @@
    "slug": "will-fernando-mendoza-be-named-the-raiders-starting-qb-by-week-4",
    "outcome": "No",
    "paid": 0.99,
-   "now": 0.989,
+   "now": 0.9895,
    "sure": true,
    "stake": 15.275699999999999,
    "end": "2026-10-06T03:59:00+00:00",
@@ -897,7 +1115,7 @@
    "slug": "will-fernando-mendoza-be-named-the-raiders-starting-qb-by-week-4",
    "outcome": "No",
    "paid": 0.9864182489,
-   "now": 0.989,
+   "now": 0.9895,
    "sure": true,
    "stake": 125.72887000479399,
    "end": "2026-10-06T03:59:00+00:00",
@@ -911,7 +1129,7 @@
    "slug": "will-miami-hurricanes-win-the-2027-cfp-national-championship",
    "outcome": "Yes",
    "paid": 0.09945754770000004,
-   "now": 0.1275,
+   "now": 0.1295,
    "sure": false,
    "stake": 52.221179995362014,
    "end": "2027-01-26T00:00:00+00:00",
@@ -925,7 +1143,7 @@
    "slug": "nfl-phi-chi-2026-09-29",
    "outcome": "Eagles",
    "paid": 0.6599999973,
-   "now": 0.645,
+   "now": 0.635,
    "sure": false,
    "stake": 14.460000000845454,
    "end": "2026-09-29T00:15:00+00:00",
@@ -1142,7 +1360,7 @@
    "category": "Autre"
   }
  ],
- "monitor_at": "2026-09-28 20:24",
+ "monitor_at": "2026-09-28 20:54",
  "leaderboard": [
   {
    "wallet": "0x111f73e91f85b6fe4de1ddec3de2fe32122e355b",

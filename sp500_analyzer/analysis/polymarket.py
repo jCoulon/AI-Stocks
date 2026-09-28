@@ -31,9 +31,18 @@ HORIZON_BUCKETS = [(0, 1 / 24, "< 1 h"), (1 / 24, 1, "1 h – 1 j"), (1, 7, "1 �
                    (30, 1e9, "> 30 j")]
 
 
+LATE_HOURS = 6  # ordres passés plus de 6 h après la fin prévue : résultat en général déjà connu
+
+
+def is_late(t: Trade, m: Market) -> bool:
+    return bool(m.end) and t.ts > m.end.timestamp() + LATE_HOURS * 3600
+
+
 def bet(t: Trade, m: Market) -> Optional[tuple[float, float, float]]:
-    """(prix payé pour l'issue réellement achetée, mise en $, gain net en $) — None si inexploitable."""
-    if m.winner is None or not 0.005 < t.price < 0.995 or t.size <= 0:
+    """(prix payé pour l'issue réellement achetée, mise en $, gain net en $) — None si inexploitable
+    (marché non résolu, prix extrême, ou ordre passé une fois le résultat connu : ce n'est plus une
+    prévision mais du « ramassage » quasi sans risque)."""
+    if m.winner is None or not 0.005 < t.price < 0.995 or t.size <= 0 or is_late(t, m):
         return None
     if t.side == "BUY":
         cost, win = t.price, t.outcome_index == m.winner
@@ -51,7 +60,8 @@ def _t(xs: list[float]) -> Optional[float]:
 
 
 def wallet_stats(trades: Iterable[Trade], markets: dict[str, Market]) -> dict[str, dict]:
-    per = defaultdict(lambda: defaultdict(lambda: [0.0, 0.0]))  # wallet -> marché -> [mise, gain net]
+    # wallet -> marché -> [mise, gain net, écart type du gain si les prix étaient justes]
+    per = defaultdict(lambda: defaultdict(lambda: [0.0, 0.0, 0.0]))
     names: dict[str, str] = {}
     n_orders: dict[str, int] = defaultdict(int)
     for t in trades:
@@ -62,26 +72,33 @@ def wallet_stats(trades: Iterable[Trade], markets: dict[str, Market]) -> dict[st
         acc = per[t.wallet][t.condition_id]
         acc[0] += b[1]
         acc[1] += b[2]
+        # Si le prix c était la vraie probabilité, le gain d'une part serait X − c, X ~ Bernoulli(c) :
+        # écart type sqrt(c(1−c)). Ordres d'un même marché supposés parfaitement liés (prudent).
+        acc[2] += t.size * math.sqrt(b[0] * (1 - b[0]))
         n_orders[t.wallet] += 1
         if t.name:
             names[t.wallet] = t.name
     out = {}
     for w, by_market in per.items():
-        rois = [pnl / stake for stake, pnl in by_market.values() if stake > 0]
-        stake = sum(s for s, _ in by_market.values())
-        pnl = sum(p for _, p in by_market.values())
+        rois = [pnl / stake for stake, pnl, _ in by_market.values() if stake > 0]
+        stake = sum(v[0] for v in by_market.values())
+        pnl = sum(v[1] for v in by_market.values())
+        sd = math.sqrt(sum(v[2] ** 2 for v in by_market.values()))
         out[w] = {"wallet": w, "name": names.get(w, ""), "markets": len(rois), "orders": n_orders[w],
                   "stake": stake, "pnl": pnl, "roi": pnl / stake if stake else 0.0,
-                  "mean_roi": mean(rois) if rois else 0.0, "t": _t(rois),
+                  "mean_roi": mean(rois) if rois else 0.0, "z": pnl / sd if sd > 0 else None,
                   "win_rate": sum(r > 0 for r in rois) / len(rois) if rois else 0.0}
     return out
 
 
 def rank_wallets(stats: dict[str, dict], min_markets: int = MIN_MARKETS) -> list[dict]:
-    """Classement par t (avantage rapporté à son incertitude), pas par gain brut : un gros gain sur
-    trois paris chanceux ne vaut pas un petit avantage régulier sur cinquante marchés."""
-    ok = [s for s in stats.values() if s["markets"] >= min_markets and s["t"] is not None]
-    return sorted(ok, key=lambda s: -s["t"])
+    """Classement par z : gain réalisé rapporté à ce que le hasard produirait si les prix payés
+    étaient les vraies probabilités. Un gros gain sur trois outsiders chanceux ou des centaines
+    d'achats à 0,99 gagnés d'avance ne donnent qu'un z modeste ; seul un avantage régulier à des
+    prix incertains donne un z élevé. Avec des dizaines de milliers de portefeuilles, il faut
+    z > 4,5 environ pour que la chance devienne peu plausible."""
+    ok = [s for s in stats.values() if s["markets"] >= min_markets and s["z"] is not None]
+    return sorted(ok, key=lambda s: -s["z"])
 
 
 def persistence(trades: list[Trade], markets: dict[str, Market], top_n: int = TOP_N) -> dict:
@@ -195,7 +212,7 @@ def monitor_rows(recent: list[Trade], open_markets: dict[str, Market], wallets: 
         now_price = m.prices[idx] if len(m.prices) == 2 else None
         rows.append({"wallet": t.wallet, "name": wallets.get(t.wallet, {}).get("name", ""), "ts": t.ts,
                      "question": m.question or t.title, "slug": m.slug, "outcome": m.outcomes[idx],
-                     "paid": paid, "now": now_price, "stake": t.size * paid, "end": m.end.isoformat() if m.end else None,
+                     "paid": paid, "now": now_price, "sure": paid >= 0.97, "stake": t.size * paid, "end": m.end.isoformat() if m.end else None,
                      "category": m.category})
     return sorted(rows, key=lambda r: -r["ts"])
 
@@ -242,10 +259,10 @@ def render_text(r: dict) -> str:
     if p.get("ok"):
         out.append(f"    classés sur {p['ranked_on']} marchés (jusqu'au {p['cut']}), testés sur {p['tested_on']} : "
                    f"meilleurs {_pct(p['top_mean_roi'])} / autres {_pct(p['others_mean_roi'])} (rendement moyen)")
-    out += ["", f"  {'Portefeuille':44} {'Marchés':>7} {'Mise':>10} {'Gain':>10} {'Rend.':>7} {'t':>5} {'Réussite':>8}"]
+    out += ["", f"  {'Portefeuille':44} {'Marchés':>7} {'Mise':>10} {'Gain':>10} {'Rend.':>7} {'z':>5} {'Réussite':>8}"]
     for s in r["top"]:
         out.append(f"  {s['wallet'][:42]:42}   {s['markets']:7d} {s['stake']:10,.0f} {s['pnl']:+10,.0f} "
-                   f"{_pct(s['roi']):>7} {s['t']:5.1f} {_pct(s['win_rate'], False):>8}")
+                   f"{_pct(s['roi']):>7} {s['z']:5.1f} {_pct(s['win_rate'], False):>8}")
     out += ["", "  Calibration (prix payé → fréquence réelle de gain) :"]
     for c in r["calibration"]:
         out.append(f"    {c['bucket']:9} {c['orders']:7d} ordres  prix moyen {c['price']:.2f}  gagne {c['win_freq']:.2f}  "
@@ -285,7 +302,7 @@ def render_html(r: Optional[dict]) -> str:
         f"<div class='muted small'>{escape(s['name'][:30])}</div></td>"
         f"<td class='num'>{s['markets']}</td><td class='num'>{s['stake']:,.0f} $</td>"
         f"<td class='num'>{signed(s['pnl'] / s['stake'] if s['stake'] else None)}</td>"
-        f"<td class='num'>{s['pnl']:+,.0f} $</td><td class='num'><strong>{s['t']:.1f}</strong></td>"
+        f"<td class='num'>{s['pnl']:+,.0f} $</td><td class='num'><strong>{s['z']:.1f}</strong></td>"
         f"<td class='num'>{s['win_rate']:.0%}</td></tr>" for s in r["top"])
     cal = "".join(
         f"<tr><td>{escape(c['bucket'])}</td><td class='num'>{c['orders']:,}</td><td class='num'>{c['price']:.2f}</td>"
@@ -312,7 +329,7 @@ def render_html(r: Optional[dict]) -> str:
         f"<tr><td class='small'>{datetime.fromtimestamp(m['ts'], timezone.utc):%d/%m %H:%M}</td>"
         f"<td><code>{escape(m['wallet'][:8])}…</code></td><td>{escape(m['question'][:90])}"
         f"<div class='muted small'>{escape(m['category'])}{' · fin ' + escape(m['end'][:10]) if m['end'] else ''}</div></td>"
-        f"<td>{escape(m['outcome'])}</td><td class='num'>{m['paid']:.2f}</td>"
+        f"<td>{escape(m['outcome'])}{' <span class=badge>quasi certain</span>' if m.get('sure') else ''}</td><td class='num'>{m['paid']:.2f}</td>"
         f"<td class='num'>{_price(m['now'])}</td>"
         f"<td class='num'>{m['stake']:,.0f} $</td></tr>" for m in r["monitor"][:40])
     monitor = (f"<section class='card'><h3>Suivi : derniers ordres des portefeuilles suivis (marchés ouverts)</h3>"
@@ -334,11 +351,13 @@ def render_html(r: Optional[dict]) -> str:
 pas un conseil. L'accès à Polymarket est bloqué en France (ANJ).</p>
 <section class="card"><h3>Avantage réel ou chance ?</h3>
 <p><span class="badge {'pos' if ok else 'neu'}">{'persistant' if ok else 'non démontré'}</span> {escape(verdict(p))}</p>{pers}</section>
-<section class="card"><h3>Meilleurs portefeuilles (classés par t, au moins {MIN_MARKETS} marchés)</h3>
-<p class="muted small">Chaque ordre est compté comme un pari tenu jusqu'à la résolution. t = avantage moyen par marché
-rapporté à son incertitude : au-delà de 3, la chance devient peu plausible, même parmi des milliers de portefeuilles.</p>
+<section class="card"><h3>Meilleurs portefeuilles (classés par z, au moins {MIN_MARKETS} marchés)</h3>
+<p class="muted small">Chaque ordre est compté comme un pari tenu jusqu'à la résolution ; les ordres passés plus de
+{LATE_HOURS} h après la fin (résultat connu) sont exclus. z = gain rapporté à ce que le hasard donnerait si les prix payés
+étaient justes : acheter à 0,99 un résultat déjà connu ne rapporte presque rien en z. Parmi {r['wallets']:,} portefeuilles,
+quelques z proches de 4 apparaissent par pur hasard : seul z &gt; 4,5 environ commence à être significatif.</p>
 <div class="scroll"><table class="signals"><tr><th>Portefeuille</th><th class="num">Marchés</th><th class="num">Mises</th>
-<th class="num">Rendement</th><th class="num">Gain</th><th class="num">t</th><th class="num">Marchés gagnants</th></tr>{top}</table></div></section>
+<th class="num">Rendement</th><th class="num">Gain</th><th class="num">z</th><th class="num">Marchés gagnants</th></tr>{top}</table></div></section>
 {monitor}
 <section class="card"><h3>Où les contrats étaient-ils sous-évalués ?</h3>
 <p class="muted small">Par tranche de prix payé : fréquence réelle de gain. Une fréquence supérieure au prix signale des contrats

@@ -91,6 +91,32 @@ def _date(v) -> Optional[datetime]:
     return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
 
 
+SPORT_PREFIXES = ("nfl-", "nba-", "mlb-", "nhl-", "cfb-", "cbb-", "epl-", "ucl-", "uel-", "lal-", "sea-", "bun-",
+                  "fl1-", "mls-", "atp-", "wta-", "ufc-", "wnba-", "lol-", "cs2-", "dota2-", "val-", "f1-", "golf-",
+                  "tennis-", "boxing-", "cricket-", "ipl-", "kbo-", "npb-")
+CATEGORY_WORDS = [
+    ("Sports", (" vs. ", " vs ", "o/u", "spread", "win on 20", "championship", "grand prix", "match", "fc ", " cup")),
+    ("Crypto", ("bitcoin", "btc", "ethereum", " eth ", "solana", "xrp", "crypto", "dogecoin", "token")),
+    ("Politique", ("election", "president", "prime minister", "senate", "parliament", "trump", "governor", "minister",
+                   "vote", "party", "congress", "administration", "nominee")),
+    ("Géopolitique", ("iran", "israel", "ukraine", "russia", "china", "war", "ceasefire", "strike", "military", "gaza",
+                      "houthi", "blockade", "hormuz")),
+    ("Économie", ("fed ", "interest rate", "inflation", "cpi", "gdp", "recession", "unemployment", "rate cut")),
+    ("Tech / IA", ("openai", " ai ", "gpt", "apple", "google", "nvidia", "tesla", "spacex", "launch")),
+]
+
+
+def infer_category(slug: str, question: str) -> str:
+    """Catégorie estimée d'après le slug et la question, quand l'API n'en donne pas."""
+    s, q = (slug or "").lower(), f" {(question or '').lower()} "
+    if s.startswith(SPORT_PREFIXES):
+        return "Sports"
+    for cat, words in CATEGORY_WORDS:
+        if any(w in q for w in words):
+            return cat
+    return "Autre"
+
+
 def parse_market(m: dict) -> Optional[Market]:
     cid = m.get("conditionId") or m.get("condition_id")
     outcomes = tuple(str(o) for o in _list(m.get("outcomes")))
@@ -109,7 +135,8 @@ def parse_market(m: dict) -> Optional[Market]:
         tags = (events[0] or {}).get("tags") or m.get("tags") or []
         category = next((t.get("label", "") for t in tags if isinstance(t, dict) and t.get("label")), "")
     return Market(cid, m.get("question") or "", m.get("slug") or "", _date(m.get("endDate")), outcomes, winner,
-                  float(m.get("volumeNum") or m.get("volume") or 0), category or "Autre", prices)
+                  float(m.get("volumeNum") or m.get("volume") or 0),
+                  category or infer_category(m.get("slug") or "", m.get("question") or ""), prices)
 
 
 def parse_trade(t: dict) -> Optional[Trade]:

@@ -72,10 +72,30 @@ class AnalysisTests(unittest.TestCase):
     def test_skilled_wallet_ranks_first_and_persists(self):
         ranked = rank_wallets(wallet_stats(self.trades, self.markets))
         self.assertEqual(ranked[0]["wallet"], "0xsharp")
-        self.assertGreater(ranked[0]["t"], 3)
-        p = persistence(self.trades, self.markets, top_n=3)
+        self.assertGreater(ranked[0]["z"], 3)
+        p = persistence(self.trades, self.markets, top_n=1)
         self.assertTrue(p["ok"])
         self.assertGreater(p["top_mean_roi"], p["others_mean_roi"])
+
+    def test_sweeper_is_not_ranked_as_skilled(self):
+        trades = list(self.trades)
+        for cid, m in self.markets.items():
+            end = int(m.end.timestamp())
+            # Achète l'issue gagnante à 0,98 juste avant la fin, puis à 0,999 une fois le résultat connu.
+            trades.append(Trade(end - 600, "0xsweep", "", cid, m.winner, "BUY", 0.98, 5000))
+            trades.append(Trade(end + 86400, "0xsweep", "", cid, m.winner, "BUY", 0.99, 50000))
+        stats = wallet_stats(trades, self.markets)
+        self.assertEqual(stats["0xsweep"]["orders"], len(self.markets))  # ordres tardifs exclus
+        self.assertEqual(stats["0xsweep"]["win_rate"], 1.0)
+        self.assertLess(stats["0xsweep"]["z"], stats["0xsharp"]["z"])
+        self.assertEqual(rank_wallets(stats)[0]["wallet"], "0xsharp")
+
+    def test_infer_category(self):
+        from sp500_analyzer.providers.polymarket import infer_category
+        self.assertEqual(infer_category("cfb-lsu-miss-2026-09-19", "LSU vs. Ole Miss"), "Sports")
+        self.assertEqual(infer_category("x", "Will Bitcoin reach $150k?"), "Crypto")
+        self.assertEqual(infer_category("x", "Will Magdalena Andersson be the next Prime Minister of Sweden?"), "Politique")
+        self.assertEqual(infer_category("x", "Something else?"), "Autre")
 
     def test_calibration_matches_fair_prices(self):
         rows = calibration([t for t in self.trades if t.wallet != "0xsharp"], self.markets)

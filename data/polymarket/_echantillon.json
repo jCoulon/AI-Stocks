@@ -1,0 +1,63 @@
+{
+ "market": {
+  "condition_id": "0xff54c0bca341ff5ff0d1e2aeef4d883635104d7b9582cb9bdaf503b4141abdfb",
+  "question": "LSU vs. Ole Miss",
+  "slug": "cfb-lsu-miss-2026-09-19",
+  "end": "2026-09-19 23:30:00+00:00",
+  "outcomes": [
+   "LSU",
+   "Ole Miss"
+  ],
+  "winner": 1,
+  "volume": 2985108.3795239986,
+  "category": "Autre",
+  "prices": [
+   0.0,
+   1.0
+  ]
+ },
+ "trades": [
+  {
+   "proxyWallet": "0x50bec18c474d9a1d18b3be72332441302375371b",
+   "side": "SELL",
+   "asset": "10443448103808219251984443542919547786294289140649663375473217039223392708800",
+   "conditionId": "0xff54c0bca341ff5ff0d1e2aeef4d883635104d7b9582cb9bdaf503b4141abdfb",
+   "size": 4972.07,
+   "price": 0.999,
+   "timestamp": 1789876236,
+   "title": "LSU vs. Ole Miss",
+   "slug": "cfb-lsu-miss-2026-09-19",
+   "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/espn+college+football+logo.png",
+   "eventSlug": "cfb-lsu-miss-2026-09-19",
+   "outcome": "Ole Miss",
+   "outcomeIndex": 1,
+   "name": "0x50bec18C474d9A1D18B3bE72332441302375371B-1761434422891",
+   "pseudonym": "Black-And-White-Nougat",
+   "bio": "",
+   "profileImage": "",
+   "profileImageOptimized": "",
+   "transactionHash": "0xdd8e5f3612536ee0d1866170f9dbef99f9aba5fe21c270ff757af4e4ac09e511"
+  },
+  {
+   "proxyWallet": "0x60299d9b8743e309eeab94d35af615aafffa04af",
+   "side": "SELL",
+   "asset": "10443448103808219251984443542919547786294289140649663375473217039223392708800",
+   "conditionId": "0xff54c0bca341ff5ff0d1e2aeef4d883635104d7b9582cb9bdaf503b4141abdfb",
+   "size": 69.76,
+   "price": 0.999,
+   "timestamp": 1789876201,
+   "title": "LSU vs. Ole Miss",
+   "slug": "cfb-lsu-miss-2026-09-19",
+   "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/espn+college+football+logo.png",
+   "eventSlug": "cfb-lsu-miss-2026-09-19",
+   "outcome": "Ole Miss",
+   "outcomeIndex": 1,
+   "name": "",
+   "pseudonym": "",
+   "bio": "",
+   "profileImage": "",
+   "profileImageOptimized": "",
+   "transactionHash": "0x298e1690c899a27ff89d2103569fd9da6b4453f853e0a4e2f32f5aace735af24"
+  }
+ ]
+}

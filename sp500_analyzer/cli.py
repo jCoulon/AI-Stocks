@@ -50,6 +50,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--best-try", action="store_true",
                    help="Écran « Best try » : titres ayant un catalyseur daté prochainement (résultats, lock-up...) ; "
                         "nécessite --donnees")
+    p.add_argument("--polymarket", action="store_true",
+                   help="Écran Polymarket (meilleurs portefeuilles, marchés sous-évalués, suivi) depuis data/polymarket")
     p.add_argument("--horizon", type=int, default=60, help="Horizon de l'écran « Best try », en jours (défaut 60)")
     p.add_argument("--telecharger-cours", metavar="DOSSIER",
                    help="Télécharger les cours quotidiens depuis Stooq dans ce dossier puis quitter")
@@ -98,6 +100,19 @@ def _best_try(provider, args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+
+    if args.polymarket:
+        import json
+        from pathlib import Path
+
+        from .analysis.polymarket import render_text as render_polymarket
+
+        path = Path(args.donnees or "data") / "polymarket" / "report.json"
+        if not path.exists():
+            print(f"Pas de rapport Polymarket ({path}) : lancez le workflow « Polymarket »", file=sys.stderr)
+            return 2
+        print(render_polymarket(json.loads(path.read_text(encoding="utf-8"))))
+        return 0
 
     if args.telecharger_cours:
         from .providers.csv_prices import download_stooq

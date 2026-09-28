@@ -140,6 +140,15 @@ class AppState:
         rows, market, fetched = screen(provider, self.data_dir, horizon, labels)
         return html_besttry(rows, provider.as_of, horizon, market, fetched)
 
+    def polymarket_html(self) -> str:
+        """Écran Polymarket (rapport produit par le workflow « Polymarket »)."""
+        import json
+
+        from ..analysis.polymarket import render_html
+
+        path = self.data_dir / "polymarket" / "report.json" if self.data_dir else None
+        return render_html(json.loads(path.read_text(encoding="utf-8")) if path and path.exists() else None)
+
     def advice_key(self, ticker: str) -> tuple[int, str]:
         self.current()
         return self.generation, ticker
@@ -163,6 +172,7 @@ class AppState:
             "asymmetry": real and self.universe != "sp500"
                          and any((self.data_dir / "fundamentals").glob("*.json")),
             "besttry": real,
+            "polymarket": bool(self.data_dir and (self.data_dir / "polymarket" / "report.json").exists()),
             "seed": self.seed,
             "llm": self.use_llm,
             "llm_status": None if writer is None else {"status": writer["status"], "error": writer["error"]},
@@ -243,6 +253,8 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     return self._send(200, html_market(r) + html_agents(r), "text/html; charset=utf-8")
                 if path == "/api/asymmetry":
                     return self._send(200, state.asymmetry_html(), "text/html; charset=utf-8")
+                if path == "/api/polymarket":
+                    return self._send(200, state.polymarket_html(), "text/html; charset=utf-8")
                 if path == "/api/besttry":
                     return self._send(200, state.besttry_html(), "text/html; charset=utf-8")
                 if path.startswith("/api/stock/"):

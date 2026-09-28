@@ -1,0 +1,64 @@
+name: Polymarket (portefeuilles et suivi)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "complet ou suivi"
+        default: "complet"
+  push:
+    branches: ["claude/**"]
+    paths:
+      - ".github/workflows/polymarket.yml"
+      - "scripts/fetch_polymarket.py"
+      - "sp500_analyzer/providers/polymarket.py"
+      - "sp500_analyzer/analysis/polymarket.py"
+  # Planification (active seulement sur la branche par défaut) : analyse complète chaque nuit,
+  # suivi des portefeuilles toutes les 3 heures.
+  schedule:
+    - cron: "17 4 * * *"
+    - cron: "47 */3 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: polymarket-${{ github.ref }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Analyse
+        timeout-minutes: 45
+        continue-on-error: true
+        run: |
+          MODE="${{ github.event.inputs.mode || 'complet' }}"
+          if [ "${{ github.event.schedule }}" = "47 */3 * * *" ] || [ "$MODE" = "suivi" ]; then
+            python -u scripts/fetch_polymarket.py --out data --monitor
+          else
+            python -u scripts/fetch_polymarket.py --out data --budget 35
+          fi
+
+      - name: Enregistrement dans la branche
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/polymarket
+          if git diff --cached --quiet; then
+            echo "Aucune donnée nouvelle."
+          else
+            git commit -m "Polymarket : portefeuilles et suivi"
+            for i in 1 2 3; do
+              git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
+              sleep 5
+            done
+          fi

@@ -118,6 +118,13 @@ class RealDataAppTests(unittest.TestCase):
         (root / "events" / "NBIS.json").write_text(json.dumps({
             "fetched": "2026-09-28", "past_earnings": ["2026-08-06"],
             "next_earnings": {"date": "2026-10-29", "estimated": True, "timing": ""}}))
+        from datetime import datetime, timezone
+
+        from sp500_analyzer.analysis.polymarket import build_report
+        from tests.test_polymarket import synthetic
+        (root / "polymarket").mkdir()
+        (root / "polymarket" / "report.json").write_text(
+            json.dumps(build_report(*synthetic(), datetime(2026, 10, 1, tzinfo=timezone.utc)), default=str))
         cls.server = AppServer(AppState(data_dir=root)).start()
 
     @classmethod
@@ -166,6 +173,13 @@ class RealDataAppTests(unittest.TestCase):
         self.assertIn("Best try", html)
         self.assertIn('data-ticker="NBIS"', html)
         self.assertIn("29/10", html)
+
+    def test_polymarket_screen(self):
+        s = json.loads(self.request("/api/summary")[2])
+        self.assertTrue(s["polymarket"])
+        status, _, html = self.request("/api/polymarket")
+        self.assertEqual(status, 200)
+        self.assertIn("0xsharp", html)
 
     def test_real_mode_refused_without_data(self):
         server = AppServer(AppState()).start()

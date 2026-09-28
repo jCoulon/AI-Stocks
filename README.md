@@ -219,6 +219,26 @@ rapportée à la valorisation (VE/CA), et signale les pièges : profil « loteri
 sous-performe en moyenne), trésorerie courte (dilution), consensus maigre. Les fondamentaux
 (Yahoo Finance) sont une photographie du jour : l'écran est descriptif, non backtesté.
 
+### Écran Polymarket : meilleurs portefeuilles, marchés sous-évalués, suivi
+
+```bash
+python -m sp500_analyzer --polymarket
+```
+
+Le workflow « Polymarket » télécharge les marchés binaires résolus des 90 derniers jours et leurs
+ordres (API publiques, sans clé), puis :
+- classe les portefeuilles par **t** (avantage moyen par marché rapporté à son incertitude, au moins
+  8 marchés), chaque ordre étant compté comme un pari tenu jusqu'à la résolution ;
+- **teste la persistance** : les meilleurs des deux premiers tiers de la période font-ils mieux sur
+  le dernier tiers ? Sinon, leur classement tient à la chance ;
+- mesure où les contrats étaient **sous-évalués** (fréquence réelle de gain vs prix payé, par
+  tranche de prix et par catégorie) ;
+- décrit les **habitudes** des meilleurs (heure, délai avant la fin du marché, prix payé, catégorie) ;
+- **suit** leurs derniers ordres sur les marchés ouverts (toutes les 3 h une fois sur `main`).
+
+Aussi dans l'application (entrée « Polymarket »). Analyse descriptive de données publiques, pas un
+conseil ; l'accès à Polymarket est bloqué en France (ANJ).
+
 ### Mode IA (score court terme des titres IA)
 
 Pour les titres du focus IA, les indicateurs techniques court terme (MACD, RSI, force relative

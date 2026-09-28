@@ -29,6 +29,8 @@ TOP_N = 20
 PRICE_BUCKETS = [(0.0, 0.1), (0.1, 0.25), (0.25, 0.4), (0.4, 0.6), (0.6, 0.75), (0.75, 0.9), (0.9, 1.0)]
 HORIZON_BUCKETS = [(0, 1 / 24, "< 1 h"), (1 / 24, 1, "1 h – 1 j"), (1, 7, "1 – 7 j"), (7, 30, "7 – 30 j"),
                    (30, 1e9, "> 30 j")]
+# Au-delà de la fin prévue (limitée à 6 h) : pour le sport, la « fin » est souvent le coup d'envoi.
+AFTER_END = "après la fin prévue (≤ 6 h, souvent match en cours)"
 
 
 LATE_HOURS = 6  # ordres passés plus de 6 h après la fin prévue : résultat en général déjà connu
@@ -186,7 +188,7 @@ def habits(trades: Iterable[Trade], markets: dict[str, Market], wallets: set[str
                 "price": next(f"{lo:.0%}–{hi:.0%}" for lo, hi in PRICE_BUCKETS if lo <= cost < hi or (hi == 1.0 and cost >= lo)),
                 "category": m.category}
         if days_left is not None:
-            keys["horizon"] = next((lab for lo, hi, lab in HORIZON_BUCKETS if lo <= days_left < hi), "après la fin")
+            keys["horizon"] = next((lab for lo, hi, lab in HORIZON_BUCKETS if lo <= days_left < hi), AFTER_END)
         for g in ("all", "top") if t.wallet in wallets else ("all",):
             for k, v in keys.items():
                 groups[g][k][v] += stake
@@ -217,6 +219,18 @@ def monitor_rows(recent: list[Trade], open_markets: dict[str, Market], wallets: 
     return sorted(rows, key=lambda r: -r["ts"])
 
 
+def calibration_split(trades: list[Trade], markets: dict[str, Market]) -> Optional[dict]:
+    """Le biais de prix tient-il sur la dernière période ? Calibration sur les deux premiers tiers
+    des marchés résolus, puis sur le dernier tiers (hors échantillon)."""
+    ends = sorted(m.end for m in markets.values() if m.end)
+    if len(ends) < 30:
+        return None
+    cut = ends[len(ends) * 2 // 3]
+    a = {c: m for c, m in markets.items() if m.end and m.end < cut}
+    b = {c: m for c, m in markets.items() if m.end and m.end >= cut}
+    return {"cut": cut.date().isoformat(), "a": calibration(trades, a), "b": calibration(trades, b)}
+
+
 def build_report(markets: dict[str, Market], trades: list[Trade], now: datetime) -> dict:
     stats = wallet_stats(trades, markets)
     ranked = rank_wallets(stats)
@@ -225,7 +239,8 @@ def build_report(markets: dict[str, Market], trades: list[Trade], now: datetime)
             "period": [min(m.end for m in markets.values() if m.end).date().isoformat(),
                        max(m.end for m in markets.values() if m.end).date().isoformat()] if markets else None,
             "top": top, "persistence": persistence(trades, markets), "calibration": calibration(trades, markets),
-            "categories": category_roi(trades, markets),
+            "categories": category_roi(trades, markets), "calibration_split": calibration_split(trades, markets),
+            "qualified": sum(1 for s in stats.values() if s["markets"] >= MIN_MARKETS and s["z"] is not None),
             "habits": habits(trades, markets, {s["wallet"] for s in top}), "monitor": [], "monitor_at": None}
 
 
@@ -236,6 +251,21 @@ def _pct(x, signed=True):
 
 def _price(x) -> str:
     return "—" if x is None else f"{x:.2f}"
+
+
+def chance_max_z(n: int) -> float:
+    """z maximal attendu par pur hasard parmi n portefeuilles (loi normale) : ≈ sqrt(2 ln n)."""
+    return math.sqrt(2 * math.log(n)) if n > 1 else 0.0
+
+
+def skill_note(r: dict) -> str:
+    n = r.get("qualified") or 0
+    if not r.get("top") or not n:
+        return ""
+    best, bar = r["top"][0]["z"], chance_max_z(n)
+    return (f"Meilleur z : {best:.1f} ; parmi {n:,} portefeuilles classés, le hasard seul produit un maximum d'environ "
+            f"{bar:.1f}. " + ("Aucun portefeuille ne se détache nettement de la chance." if best < bar + 0.5
+                              else "Les premiers se détachent de ce que la chance explique."))
 
 
 def verdict(p: dict) -> str:
@@ -263,10 +293,17 @@ def render_text(r: dict) -> str:
     for s in r["top"]:
         out.append(f"  {s['wallet'][:42]:42}   {s['markets']:7d} {s['stake']:10,.0f} {s['pnl']:+10,.0f} "
                    f"{_pct(s['roi']):>7} {s['z']:5.1f} {_pct(s['win_rate'], False):>8}")
-    out += ["", "  Calibration (prix payé → fréquence réelle de gain) :"]
+    if skill_note(r):
+        out += ["", "  " + skill_note(r)]
+    split = r.get("calibration_split") or {}
+    later = {c["bucket"]: c for c in split.get("b", [])}
+    out += ["", "  Calibration (prix payé → fréquence réelle de gain)"
+            + (f" ; dernière colonne : dernier tiers seul (après le {split['cut']}, hors échantillon)" if later else "") + " :"]
     for c in r["calibration"]:
+        b = later.get(c["bucket"])
         out.append(f"    {c['bucket']:9} {c['orders']:7d} ordres  prix moyen {c['price']:.2f}  gagne {c['win_freq']:.2f}  "
-                   f"écart {c['edge']:+.3f}  rendement {_pct(c['roi'])}")
+                   f"écart {c['edge']:+.3f}  rendement {_pct(c['roi'])}"
+                   + (f"   | dernier tiers : écart {b['edge']:+.3f}, rendement {_pct(b['roi'])}" if b else ""))
     h = r["habits"].get("top") or {}
     if h:
         out += ["", "  Habitudes des meilleurs (part des mises ; entre parenthèses : tous les portefeuilles) :"]
@@ -304,10 +341,13 @@ def render_html(r: Optional[dict]) -> str:
         f"<td class='num'>{signed(s['pnl'] / s['stake'] if s['stake'] else None)}</td>"
         f"<td class='num'>{s['pnl']:+,.0f} $</td><td class='num'><strong>{s['z']:.1f}</strong></td>"
         f"<td class='num'>{s['win_rate']:.0%}</td></tr>" for s in r["top"])
+    split = r.get("calibration_split") or {}
+    later = {c["bucket"]: c for c in split.get("b", [])}
     cal = "".join(
         f"<tr><td>{escape(c['bucket'])}</td><td class='num'>{c['orders']:,}</td><td class='num'>{c['price']:.2f}</td>"
         f"<td class='num'>{c['win_freq']:.2f}</td><td class='num'>{signed(c['edge'])}</td>"
-        f"<td class='num'>{signed(c['roi'])}</td></tr>" for c in r["calibration"])
+        f"<td class='num'>{signed(c['roi'])}</td>"
+        f"<td class='num'>{signed(later[c['bucket']]['roi']) if c['bucket'] in later else '—'}</td></tr>" for c in r["calibration"])
     cats = "".join(f"<tr><td>{escape(c['category'])}</td><td class='num'>{c['markets']}</td>"
                    f"<td class='num'>{c['stake']:,.0f} $</td><td class='num'>{signed(c['roi'])}</td></tr>"
                    for c in r["categories"][:12])
@@ -323,7 +363,7 @@ def render_html(r: Optional[dict]) -> str:
                         f"<td class='num'>{v:.0%}</td><td class='num muted'>{b:.0%}</td></tr>")
         return "<table class='signals small'><tr><th></th><th>Meilleurs</th><th class='num'></th><th class='num'>Tous</th></tr>" + "".join(rows) + "</table>"
 
-    horizons = [lab for _, _, lab in HORIZON_BUCKETS] + ["après la fin"]
+    horizons = [lab for _, _, lab in HORIZON_BUCKETS] + [AFTER_END]
     prices = [f"{lo:.0%}–{hi:.0%}" for lo, hi in PRICE_BUCKETS]
     mon = "".join(
         f"<tr><td class='small'>{datetime.fromtimestamp(m['ts'], timezone.utc):%d/%m %H:%M}</td>"
@@ -356,6 +396,7 @@ pas un conseil. L'accès à Polymarket est bloqué en France (ANJ).</p>
 {LATE_HOURS} h après la fin (résultat connu) sont exclus. z = gain rapporté à ce que le hasard donnerait si les prix payés
 étaient justes : acheter à 0,99 un résultat déjà connu ne rapporte presque rien en z. Parmi {r['wallets']:,} portefeuilles,
 quelques z proches de 4 apparaissent par pur hasard : seul z &gt; 4,5 environ commence à être significatif.</p>
+<p class="small">{escape(skill_note(r))}</p>
 <div class="scroll"><table class="signals"><tr><th>Portefeuille</th><th class="num">Marchés</th><th class="num">Mises</th>
 <th class="num">Rendement</th><th class="num">Gain</th><th class="num">z</th><th class="num">Marchés gagnants</th></tr>{top}</table></div></section>
 {monitor}
@@ -363,7 +404,7 @@ quelques z proches de 4 apparaissent par pur hasard : seul z &gt; 4,5 environ co
 <p class="muted small">Par tranche de prix payé : fréquence réelle de gain. Une fréquence supérieure au prix signale des contrats
 sous-évalués dans cette tranche (en moyenne, sur la période).</p>
 <table class="signals"><tr><th>Prix payé</th><th class="num">Ordres</th><th class="num">Prix moyen</th><th class="num">Gagne</th>
-<th class="num">Écart</th><th class="num">Rendement</th></tr>{cal}</table>
+<th class="num">Écart</th><th class="num">Rendement</th><th class="num" title="Marchés résolus après le {escape(split.get('cut', ''))} seulement">Rendement, dernier tiers</th></tr>{cal}</table>
 <h3>Par catégorie</h3><table class="signals"><tr><th>Catégorie</th><th class="num">Marchés</th><th class="num">Mises</th>
 <th class="num">Rendement moyen des preneurs</th></tr>{cats}</table></section>
 <section class="card"><h3>Comment et quand investissent les meilleurs</h3>

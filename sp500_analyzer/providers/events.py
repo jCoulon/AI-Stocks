@@ -4,7 +4,8 @@ lock-up estimées après une introduction en bourse, et calendrier saisi à la m
 Fichiers :
   <dossier>/events/<TICKER>.json   prochaine publication + dates des publications passées
   <dossier>/events/calendar.csv    événements saisis à la main : Date,Ticker,Event,Note
-                                   (Ticker = MARCHE pour un événement de marché)
+                                   (Ticker = MARCHE pour un événement de marché ; une société
+                                   liée comme OPENAI touche les titres qui lui sont liés)
 La prochaine date de résultats est une photographie du jour du téléchargement ; les dates
 passées (tableau des « surprises » de BPA) permettent de mesurer la réaction habituelle du titre.
 """
@@ -22,6 +23,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Callable, Optional
 
+from ..universe import LINKS
 from .fundamentals import NASDAQ_API, NASDAQ_HEADERS
 
 MONTHS = {m: i for i, m in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov",
@@ -163,7 +165,13 @@ def ticker_events(root: Path, ticker: str, first_bar: Optional[date], history_st
             out.append(Event(ticker, day, "lockup", "Fin du lock-up (estimée)", False, "",
                              f"introduction le {first_bar:%d/%m/%Y} + {LOCKUP_DAYS} j ; la date exacte figure dans "
                              "le prospectus (elle peut être avancée, p. ex. après une publication de résultats)"))
-    out += [e for e in load_calendar(root) if e.ticker == ticker and e.day > as_of]
+    calendar = [e for e in load_calendar(root) if e.day > as_of]
+    out += [e for e in calendar if e.ticker == ticker]
+    # Événements des sociétés liées (universe.LINKS), p. ex. une annonce d'OpenAI pour Cerebras.
+    for link in LINKS.get(ticker, []):
+        out += [Event(ticker, e.day, "lie", f"[{link.name}] {e.label}", note="; ".join(
+                    x for x in (e.note, f"lien : {link.relation} (poids {link.weight:.0%})") if x))
+                for e in calendar if e.ticker == link.entity]
     return sorted(out, key=lambda e: e.day)
 
 

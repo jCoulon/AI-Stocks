@@ -228,7 +228,8 @@ python -m sp500_analyzer --donnees data --best-try [--horizon 60]
 Titres ayant un catalyseur daté dans l'horizon — publication de résultats (calendrier Nasdaq,
 `data/events/<TICKER>.json`), fin de lock-up estimée après une introduction récente
 (introduction + 180 j), événements saisis dans `data/events/calendar.csv` (dont les décisions
-de la Fed) — classés par **mouvement attendu** : médiane des réactions passées du titre à ses
+de la Fed, et les événements d'une société liée : une ligne `OPENAI` — p. ex. le DevDay —
+s'affiche pour CBRS, CRWV, AMD, AVGO et NVDA) — classés par **mouvement attendu** : médiane des réactions passées du titre à ses
 publications (sur 2 séances), comparée à son mouvement normal. Aussi dans l'application
 (entrée « Best try »). L'écran mesure l'**amplitude** probable, pas le sens : il signale un
 risque autant qu'une opportunité, et n'est pas un conseil.

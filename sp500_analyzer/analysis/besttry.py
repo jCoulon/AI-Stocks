@@ -104,6 +104,9 @@ def build_rows(ticker: str, name: str, theme: str, bars: list[Bar], events: list
         elif ev.kind == "lockup":
             row.expected_move, row.estimated_move = normal_move, True
             row.bias = "biais baissier documenté (offre de titres des initiés)"
+        elif ev.kind == "lie":
+            row.expected_move, row.estimated_move = normal_move, True
+            row.bias = "sens selon le contenu de l'annonce (produits, contrats, financement)"
         else:
             row.expected_move, row.estimated_move = normal_move, True
         f = fund or {}

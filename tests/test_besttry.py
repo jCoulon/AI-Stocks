@@ -71,16 +71,20 @@ class ParsingTests(unittest.TestCase):
             root = Path(tmp)
             (root / "events").mkdir()
             (root / "events" / "calendar.csv").write_text(
-                "# commentaire\nDate,Ticker,Event,Note\n2026-10-28,MARCHE,Fed,taux\n2026-10-15,cbrs,Journée investisseurs,\n")
+                "# commentaire\nDate,Ticker,Event,Note\n2026-10-28,MARCHE,Fed,taux\n2026-10-15,cbrs,Journée investisseurs,\n"
+                "2026-09-29,OPENAI,DevDay,keynote\n")
             (root / "events" / "CBRS.json").write_text(json.dumps({
                 "past_earnings": ["2026-06-24", "2026-08-12"],
                 "next_earnings": {"date": "2026-11-12", "estimated": True, "timing": ""}}))
             cal = load_calendar(root)
-            self.assertEqual([(e.ticker, e.kind) for e in cal], [("MARCHE", "marche"), ("CBRS", "autre")])
+            self.assertEqual([(e.ticker, e.kind) for e in cal],
+                             [("MARCHE", "marche"), ("CBRS", "autre"), ("OPENAI", "autre")])
             evs = ticker_events(root, "CBRS", date(2026, 5, 14), date(2024, 9, 26), date(2026, 9, 25))
             self.assertEqual([(e.day, e.kind) for e in evs], [
-                (date(2026, 10, 15), "autre"), (date(2026, 11, 10), "lockup"), (date(2026, 11, 12), "resultats")])
+                (date(2026, 9, 29), "lie"), (date(2026, 10, 15), "autre"), (date(2026, 11, 10), "lockup"), (date(2026, 11, 12), "resultats")])
             self.assertFalse(evs[-1].confirmed)
+            self.assertEqual(evs[0].label, "[OpenAI] DevDay")
+            self.assertIn("poids 50%", evs[0].note)
             # Revu au 1er août : la publication du 12/08 était à venir ; la prochaine date (trop proche
             # d'une date passée déjà listée) n'est pas doublée.
             evs = ticker_events(root, "CBRS", date(2026, 5, 14), date(2024, 9, 26), date(2026, 8, 1))

@@ -49,6 +49,7 @@ class AsymmetryRow:
     cash_years: Optional[float] = None  # années de trésorerie au rythme de consommation actuel
     short_float: Optional[float] = None
     fetched: Optional[str] = None
+    source: Optional[str] = None
     score: Optional[float] = None
     short_label: str = ""
     medium_label: str = ""
@@ -95,7 +96,7 @@ def build_row(ticker: str, name: str, theme: str, bars: list[Bar], fund: Optiona
     fcf, cash = f.get("free_cash_flow"), f.get("cash")
     if fcf is not None and fcf < 0 and cash is not None:
         row.cash_years = cash / -fcf
-    row.short_float, row.fetched = f.get("short_float"), f.get("fetched")
+    row.short_float, row.fetched, row.source = f.get("short_float"), f.get("fetched"), f.get("source")
 
     if (row.vol or 0) > 0.8 or (row.skew or 0) > 1 or (row.max_ret or 0) > 0.15:
         row.flags.append("profil loterie")
@@ -136,7 +137,9 @@ def _pct(x: Optional[float], signed: bool = True) -> str:
 
 def render_asymmetry(rows: list[AsymmetryRow]) -> str:
     fetched = sorted({r.fetched for r in rows if r.fetched})
-    out = ["ÉCRAN D'ASYMÉTRIE — FOCUS IA" + (f" (fondamentaux du {fetched[-1]})" if fetched else ""),
+    sources = sorted({r.source for r in rows if r.source})
+    out = ["ÉCRAN D'ASYMÉTRIE — FOCUS IA" + (f" (fondamentaux du {fetched[-1]}" + (f", {', '.join(sources)}" if sources else "")
+                                              + ")" if fetched else ""),
            "Descriptif, non validé par backtest : ce n'est pas un conseil d'investissement.", "",
            f"  {'Titre':6} {'Thème':24} {'Cours':>8} {'52 sem.':>7} {'Vol.':>5} {'Objectif':>8} "
            f"{'Haut/bas':>8} {'Croiss.':>7} {'VE/CA':>6} {'Score':>5}  {'Avis CT / MT':34} Alertes"]
@@ -152,7 +155,8 @@ def render_asymmetry(rows: list[AsymmetryRow]) -> str:
     out += ["",
             "  52 sem. : position du cours entre le plus bas (0 %) et le plus haut (100 %) d'un an.",
             "  Objectif : objectif moyen des analystes vs cours. Haut/bas : gain vers l'objectif le plus haut",
-            "  rapporté à la perte vers l'objectif le plus bas. Croiss. : CA du dernier trimestre sur un an.",
+            "  rapporté à la perte vers l'objectif le plus bas. Croiss. : croissance annuelle du CA (dernier",
+            "  exercice avec Nasdaq, dernier trimestre sur un an avec Yahoo).",
             "  VE/CA : valeur d'entreprise / chiffre d'affaires. Score : rang moyen dans l'univers (1 = profil",
             "  le plus asymétrique selon ces critères), sans prise en compte des alertes.",
             "",

@@ -62,9 +62,9 @@ def read_series(path: Path) -> Series:
 
 
 class RealDataProvider(CsvPriceProvider):
-    def __init__(self, folder: str | Path, as_of: date | None = None):
+    def __init__(self, folder: str | Path, as_of: date | None = None, universe: str = "sp500"):
         root = Path(folder)
-        super().__init__(root / "daily", as_of)
+        super().__init__(root / "daily", as_of, universe)
         self.root = root
         self._news: dict[Optional[str], list[NewsItem]] = {}
         #: Ton FinBERT par titre (vide : le lexique est utilisé)

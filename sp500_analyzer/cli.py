@@ -43,9 +43,39 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Utiliser de vrais cours : fichiers CSV <TICKER>.csv et SPX.csv (format Stooq / Yahoo)")
     p.add_argument("--donnees", metavar="DOSSIER",
                    help="Utiliser toutes les données réelles du dossier (cours daily/, news/, sec/, macro/)")
+    p.add_argument("--univers", choices=["sp500", "ia", "tout"], default=None,
+                   help="Univers analysé avec des données réelles : sp500 (défaut), ia (focus IA) ou tout")
+    p.add_argument("--asymetrie", action="store_true",
+                   help="Écran d'asymétrie du focus IA (potentiel vs risque) ; nécessite --donnees")
     p.add_argument("--telecharger-cours", metavar="DOSSIER",
                    help="Télécharger les cours quotidiens depuis Stooq dans ce dossier puis quitter")
     return p
+
+
+def _asymmetry(provider, args) -> int:
+    from pathlib import Path
+
+    from .analysis.asymmetry import build_row, render_asymmetry, score_rows
+    from .providers.fundamentals import load_fundamentals
+    from .universe import AI_THEME
+
+    try:
+        report = Orchestrator(provider, max_workers=args.workers).run()
+        labels = {t.security.ticker: (t.short.label, t.medium.label) for t in report.tickers}
+    except OrchestrationError as e:
+        print(f"Analyse des agents indisponible ({e}) : écran sans avis", file=sys.stderr)
+        labels = {}
+    rows = []
+    for sec in provider.universe():
+        bars = provider.price_history(sec.ticker)
+        if len(bars) < 30:
+            continue
+        row = build_row(sec.ticker, sec.name, AI_THEME.get(sec.ticker, sec.sector), bars,
+                        load_fundamentals(Path(args.donnees), sec.ticker))
+        row.short_label, row.medium_label = labels.get(sec.ticker, ("", ""))
+        rows.append(row)
+    print(render_asymmetry(score_rows(rows)))
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -60,11 +90,19 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Cours enregistrés dans {args.telecharger_cours} ({len(errors)} erreur(s)).")
         return 1 if errors else 0
 
+    if args.asymetrie and not args.donnees:
+        print("L'écran d'asymétrie nécessite des données réelles : ajoutez --donnees data", file=sys.stderr)
+        return 2
+    universe = args.univers or ("ia" if args.asymetrie else "sp500")
+    if universe != "sp500" and not (args.donnees or args.cours):
+        print("Les univers « ia » et « tout » nécessitent des données réelles (--donnees ou --cours)", file=sys.stderr)
+        return 2
+
     if args.donnees:
         from .providers.realdata import RealDataProvider
 
         try:
-            provider = RealDataProvider(args.donnees)
+            provider = RealDataProvider(args.donnees, universe=universe)
         except (OSError, ValueError) as e:
             print(f"Erreur de lecture des données : {e}", file=sys.stderr)
             return 2
@@ -73,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
         from .providers.csv_prices import CsvPriceProvider
 
         try:
-            provider = CsvPriceProvider(args.cours)
+            provider = CsvPriceProvider(args.cours, universe=universe)
         except (OSError, ValueError) as e:
             print(f"Erreur de lecture des cours : {e}", file=sys.stderr)
             return 2
@@ -96,6 +134,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Titre(s) inconnu(s) : {', '.join(unknown)}. Disponibles : {', '.join(sorted(known))}",
               file=sys.stderr)
         return 2
+
+    if args.asymetrie:
+        return _asymmetry(provider, args)
 
     if args.backtest_periode:
         from .analysis.period_backtest import render_period_backtest, run_period_backtest

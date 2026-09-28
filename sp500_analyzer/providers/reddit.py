@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 
-from ..universe import SP500_SAMPLE
+from ..universe import UNIVERSES
 from .realnews import NEW_YORK, http_get
 from .stocktwits import read_rows, write_rows
 
@@ -29,13 +29,13 @@ HEADERS = {"User-Agent": "AI-Stocks/1.0 (research; RSS reader)"}
 REDDIT_PAUSE = 4.0
 # Symboles trop courts ou ambigus pour être cherchés seuls : on cherche le nom de l'entreprise.
 AMBIGUOUS = {"V", "BA", "KO", "GS", "HD", "PG", "CAT", "DIS", "AMT", "NEE", "PFE", "JNJ", "WMT", "UNH", "LLY", "XOM",
-             "CVX", "JPM", "BAC"}
+             "CVX", "JPM", "BAC", "ARM", "MU", "AI", "PATH", "VRT"}
 EXTRA_NAMES = {"IREN": "Iris Energy"}
 _TAGS = re.compile(r"<[^>]+>")
 
 
 def reddit_query(ticker: str) -> str:
-    names = {p.security.ticker: p.security.name for p in SP500_SAMPLE} | EXTRA_NAMES
+    names = {s.ticker: s.name for s in UNIVERSES["tout"]} | EXTRA_NAMES
     name = names.get(ticker, ticker)
     return f'"{name}"' if ticker in AMBIGUOUS else f'{ticker} OR "{name}"'
 

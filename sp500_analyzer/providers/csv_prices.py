@@ -19,7 +19,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from ..models import Bar, NewsItem, Security, Series, SocialPost
-from ..universe import INDEX, SP500_SAMPLE
+from ..universe import INDEX, SP500_SAMPLE, UNIVERSES
 from .base import DataProvider
 
 INDEX_FILE = "SPX"
@@ -52,11 +52,12 @@ def read_bars(path: Path) -> list[Bar]:
 
 
 class CsvPriceProvider(DataProvider):
-    def __init__(self, folder: str | Path, as_of: date | None = None):
+    def __init__(self, folder: str | Path, as_of: date | None = None, universe: str = "sp500"):
         self.folder = Path(folder)
         self._bars: dict[str, list[Bar]] = {}
+        self._securities = UNIVERSES[universe]
         missing = []
-        for sec in [p.security for p in SP500_SAMPLE]:
+        for sec in self._securities:
             path = self.folder / f"{sec.ticker}.csv"
             if path.exists():
                 self._bars[sec.ticker] = read_bars(path)
@@ -73,7 +74,7 @@ class CsvPriceProvider(DataProvider):
             self._bars = {t: [b for b in bars if b.day <= as_of] for t, bars in self._bars.items()}
 
     def universe(self) -> list[Security]:
-        return [p.security for p in SP500_SAMPLE if p.security.ticker in self._bars]
+        return [sec for sec in self._securities if sec.ticker in self._bars]
 
     def index(self) -> Security:
         return INDEX

@@ -58,6 +58,55 @@ SP500_SAMPLE: list[SecurityProfile] = [
 
 INDEX = Security("^GSPC", "S&P 500", "Index", 1.0)
 
+# --------------------------------------------------------------------- Focus IA
+# Titres liés à l'intelligence artificielle, hors échantillon S&P 500 (données réelles
+# seulement : pas de profil simulé). Le bêta indiqué est une estimation grossière, informative.
+AI_EXTRA: list[Security] = [
+    Security("TSM", "Taiwan Semiconductor", "Technology", 1.2),
+    Security("ARM", "Arm Holdings", "Technology", 1.8),
+    Security("MU", "Micron Technology", "Technology", 1.5),
+    Security("SMCI", "Super Micro Computer", "Technology", 2.0),
+    Security("VRT", "Vertiv", "Industrials", 1.7),
+    Security("ANET", "Arista Networks", "Technology", 1.4),
+    Security("NBIS", "Nebius Group", "Technology", 2.2),
+    Security("CRWV", "CoreWeave", "Technology", 2.5),
+    Security("IREN", "IREN", "Technology", 2.8),
+    Security("CIFR", "Cipher Mining", "Technology", 2.8),
+    Security("WULF", "TeraWulf", "Technology", 2.8),
+    Security("APLD", "Applied Digital", "Technology", 2.6),
+    Security("CORZ", "Core Scientific", "Technology", 2.4),
+    Security("PLTR", "Palantir", "Technology", 2.0),
+    Security("AI", "C3.ai", "Technology", 2.0),
+    Security("SOUN", "SoundHound AI", "Technology", 2.6),
+    Security("BBAI", "BigBear.ai", "Technology", 2.6),
+    Security("PATH", "UiPath", "Technology", 1.6),
+]
+
+#: Sous-thème de chaque titre du focus IA
+AI_THEME: dict[str, str] = {
+    "NVDA": "Puces", "AMD": "Puces", "AVGO": "Puces", "TSM": "Puces", "ARM": "Puces", "MU": "Puces (mémoire)",
+    "SMCI": "Serveurs", "VRT": "Énergie / refroidissement", "ANET": "Réseau",
+    "MSFT": "Hyperscaler", "GOOGL": "Hyperscaler", "META": "Hyperscaler", "AMZN": "Hyperscaler",
+    "NBIS": "Néocloud", "CRWV": "Néocloud", "IREN": "Néocloud / ex-mineur", "CIFR": "Ex-mineur → HPC",
+    "WULF": "Ex-mineur → HPC", "APLD": "Data centers HPC", "CORZ": "Ex-mineur → HPC",
+    "PLTR": "Logiciel IA", "AI": "Logiciel IA", "SOUN": "Logiciel IA", "BBAI": "Logiciel IA",
+    "PATH": "Automatisation",
+}
+
+
+def _securities() -> dict[str, Security]:
+    return {p.security.ticker: p.security for p in SP500_SAMPLE} | {s.ticker: s for s in AI_EXTRA}
+
+
+#: Univers analysables : échantillon S&P 500, focus IA, ou les deux.
+UNIVERSES: dict[str, list[Security]] = {
+    "sp500": [p.security for p in SP500_SAMPLE],
+    "ia": [_securities()[t] for t in AI_THEME],
+    "tout": list(_securities().values()),
+}
+#: Titres hors S&P 500 à télécharger en plus (cours, news, réseaux sociaux)
+EXTRA_TICKERS: list[str] = [s.ticker for s in AI_EXTRA]
+
 
 # Sensibilité de chaque secteur aux facteurs macro (valeurs dans [-1, 1]).
 #   rates    : > 0 = profite d'une baisse des taux longs

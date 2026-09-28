@@ -20,7 +20,7 @@ from sp500_analyzer.providers.realnews import (  # noqa: E402
     GDELT_MAX_DAYS, MARKET, download_macro, download_news, download_sec,
 )
 from sp500_analyzer.providers.googlenews import download_google_news  # noqa: E402
-from sp500_analyzer.universe import SP500_SAMPLE  # noqa: E402
+from sp500_analyzer.universe import EXTRA_TICKERS, SP500_SAMPLE  # noqa: E402
 
 
 def main() -> int:
@@ -37,7 +37,10 @@ def main() -> int:
     args = p.parse_args()
     out = Path(args.out)
     tickers = [s.security.ticker for s in SP500_SAMPLE]
-    tickers += [t.strip().upper() for t in args.extra.split(",") if t.strip() and t.strip().upper() not in tickers]
+    # Titres du focus IA hors S&P 500 toujours inclus, plus ceux passés en argument.
+    for t in EXTRA_TICKERS + [t.strip().upper() for t in args.extra.split(",") if t.strip()]:
+        if t not in tickers:
+            tickers.append(t)
     only = {s.strip() for s in args.only.split(",")}
     errors = []
     if "macro" in only:

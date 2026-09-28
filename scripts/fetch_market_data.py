@@ -14,6 +14,8 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sp500_analyzer.providers.yahoo import download_all  # noqa: E402
+from sp500_analyzer.providers.fundamentals import download_fundamentals  # noqa: E402
+from sp500_analyzer.universe import EXTRA_TICKERS, SP500_SAMPLE  # noqa: E402
 
 
 def main() -> int:
@@ -25,8 +27,11 @@ def main() -> int:
     p.add_argument("--daily-years", type=int, default=2)
     p.add_argument("--extra", default="", help="Titres supplémentaires hors univers, séparés par des virgules (ex. IREN)")
     args = p.parse_args()
-    extra = tuple(t.strip() for t in args.extra.split(",") if t.strip())
+    # Titres du focus IA hors S&P 500 toujours inclus, plus ceux passés en argument.
+    extra = tuple(dict.fromkeys(EXTRA_TICKERS + [t.strip().upper() for t in args.extra.split(",") if t.strip()]))
     errors = download_all(args.out, args.start, args.end, args.daily_years, extra=extra)
+    # Fondamentaux du jour (objectifs d'analystes, croissance, valorisation) : écran d'asymétrie.
+    errors += download_fundamentals(Path(args.out), [p.security.ticker for p in SP500_SAMPLE] + list(extra))
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)
     files = list(Path(args.out).rglob("*.csv"))

@@ -16,7 +16,7 @@ from sp500_analyzer.providers.realnews import MARKET  # noqa: E402
 from sp500_analyzer.providers.rss import collect_rss  # noqa: E402
 from sp500_analyzer.providers.reddit import collect_reddit  # noqa: E402
 from sp500_analyzer.providers.stocktwits import collect_stocktwits  # noqa: E402
-from sp500_analyzer.universe import SP500_SAMPLE  # noqa: E402
+from sp500_analyzer.universe import EXTRA_TICKERS, SP500_SAMPLE  # noqa: E402
 
 
 def main() -> int:
@@ -27,7 +27,10 @@ def main() -> int:
     p.add_argument("--only", default="rss,stocktwits,reddit", help="Sources : rss, stocktwits, reddit")
     args = p.parse_args()
     tickers = [s.security.ticker for s in SP500_SAMPLE]
-    tickers += [t.strip().upper() for t in args.extra.split(",") if t.strip() and t.strip().upper() not in tickers]
+    # Titres du focus IA hors S&P 500 toujours inclus, plus ceux passés en argument.
+    for t in EXTRA_TICKERS + [t.strip().upper() for t in args.extra.split(",") if t.strip()]:
+        if t not in tickers:
+            tickers.append(t)
     only = {s.strip() for s in args.only.split(",")}
     failed_all = True
     if "rss" in only:

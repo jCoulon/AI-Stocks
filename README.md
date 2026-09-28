@@ -194,6 +194,22 @@ news, messages ni macro, les piliers correspondants restent vides et le backtest
 les signaux de cours (technique, recherche). Dans l'environnement cloud, le domaine
 `stooq.com` doit être autorisé dans les paramètres réseau.
 
+### Focus IA et écran d'asymétrie
+
+```bash
+python -m sp500_analyzer --donnees data --univers ia            # analyse complète du focus IA
+python -m sp500_analyzer --donnees data --asymetrie             # écran potentiel vs risque
+```
+
+Le focus IA (`--univers ia`, ou `tout` avec le S&P 500) suit 25 titres : puces (NVDA, AMD,
+AVGO, TSM, ARM, MU), serveurs et infrastructure (SMCI, VRT, ANET), hyperscalers (MSFT, GOOGL,
+META, AMZN), néoclouds et ex-mineurs reconvertis (NBIS, CRWV, IREN, CIFR, WULF, APLD, CORZ) et
+logiciels (PLTR, AI, SOUN, BBAI, PATH). L'écran d'asymétrie classe ces titres selon le
+potentiel du consensus, l'écart entre objectifs haut et bas des analystes et la croissance
+rapportée à la valorisation (VE/CA), et signale les pièges : profil « loterie » (qui
+sous-performe en moyenne), trésorerie courte (dilution), consensus maigre. Les fondamentaux
+(Yahoo Finance) sont une photographie du jour : l'écran est descriptif, non backtesté.
+
 ### Avec toutes les données réelles (dossier `data/`)
 
 Deux workflows GitHub Actions téléchargent de vraies données et les enregistrent dans `data/` :

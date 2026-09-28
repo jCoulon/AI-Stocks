@@ -23,12 +23,14 @@ from pathlib import Path
 from typing import Optional
 
 from .realnews import (
-    GDELT_QUERIES, MARKET, NEW_YORK, download_windows, http_get, news_windows, source_for_domain,
+    ENTITY_QUERIES, GDELT_QUERIES, MARKET, NEW_YORK, download_windows, http_get, news_windows, source_for_domain,
 )
 
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
 GOOGLE_PAUSE = 3.0
 FINANCE_TERMS = "(stock OR shares OR earnings OR revenue OR analyst OR guidance OR investors)"
+# Actualité d'une société non cotée : financement, contrats, résultats, valorisation.
+ENTITY_TERMS = "(funding OR valuation OR revenue OR deal OR contract OR compute OR investors OR IPO OR data center)"
 MARKET_QUERY = '("Wall Street" OR "S&P 500" OR "stock market" OR "Federal Reserve" OR "Treasury yields")'
 # Requêtes Google propres à certains titres : le terme boursier obligatoire écarte déjà les
 # homonymes, un nom plus large ramène donc plus d'articles pertinents qu'avec GDELT.
@@ -39,7 +41,12 @@ BROWSER_HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) A
 
 def google_query(ticker: str, start: date, end: date) -> str:
     """Requête financière d'un titre sur [start, end) : entreprise ET terme boursier."""
-    base = MARKET_QUERY if ticker == MARKET else f"{GOOGLE_NAMES.get(ticker, GDELT_QUERIES[ticker])} {FINANCE_TERMS}"
+    if ticker == MARKET:
+        base = MARKET_QUERY
+    elif ticker in ENTITY_QUERIES:
+        base = f"{ENTITY_QUERIES[ticker]} {ENTITY_TERMS}"
+    else:
+        base = f"{GOOGLE_NAMES.get(ticker, GDELT_QUERIES[ticker])} {FINANCE_TERMS}"
     # before: est exclusif et after: inclusif côté Google : [start, end)
     return f"{base} after:{(start - timedelta(days=1)).isoformat()} before:{end.isoformat()}"
 
@@ -82,7 +89,7 @@ def download_google_news(out_dir: Path, tickers: list[str], start: date, end: da
                          pause: float = GOOGLE_PAUSE, budget_minutes: float = 30.0,
                          today: Optional[date] = None, log=print, clock=time.monotonic,
                          sleep=time.sleep, get=None) -> list[str]:
-    known = [t for t in tickers if t in GDELT_QUERIES or t == MARKET]
+    known = [t for t in tickers if t in GDELT_QUERIES or t in ENTITY_QUERIES or t == MARKET]
     return download_windows(out_dir / "news" / "google", known, news_windows(start, end),
                             lambda t, s, e: fetch_google(t, s, e, get), "Google News",
                             pause, budget_minutes, today or date.today(), log, clock, sleep)

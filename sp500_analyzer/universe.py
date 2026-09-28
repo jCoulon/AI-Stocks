@@ -95,6 +95,35 @@ AI_THEME: dict[str, str] = {
 }
 
 
+@dataclass(frozen=True)
+class Link:
+    """Société liée dont l'actualité compte aussi pour un titre (client, fournisseur, partenaire).
+
+    `entity` : symbole d'un titre suivi (ex. MSFT) ou clé d'une société non cotée suivie par
+    ses news (ENTITY_QUERIES, ex. OPENAI). `weight` : poids de ses news dans le sentiment du
+    titre (1 = autant que les news du titre lui-même). Le lien joue dans les deux sens : une
+    news négative sur la société liée pèse aussi négativement."""
+
+    entity: str
+    name: str
+    relation: str
+    weight: float
+
+
+#: Liens entre sociétés (faits publics, à tenir à jour ; poids fixés à la main, non validés).
+LINKS: dict[str, list[Link]] = {
+    "CBRS": [Link("OPENAI", "OpenAI", "client principal : > 20 Md$ de calcul 2026-2028, bons sur ~10 % du capital", 0.5)],
+    "CRWV": [Link("OPENAI", "OpenAI", "client majeur (contrats pluriannuels)", 0.3),
+             Link("MSFT", "Microsoft", "client majeur", 0.3),
+             Link("NVDA", "Nvidia", "fournisseur et actionnaire", 0.2)],
+    "NBIS": [Link("MSFT", "Microsoft", "client majeur (contrat pluriannuel, 2025)", 0.3)],
+    "IREN": [Link("MSFT", "Microsoft", "client majeur (contrat de capacité IA, 2025)", 0.3)],
+    "AMD": [Link("OPENAI", "OpenAI", "client (accord de puces 2025, bons OpenAI sur AMD)", 0.2)],
+    "AVGO": [Link("OPENAI", "OpenAI", "client (puces sur mesure, 2025)", 0.2)],
+    "NVDA": [Link("OPENAI", "OpenAI", "client et partenaire d'investissement (2025)", 0.15)],
+}
+
+
 def _securities() -> dict[str, Security]:
     return {p.security.ticker: p.security for p in SP500_SAMPLE} | {s.ticker: s for s in AI_EXTRA}
 

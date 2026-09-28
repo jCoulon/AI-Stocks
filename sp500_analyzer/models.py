@@ -33,6 +33,9 @@ class NewsItem:
     headline: str
     #: Ton précalculé du titre (-1 à 1, ex. FinBERT) ; None = calculé par le lexique.
     tone: Optional[float] = None
+    #: Pertinence pour le titre (1 = news sur la société elle-même ; < 1 = news d'une société
+    #: liée, ex. un client majeur), appliquée comme poids dans le sentiment.
+    relevance: float = 1.0
 
 
 @dataclass(frozen=True)

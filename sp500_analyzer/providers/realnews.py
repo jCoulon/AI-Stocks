@@ -113,6 +113,11 @@ GDELT_QUERIES: dict[str, str] = {
     MARKET: '("Wall Street" OR "S&P 500" OR "Federal Reserve" OR "stock market")',
 }
 
+# Sociétés non cotées suivies pour leurs liens avec des titres (voir universe.LINKS).
+ENTITY_QUERIES: dict[str, str] = {
+    "OPENAI": '"OpenAI"',
+}
+
 # Items des formulaires 8-K (les annexes 9.01 ne sont pas reprises dans le titre).
 SEC_8K_ITEMS: dict[str, str] = {
     "1.01": "accord important conclu", "1.02": "fin d'un accord important", "1.03": "faillite",

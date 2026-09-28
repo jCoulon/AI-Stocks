@@ -9,6 +9,7 @@ from dataclasses import asdict
 from datetime import date, datetime
 
 from .models import MarketReport, Outlook, TickerAnalysis
+from .universe import LINKS
 
 DISCLAIMER_BASE = (
     "Outil d'analyse de données — PAS un conseil en investissement. Les avis sont des "
@@ -196,6 +197,9 @@ def render_stock(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
                f"    {'— cours actuel —':<20} {t.last_close:>10,.2f}")
 
     out += ["", st("  Catalyseurs (7 derniers jours)", "1")]
+    for link in LINKS.get(t.security.ticker, []):
+        out.append(f"    ↔ lié à {link.name} : {link.relation} — ses news comptent à {link.weight:.0%} "
+                   "(bonnes comme mauvaises)")
     if not sr.catalysts:
         out.append("    aucune news sur la période")
     for c in sr.catalysts:
@@ -473,12 +477,21 @@ def _stock_html(t: TickerAnalysis) -> str:
   <div><h4>Risque</h4>{risk}<h4>Réseaux sociaux</h4>{social}</div>
 </div>
 <div class="grid2">
-  <div><h4>Catalyseurs (7 derniers jours)</h4><ul class="news">{cats}</ul></div>
+  <div><h4>Catalyseurs (7 derniers jours)</h4>{_links_html(t)}<ul class="news">{cats}</ul></div>
   <div><h4>Pairs du secteur — rang {rank}/{total} à court terme</h4><table class="signals">
     <tr><th>Titre</th><th class="num">Semaine</th><th class="num">CT</th><th class="num">MT</th></tr>{peers}</table></div>
 </div>
 {_research_html(t)}
 <h4>Détail des signaux</h4>"""
+
+
+def _links_html(t: TickerAnalysis) -> str:
+    links = LINKS.get(t.security.ticker, [])
+    if not links:
+        return ""
+    items = "".join(f"<li>↔ <strong>{html.escape(l.name)}</strong> : {html.escape(l.relation)} — ses news comptent "
+                    f"à {l.weight:.0%} (bonnes comme mauvaises)</li>" for l in links)
+    return f'<ul class="news muted small">{items}</ul>'
 
 
 def _research_html(t: TickerAnalysis) -> str:

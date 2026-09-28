@@ -85,7 +85,7 @@ def news_score(items: list[NewsItem], now: datetime, half_life: float) -> tuple[
     """Moyenne pondérée (fiabilité x décroissance temporelle) et poids total."""
     num = den = 0.0
     for it in items:
-        w = source_reliability(it.source) * 0.5 ** (_age_days(it.published, now) / half_life)
+        w = source_reliability(it.source) * it.relevance * 0.5 ** (_age_days(it.published, now) / half_life)
         num += w * headline_tone(it)
         den += w
     return (num / den if den else 0.0), den
@@ -146,8 +146,8 @@ def analyze_sentiment(
 
 
 def _coverage(items: list[NewsItem], full: float) -> float:
-    """Somme des fiabilités des sources, rapportée au niveau jugé suffisant."""
-    return min(1.0, sum(source_reliability(n.source) for n in items) / full)
+    """Somme des fiabilités des sources (pondérées par la pertinence), rapportée au niveau jugé suffisant."""
+    return min(1.0, sum(source_reliability(n.source) * n.relevance for n in items) / full)
 
 
 def _tone(s: float) -> str:

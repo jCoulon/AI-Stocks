@@ -239,6 +239,13 @@ Deux workflows GitHub Actions téléchargent de vraies données et les enregistr
 python -m sp500_analyzer --donnees data --backtest-periode 2026-07-01:2026-09-25
 ```
 
+**Sociétés liées** (`universe.LINKS`) : l'actualité d'un client ou fournisseur majeur compte
+aussi pour un titre, avec un poids fixé à la main — par exemple OpenAI pour Cerebras (CBRS,
+50 %), Microsoft pour NBIS, IREN et CoreWeave, OpenAI pour CoreWeave, AMD, Broadcom et Nvidia.
+Les news de la société liée (Google News ; OpenAI, non cotée, est suivie par son nom) sont
+affichées préfixées de son nom parmi les catalyseurs et pèsent dans le sentiment dans les deux
+sens : une bonne nouvelle aide, une mauvaise pèse. Poids non validés par un backtest.
+
 Les dépôts SEC expliquent les mouvements de prix mais n'entrent pas dans le ton des news.
 Le ton d'un titre vient de FinBERT (ProsusAI/finbert, modèle entraîné sur des textes financiers :
 P(positif) − P(négatif)) quand il a été calculé par le workflow, sinon du lexique financier.

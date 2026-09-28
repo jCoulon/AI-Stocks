@@ -28,6 +28,7 @@ from .csv_prices import CsvPriceProvider
 from .finbert import load_scores
 from .realnews import MARKET, SEC_SOURCE, title_key
 from .stocktwits import load_posts
+from ..universe import LINKS
 
 
 def read_news(paths: list[Path], ticker: Optional[str], tones: dict[str, float]) -> list[NewsItem]:
@@ -75,6 +76,7 @@ class RealDataProvider(CsvPriceProvider):
                               t, self.tones)
             if t:
                 items += read_sec(root / "sec" / f"{t}.csv", t)
+                items += self._linked_news(root, t, {title_key(n.headline) for n in items})
             self._news[t] = sorted(items, key=lambda n: n.published)
         # Ton : étiquette de l'auteur (StockTwits), sinon FinBERT. Reddit : ancienneté des
         # comptes inconnue (neutre, 365 j).
@@ -87,6 +89,22 @@ class RealDataProvider(CsvPriceProvider):
         press = [n.published for t, items in self._news.items() for n in items if n.source != SEC_SOURCE]
         #: Première date couverte par les articles de presse (None : aucun article).
         self.news_start: Optional[date] = min(press).date() if press else None
+
+    def _linked_news(self, root: Path, ticker: str, seen: set[str]) -> list[NewsItem]:
+        """News des sociétés liées au titre (universe.LINKS), pondérées par l'importance du lien
+        et préfixées du nom de la société ; les titres déjà rattachés au titre sont ignorés."""
+        out = []
+        for link in LINKS.get(ticker, []):
+            name = f"{link.entity}.csv"
+            for n in read_news([root / "news" / name, root / "news" / "google" / name, root / "news" / "rss" / name],
+                               ticker, self.tones):
+                key = title_key(n.headline)
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(NewsItem(ticker, n.published, n.source, f"[{link.name}] {n.headline}", n.tone,
+                                    relevance=link.weight))
+        return out
 
     def news(self, ticker: str | None, since: datetime) -> list[NewsItem]:
         items = self._news.get(ticker, [])
@@ -102,7 +120,9 @@ class RealDataProvider(CsvPriceProvider):
     def coverage(self) -> str:
         n_press = sum(1 for items in self._news.values() for n in items if n.source != SEC_SOURCE)
         n_sec = sum(1 for items in self._news.values() for n in items if n.source == SEC_SOURCE)
-        parts = [f"{n_press} articles de presse" + (f" depuis le {self.news_start:%d/%m/%Y}" if self.news_start else ""),
+        n_linked = sum(1 for items in self._news.values() for n in items if n.relevance < 1)
+        parts = [f"{n_press} articles de presse" + (f" depuis le {self.news_start:%d/%m/%Y}" if self.news_start else "")
+                 + (f" (dont {n_linked} via des sociétés liées)" if n_linked else ""),
                  f"{n_sec} dépôts SEC",
                  f"ton FinBERT : {sum(n.tone is not None for items in self._news.values() for n in items)}/{n_press} titres"
                  if self.tones else "ton : lexique", f"macro : {', '.join(self._macro) or 'aucune série'}",

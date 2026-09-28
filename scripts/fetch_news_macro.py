@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sp500_analyzer.providers.realnews import (  # noqa: E402
-    GDELT_MAX_DAYS, MARKET, download_macro, download_news, download_sec,
+    ENTITY_QUERIES, GDELT_MAX_DAYS, MARKET, download_macro, download_news, download_sec,
 )
 from sp500_analyzer.providers.googlenews import download_google_news  # noqa: E402
 from sp500_analyzer.universe import EXTRA_TICKERS, SP500_SAMPLE  # noqa: E402
@@ -52,7 +52,8 @@ def main() -> int:
         errors += download_sec(out, tickers, args.start, agent)
     if "google" in only:
         print(f"News financières (Google News) du {args.start} au {args.end}…")
-        errors += download_google_news(out, tickers + [MARKET], args.start, args.end, budget_minutes=args.budget,
+        errors += download_google_news(out, tickers + [MARKET] + list(ENTITY_QUERIES), args.start, args.end,
+                                       budget_minutes=args.budget,
                                        today=today)
     if "news" in only:
         news_start = max(args.start, today - timedelta(days=GDELT_MAX_DAYS))

@@ -30,6 +30,15 @@ def news_files(root: Path) -> list[Path]:
     return sorted(files)
 
 
+def social_texts(root: Path) -> list[str]:
+    """Textes des messages sociaux sans étiquette d'auteur (Reddit), à noter par FinBERT."""
+    out = []
+    for path in sorted((root / "social" / "reddit").glob("*.csv")):
+        with open(path, newline="", encoding="utf-8") as f:
+            out += [r["Text"] for r in csv.DictReader(f) if r.get("Text")]
+    return out
+
+
 def load_scores(root: Path) -> dict[str, float]:
     path = root / CACHE
     if not path.exists():
@@ -47,11 +56,12 @@ def score_titles(root: Path, classify: Classifier, batch: int = 64, log=print) -
             rows = {r["Key"]: [r["Positive"], r["Negative"], r["Neutral"], r["Score"], r["Title"]]
                     for r in csv.DictReader(f)}
     todo: dict[str, str] = {}
-    for file in news_files(root):
-        for row in read_news_rows(file):
-            key = title_key(row[3])
-            if key and key not in rows:
-                todo.setdefault(key, row[3])
+    texts = [row[3] for file in news_files(root) for row in read_news_rows(file)]
+    texts += social_texts(root)
+    for text in texts:
+        key = title_key(text)
+        if key and key not in rows:
+            todo.setdefault(key, text)
     items = list(todo.items())
     log(f"  FinBERT : {len(items)} nouveau(x) titre(s) à analyser ({len(rows)} déjà en cache)")
     for i in range(0, len(items), batch):

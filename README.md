@@ -208,6 +208,7 @@ Deux workflows GitHub Actions téléchargent de vraies données et les enregistr
 | « News RSS et FinBERT » (toutes les 3 h une fois sur `main`) | Yahoo Finance, Nasdaq | `news/rss/` titres par action, historique construit au fil des collectes |
 | | FinBERT (open source) | `news/finbert.csv` ton de chaque titre, qui remplace le lexique |
 | | StockTwits (API publique) | `social/stocktwits/` messages par action, avec l'étiquette haussier / baissier de l'auteur |
+| | Reddit (flux RSS publics, essai) | `social/reddit/` messages de r/wallstreetbets, r/stocks, r/investing, r/StockMarket, ton FinBERT |
 
 ```bash
 python -m sp500_analyzer --donnees data --backtest-periode 2026-07-01:2026-09-25

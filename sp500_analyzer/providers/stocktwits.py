@@ -15,7 +15,9 @@ from datetime import date, datetime
 from pathlib import Path
 
 from ..models import SocialPost
-from .realnews import NEW_YORK, http_get
+from typing import Optional
+
+from .realnews import NEW_YORK, http_get, title_key
 
 STOCKTWITS_URL = "https://api.stocktwits.com/api/2/streams/symbol/{symbol}.json"
 BROWSER_HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 "
@@ -89,15 +91,22 @@ def collect_stocktwits(out_dir: Path, tickers: list[str], log=print, fetch=None)
     return errors
 
 
-def load_posts(path: Path, ticker: str) -> list[SocialPost]:
-    """Messages enregistrés -> SocialPost (ancienneté du compte au moment du message)."""
+def load_posts(path: Path, ticker: str, platform: str = "StockTwits", unknown_age: int = 0,
+               tones: Optional[dict[str, float]] = None) -> list[SocialPost]:
+    """Messages enregistrés -> SocialPost (ancienneté du compte au moment du message).
+
+    `unknown_age` : ancienneté retenue quand la date d'inscription est inconnue (0 = traité
+    comme un compte récent). `tones` : ton FinBERT par texte, utilisé sans étiquette d'auteur."""
     posts = []
     for r in read_rows(path):
         posted = datetime.fromisoformat(r["Posted"])
         try:
             age = (posted.date() - date.fromisoformat(r["Joined"])).days
         except ValueError:
-            age = 0  # date d'inscription inconnue : traité comme un compte récent
-        posts.append(SocialPost(ticker, posted, "StockTwits", r["Author"], max(0, age),
-                                int(r["Likes"] or 0), r["Text"], TONES.get(r["Sentiment"])))
+            age = unknown_age
+        tone = TONES.get(r["Sentiment"])
+        if tone is None and tones:
+            tone = tones.get(title_key(r["Text"]))
+        posts.append(SocialPost(ticker, posted, platform, r["Author"], max(0, age),
+                                int(r["Likes"] or 0), r["Text"], tone))
     return sorted(posts, key=lambda p: p.posted)

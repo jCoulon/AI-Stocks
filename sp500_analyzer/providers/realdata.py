@@ -8,10 +8,11 @@
   <dossier>/news/finbert.csv     ton FinBERT de chaque titre (sinon : lexique financier)
   <dossier>/sec/<TICKER>.csv     dépôts réglementaires (8-K, 10-Q, 10-K...)
   <dossier>/social/stocktwits/<TICKER>.csv  messages StockTwits (collecte continue)
+  <dossier>/social/reddit/<TICKER>.csv      messages Reddit via flux RSS (collecte continue)
   <dossier>/macro/<clé>.csv      séries FRED datées de leur publication
 
 Chaque partie est facultative sauf les cours : ce qui manque reste vide et l'outil le signale.
-Réseaux sociaux : StockTwits seulement, historique construit à partir de la mise en place.
+Réseaux sociaux : StockTwits et Reddit, historique construit à partir de la mise en place.
 """
 
 from __future__ import annotations
@@ -75,7 +76,10 @@ class RealDataProvider(CsvPriceProvider):
             if t:
                 items += read_sec(root / "sec" / f"{t}.csv", t)
             self._news[t] = sorted(items, key=lambda n: n.published)
-        self._posts = {t: load_posts(root / "social" / "stocktwits" / f"{t}.csv", t)
+        # Reddit : ancienneté des comptes inconnue (neutre, 365 j) et ton FinBERT.
+        self._posts = {t: sorted(load_posts(root / "social" / "stocktwits" / f"{t}.csv", t)
+                                 + load_posts(root / "social" / "reddit" / f"{t}.csv", t, "Reddit", 365, self.tones),
+                                 key=lambda p: p.posted)
                        for t in [s.ticker for s in self.universe()]}
         macro_dir = root / "macro"
         self._macro = {p.stem: read_series(p) for p in sorted(macro_dir.glob("*.csv"))} if macro_dir.exists() else {}
@@ -101,6 +105,8 @@ class RealDataProvider(CsvPriceProvider):
                  f"{n_sec} dépôts SEC",
                  f"ton FinBERT : {sum(n.tone is not None for items in self._news.values() for n in items)}/{n_press} titres"
                  if self.tones else "ton : lexique", f"macro : {', '.join(self._macro) or 'aucune série'}",
-                 f"réseaux sociaux : {sum(map(len, self._posts.values()))} messages StockTwits"
+                 "réseaux sociaux : " + ", ".join(
+                     f"{sum(p.platform == name for posts in self._posts.values() for p in posts)} messages {name}"
+                     for name in ("StockTwits", "Reddit"))
                  if any(self._posts.values()) else "réseaux sociaux : aucune source"]
         return " ; ".join(parts)

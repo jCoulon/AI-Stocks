@@ -10,10 +10,16 @@ from datetime import date, datetime
 
 from .models import MarketReport, Outlook, TickerAnalysis
 
-DISCLAIMER = (
+DISCLAIMER_BASE = (
     "Outil d'analyse de données — PAS un conseil en investissement. Les avis sont des "
-    "synthèses statistiques d'indicateurs, sans garantie. Données de démonstration SIMULÉES."
+    "synthèses statistiques d'indicateurs, sans garantie."
 )
+DISCLAIMER = DISCLAIMER_BASE + " Données de démonstration SIMULÉES."
+DISCLAIMER_REAL = DISCLAIMER_BASE + " Données de marché réelles, qui peuvent comporter des erreurs ou des retards."
+
+
+def disclaimer(report: MarketReport) -> str:
+    return DISCLAIMER if report.simulated else DISCLAIMER_REAL
 
 JOURS = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
 
@@ -64,7 +70,7 @@ def render_text(report: MarketReport, color: bool = False, detail: list[str] | N
     out: list[str] = []
     line = "─" * 104
     out.append(st(f"ANALYSE S&P 500 — semaine au {report.as_of.strftime('%d/%m/%Y')}", "1"))
-    out.append(st(DISCLAIMER, "2"))
+    out.append(st(disclaimer(report), "2"))
     out.append(line)
 
     idx = report.index
@@ -247,7 +253,7 @@ def render_research(t: TickerAnalysis, st: _Style | None = None) -> list[str]:
 def render_stock_sheets(report: MarketReport, tickers: list[str], color: bool = False) -> str:
     st = _Style(color)
     line = "─" * 104
-    out = [st(f"ANALYSE PAR ACTION — séance du {report.as_of.strftime('%d/%m/%Y')}", "1"), st(DISCLAIMER, "2"), line]
+    out = [st(f"ANALYSE PAR ACTION — séance du {report.as_of.strftime('%d/%m/%Y')}", "1"), st(disclaimer(report), "2"), line]
     idx = report.index
     out.append(f"Contexte : S&P 500 {idx.last_close:,.2f} ({idx.week_return:+.2%} sur la semaine) — "
                f"court terme {idx.short.label.lower()}, moyen terme {idx.medium.label.lower()}")
@@ -303,7 +309,7 @@ def _default(o):
 
 def to_json(report: MarketReport) -> str:
     data = asdict(report)
-    data["disclaimer"] = DISCLAIMER
+    data["disclaimer"] = disclaimer(report)
     # allow_nan=False : garantit un JSON standard (NaN/Infinity y sont interdits).
     return json.dumps(data, default=_default, ensure_ascii=False, indent=2, allow_nan=False)
 
@@ -783,7 +789,7 @@ def render_html(report: MarketReport) -> str:
 <style>{REPORT_CSS}</style></head>
 <body><main>
 <h1>Analyse S&amp;P 500 — semaine au {report.as_of.strftime('%d/%m/%Y')}</h1>
-<p class="disclaimer">{html.escape(DISCLAIMER)}</p>
+<p class="disclaimer">{html.escape(disclaimer(report))}</p>
 {html_market(report)}
 <h2>Détail par action</h2>
 {details}

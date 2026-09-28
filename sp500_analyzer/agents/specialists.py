@@ -247,7 +247,15 @@ class MarketStrategistAgent(Agent):
             macro_summary=macro["summary"] if macro else {},
             breadth=breadth,
             market_news=p.news(None, since),
+            simulated=is_simulated(p),
         )
+
+
+def is_simulated(provider) -> bool:
+    """Vrai si la source (éventuellement vue « point-in-time ») est le générateur simulé."""
+    from ..providers.mock import MockDataProvider
+
+    return isinstance(getattr(provider, "base", provider), MockDataProvider)
 
 
 class StockAnalystAgent(Agent):

@@ -40,10 +40,19 @@ Tests : `python -m unittest discover -s tests`
 ## Application Mac
 
 L'analyseur existe aussi en **application de bureau** : fenêtre native macOS (WebKit),
-liste des 30 titres avec recherche et tri, vue marché, fiche détaillée de chaque action
+liste des titres avec recherche et tri, vue marché, fiche détaillée de chaque action
 avec graphique interactif, avis de Claude à la demande, relance de l'analyse (date, jeu
 de données) et export du rapport HTML. Navigation au clavier : `↑` / `↓` pour changer de titre,
-`/` pour rechercher, `⌘R` pour relancer l'analyse.
+`/` pour rechercher (taper `ia` filtre le focus IA), `⌘R` pour relancer l'analyse.
+
+**Données réelles et focus IA.** L'application démarre sur les données réelles : un instantané
+du dossier `data/` est embarqué au moment de la construction. Le sélecteur *Univers* propose
+le S&P 500, le focus IA (26 titres, dont NBIS, IREN, CRWV, PLTR, CBRS…, avec leur thème) ou
+les deux ; l'entrée **Écran d'asymétrie** de la liste affiche le classement potentiel / risque
+du focus IA. Une séance antérieure est analysée sans aucune donnée postérieure (vue
+point-in-time). Pour des données plus récentes que l'instantané : bouton **Dossier de
+données…** (choisir le dossier `data/` d'un clone à jour du dépôt), ou `--donnees DOSSIER`,
+ou la variable `SP500_DATA`. Le sélecteur *Données* permet de revenir aux données simulées.
 
 ### Installer la version construite
 

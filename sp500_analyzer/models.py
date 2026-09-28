@@ -176,3 +176,5 @@ class MarketReport:
     narrative: Optional[str] = None
     #: Journal d'exécution de l'orchestrateur (une entrée par tâche d'agent).
     trace: list = field(default_factory=list)
+    #: Données simulées (démonstration) ou réelles
+    simulated: bool = True

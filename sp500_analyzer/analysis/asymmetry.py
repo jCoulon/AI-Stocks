@@ -165,3 +165,51 @@ def render_asymmetry(rows: list[AsymmetryRow]) -> str:
             "    (Bali, Cakici & Whitelaw, 2011). Leur potentiel apparent se paie par un risque de perte élevé.",
             "  ⚠ Les objectifs des analystes sont en moyenne trop optimistes (Bradshaw, Brown & Huang, 2013)."]
     return "\n".join(out)
+
+
+def html_asymmetry(rows: list[AsymmetryRow]) -> str:
+    """Écran d'asymétrie au format HTML (application, rapports)."""
+    from html import escape
+
+    fetched = sorted({r.fetched for r in rows if r.fetched})
+    sources = sorted({r.source for r in rows if r.source})
+    lottery = sum("profil loterie" in r.flags for r in rows)
+
+    def cell(v, cls=""):
+        return f'<td class="num {cls}">{v}</td>'
+
+    def signed(x):
+        return "—" if x is None else f'<span class="{"pos" if x >= 0 else "neg"}">{x:+.0%}</span>'
+
+    body = []
+    for r in rows:
+        ratio = "—" if r.analyst_ratio is None else ("∞" if r.analyst_ratio == math.inf else f"{r.analyst_ratio:.1f}x")
+        flags = " ".join(f'<span class="badge neu">{escape(f)}</span>' for f in r.flags)
+        body.append(
+            f'<tr><td><a href="#{escape(r.ticker)}" data-ticker="{escape(r.ticker)}"><strong>{escape(r.ticker)}</strong></a>'
+            f'<div class="muted small">{escape(r.theme)}</div></td>'
+            + cell(f"{r.price:,.2f}") + cell(_pct(r.pos_52w, False)) + cell(_pct(r.vol, False))
+            + cell(signed(r.target_upside)) + cell(ratio) + cell(signed(r.revenue_growth))
+            + cell("—" if r.ev_to_revenue is None else f"{r.ev_to_revenue:.1f}")
+            + cell("—" if r.score is None else f"<strong>{r.score:.2f}</strong>")
+            + f'<td class="small">{escape(r.short_label)} / {escape(r.medium_label)}</td><td class="small">{flags}</td></tr>')
+    head = ("<tr><th>Titre</th><th class='num'>Cours</th><th class='num' title='Position entre le plus bas (0 %) et le plus "
+            "haut (100 %) d&#39;un an'>52 sem.</th><th class='num'>Vol.</th><th class='num' title='Objectif moyen des "
+            "analystes vs cours'>Objectif</th><th class='num' title='Gain vers l&#39;objectif le plus haut / perte vers le "
+            "plus bas'>Haut/bas</th><th class='num'>Croiss. CA</th><th class='num' title='Valeur d&#39;entreprise / "
+            "chiffre d&#39;affaires'>VE/CA</th><th class='num'>Score</th><th>Avis CT / MT</th><th>Alertes</th></tr>")
+    note = (f"Fondamentaux du {fetched[-1]} ({', '.join(sources)})" if fetched else "Fondamentaux absents") + \
+        " · cours de la dernière séance analysée."
+    return f"""
+<h2>Écran d'asymétrie — focus IA</h2>
+<p class="muted small">{escape(note)} Descriptif, non validé par backtest : ce n'est pas un conseil d'investissement.</p>
+<section class="card"><div class="scroll"><table class="signals">{head}{"".join(body)}</table></div></section>
+<section class="card small">
+  <p><strong>Score</strong> : rang moyen dans l'univers (1 = profil le plus asymétrique) selon le potentiel du consensus,
+  l'écart entre objectifs haut et bas et la croissance rapportée à la valorisation, sans tenir compte des alertes.</p>
+  <p>⚠ Un cours unitaire bas ne signifie pas « pas cher » : seule la valorisation compte.</p>
+  <p>⚠ {lottery} titre(s) au profil « loterie » : en moyenne, ces titres sous-performent ensuite
+  (Bali, Cakici &amp; Whitelaw, 2011) — leur potentiel apparent se paie par un risque de perte élevé.</p>
+  <p>⚠ Les objectifs des analystes sont en moyenne trop optimistes (Bradshaw, Brown &amp; Huang, 2013) ;
+  une trésorerie courte annonce souvent une augmentation de capital (dilution).</p>
+</section>"""

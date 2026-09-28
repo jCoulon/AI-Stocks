@@ -88,3 +88,80 @@ class AppServerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RealDataAppTests(unittest.TestCase):
+    """Application sur des données réelles (dossier data/ fictif) avec le focus IA."""
+
+    @classmethod
+    def setUpClass(cls):
+        import shutil
+        import tempfile
+        from pathlib import Path
+
+        from sp500_analyzer.providers import MockDataProvider
+        from sp500_analyzer.providers.realdata import RealDataProvider
+        from tests.test_period_backtest import write_stooq_csvs
+
+        cls.tmp = tempfile.TemporaryDirectory()
+        root = Path(cls.tmp.name)
+        (root / "daily").mkdir()
+        write_stooq_csvs(MockDataProvider(history=400), root / "daily")
+        shutil.copy(root / "daily" / "AAPL.csv", root / "daily" / "NBIS.csv")  # cours fictifs d'un titre IA
+        (root / "fundamentals").mkdir()
+        for t in ("NBIS", "NVDA", "AMD"):
+            last = RealDataProvider(root, universe="ia").price_history(t)[-1].close
+            (root / "fundamentals" / f"{t}.json").write_text(json.dumps({
+                "fetched": "2026-09-28", "source": "Nasdaq", "target_mean": last * 1.3, "target_high": last * 2,
+                "target_low": last * 0.8, "analysts": 9, "revenue_growth": 0.4, "ev_to_revenue": 10.0}))
+        cls.server = AppServer(AppState(data_dir=root)).start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.stop()
+        cls.tmp.cleanup()
+
+    request = AppServerTests.request
+
+    def test_real_data_ai_universe_and_asymmetry(self):
+        s = json.loads(self.request("/api/summary")[2])
+        self.assertEqual((s["source"], s["universe"], s["real_available"]), ("reel", "tout", True))
+        tickers = {t["ticker"]: t for t in s["tickers"]}
+        self.assertIn("NBIS", tickers)
+        self.assertEqual(tickers["NBIS"]["theme"], "Néocloud")
+        self.assertIsNone(tickers["KO"]["theme"])
+        self.assertTrue(s["asymmetry"])
+        status, _, html = self.request("/api/asymmetry")
+        self.assertEqual(status, 200)
+        self.assertIn("Écran d'asymétrie", html)
+        self.assertIn('data-ticker="NBIS"', html)
+        self.assertIn("pas un conseil", html)
+
+        status, _, body = self.request("/api/refresh", method="POST", body={"universe": "ia"})
+        s = json.loads(body)
+        self.assertEqual(status, 200, body)
+        self.assertEqual(s["universe_label"], "Focus IA")
+        self.assertNotIn("KO", {t["ticker"] for t in s["tickers"]})
+
+        # Séance antérieure : vue point-in-time des données réelles.
+        s = json.loads(self.request("/api/refresh", method="POST", body={"as_of": "2026-09-18"})[2])
+        self.assertEqual(s["as_of"], "2026-09-18")
+
+        # Retour aux données simulées : S&P 500 seulement, pas d'écran d'asymétrie.
+        s = json.loads(self.request("/api/refresh", method="POST", body={"source": "simule", "as_of": "2026-01-01"})[2])
+        self.assertEqual((s["source"], s["universe"], s["asymmetry"]), ("simule", "sp500", False))
+        self.assertEqual(s["as_of"], "2026-09-25")  # date réinitialisée au changement de source
+        s = json.loads(self.request("/api/refresh", method="POST", body={"source": "reel"})[2])
+        self.assertEqual((s["source"], s["universe"]), ("reel", "tout"))
+
+    def test_real_mode_refused_without_data(self):
+        server = AppServer(AppState()).start()
+        try:
+            req = urllib.request.Request(server.url + "api/refresh", data=json.dumps({"source": "reel"}).encode(),
+                                         headers={"X-App-Token": server.token, "Content-Type": "application/json"},
+                                         method="POST")
+            with self.assertRaises(urllib.error.HTTPError) as ctx:
+                urllib.request.urlopen(req, timeout=60)
+            self.assertIn("aucun dossier", ctx.exception.read().decode())
+        finally:
+            server.stop()

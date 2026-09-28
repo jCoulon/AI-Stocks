@@ -15,6 +15,7 @@ from datetime import date
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
+from pathlib import Path
 from typing import Callable, Optional
 from urllib.parse import urlparse
 
@@ -23,8 +24,10 @@ from ..models import MarketReport
 from ..orchestrator import Orchestrator
 from ..providers.base import DataProvider
 from ..providers.mock import MockDataProvider
+from ..providers.pointintime import PointInTimeProvider
+from ..universe import AI_THEME
 from ..report import (
-    CHART_JS, DISCLAIMER, REPORT_CSS, html_agents, html_market, html_stock_detail, html_stock_header,
+    CHART_JS, REPORT_CSS, disclaimer, html_agents, html_market, html_stock_detail, html_stock_header,
     render_html, summarize_trace,
 )
 
@@ -33,12 +36,23 @@ MARKET = "__MARKET__"  # identifiant de la vue marché pour les avis Claude
 ProviderFactory = Callable[[date, int], DataProvider]
 
 
-class AppState:
-    """Rapport courant et paramètres de l'analyse ; recalcul à la demande."""
+UNIVERSE_LABELS = {"sp500": "S&P 500", "ia": "Focus IA", "tout": "S&P 500 + IA"}
 
-    def __init__(self, provider_factory: ProviderFactory = None, as_of: date = DEFAULT_AS_OF, seed: int = 42,
-                 advisor: Optional[ClaudeAdvisor] = None):
-        self.provider_factory = provider_factory or (lambda d, s: MockDataProvider(as_of=d, seed=s))
+
+class AppState:
+    """Rapport courant et paramètres de l'analyse ; recalcul à la demande.
+
+    Deux sources : données simulées (S&P 500 seulement) ou données réelles lues dans
+    `data_dir` (S&P 500, focus IA ou les deux). Avec les données réelles, une séance
+    antérieure est analysée sur une vue « point-in-time » (rien de postérieur n'est visible)."""
+
+    def __init__(self, provider_factory: ProviderFactory = None, as_of: date | None = None, seed: int = 42,
+                 advisor: Optional[ClaudeAdvisor] = None, data_dir: Optional[Path] = None):
+        self.provider_factory = provider_factory
+        self.data_dir = Path(data_dir) if data_dir else None
+        self.source = "reel" if self.data_dir and not provider_factory else "simule"
+        self.universe = "tout" if self.source == "reel" else "sp500"
+        self._real: dict[str, object] = {}  # RealDataProvider par univers (chargé une fois)
         self.as_of, self.seed, self.use_llm = as_of, seed, False
         self.report: Optional[MarketReport] = None
         self.error = ""
@@ -48,19 +62,71 @@ class AppState:
         self.advice_cache: dict[tuple[int, str], str] = {}
         self._lock = threading.Lock()
 
-    def refresh(self, as_of: date | None = None, seed: int | None = None, use_llm: bool | None = None) -> MarketReport:
+    def real_provider(self, universe: str):
+        from ..providers.realdata import RealDataProvider
+
+        if universe not in self._real:
+            self._real[universe] = RealDataProvider(self.data_dir, universe=universe)
+        return self._real[universe]
+
+    def set_data_dir(self, path: Path) -> None:
+        self.data_dir, self._real = Path(path), {}
+        self.source, self.universe, self.as_of = "reel", "tout", None
+
+    def _provider(self) -> DataProvider:
+        if self.provider_factory:
+            return self.provider_factory(self.as_of or DEFAULT_AS_OF, self.seed)
+        if self.source == "simule":
+            return MockDataProvider(as_of=self.as_of or DEFAULT_AS_OF, seed=self.seed)
+        base = self.real_provider(self.universe)
+        if self.as_of and self.as_of < base.as_of:
+            return PointInTimeProvider(base, self.as_of)
+        return base
+
+    def refresh(self, as_of: date | None = None, seed: int | None = None, use_llm: bool | None = None,
+                source: str | None = None, universe: str | None = None) -> MarketReport:
         with self._lock:
+            if source in ("simule", "reel") and source != self.source:
+                if source == "reel" and not self.data_dir:
+                    raise ValueError("aucun dossier de données réelles : choisissez-en un")
+                self.source, as_of = source, None  # la date par défaut dépend de la source
+                self.as_of = None
+                self.universe = "tout" if source == "reel" else "sp500"
+            if universe in UNIVERSE_LABELS and self.source == "reel":
+                self.universe = universe
             if as_of is not None:
                 self.as_of = as_of
             if seed is not None:
                 self.seed = seed
             if use_llm is not None:
                 self.use_llm = use_llm
-            provider = self.provider_factory(self.as_of, self.seed)
+            provider = self._provider()
             self.simulated = isinstance(provider, MockDataProvider)
             self.report = Orchestrator(provider, use_llm=self.use_llm).run()
             self.generation += 1
             return self.report
+
+    def asymmetry_html(self) -> str:
+        """Écran d'asymétrie du focus IA pour l'analyse courante (données réelles)."""
+        from ..analysis.asymmetry import build_row, html_asymmetry, score_rows
+        from ..providers.fundamentals import load_fundamentals
+
+        r = self.current()
+        if self.source != "reel":
+            return '<p class="empty">L\'écran d\'asymétrie nécessite les données réelles.</p>'
+        provider = self._provider()
+        labels = {t.security.ticker: (t.short.label, t.medium.label) for t in r.tickers}
+        rows = []
+        for sec in provider.universe():
+            if sec.ticker not in AI_THEME:
+                continue
+            bars = provider.price_history(sec.ticker)
+            if len(bars) < 30:
+                continue
+            row = build_row(sec.ticker, sec.name, AI_THEME[sec.ticker], bars, load_fundamentals(self.data_dir, sec.ticker))
+            row.short_label, row.medium_label = labels.get(sec.ticker, ("", ""))
+            rows.append(row)
+        return html_asymmetry(score_rows(rows))
 
     def advice_key(self, ticker: str) -> tuple[int, str]:
         self.current()
@@ -72,12 +138,22 @@ class AppState:
     def summary(self) -> dict:
         r = self.current()
         writer = next((t for t in r.trace if t["agent"] == "redacteur"), None)
+        real = self.source == "reel"
         return {
             "as_of": r.as_of.isoformat(),
+            "as_of_max": self.real_provider(self.universe).as_of.isoformat() if real else None,
+            "source": self.source,
+            "universe": self.universe,
+            "universe_label": UNIVERSE_LABELS[self.universe] if real else "S&P 500 (données simulées)",
+            "real_available": bool(self.data_dir),
+            "data_dir": str(self.data_dir) if self.data_dir else None,
+            "coverage": self.real_provider(self.universe).coverage() if real else None,
+            "asymmetry": real and self.universe != "sp500"
+                         and any((self.data_dir / "fundamentals").glob("*.json")),
             "seed": self.seed,
             "llm": self.use_llm,
             "llm_status": None if writer is None else {"status": writer["status"], "error": writer["error"]},
-            "disclaimer": DISCLAIMER,
+            "disclaimer": disclaimer(r),
             "index": {"close": r.index.last_close, "week": r.index.week_return,
                       "short": r.index.short.label, "medium": r.index.medium.label},
             "agents": summarize_trace(r.trace),
@@ -86,6 +162,7 @@ class AppState:
                     "ticker": t.security.ticker,
                     "name": t.security.name,
                     "sector": t.security.sector,
+                    "theme": AI_THEME.get(t.security.ticker),
                     "close": t.last_close,
                     "week": t.week_return,
                     "short": {"label": t.short.label, "score": t.short.score, "confidence": t.short.confidence},
@@ -151,6 +228,8 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                 if path == "/api/market":
                     r = state.current()
                     return self._send(200, html_market(r) + html_agents(r), "text/html; charset=utf-8")
+                if path == "/api/asymmetry":
+                    return self._send(200, state.asymmetry_html(), "text/html; charset=utf-8")
                 if path.startswith("/api/stock/"):
                     ticker = path.rsplit("/", 1)[-1].upper()
                     t = next((x for x in state.current().tickers if x.security.ticker == ticker), None)
@@ -165,7 +244,7 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     return self._json({"ticker": ticker, "text": cached})
                 if path == "/api/export":
                     r = state.current()
-                    name = f"analyse-sp500-{r.as_of.isoformat()}.html"
+                    name = f"analyse-{state.universe}-{r.as_of.isoformat()}.html"
                     return self._send(200, render_html(r), "text/html; charset=utf-8",
                                       {"Content-Disposition": f'attachment; filename="{name}"'})
                 return self._json({"error": "introuvable"}, HTTPStatus.NOT_FOUND)
@@ -242,7 +321,8 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                 params = self._body()
                 as_of = date.fromisoformat(params["as_of"]) if params.get("as_of") else None
                 seed = int(params["seed"]) if params.get("seed") not in (None, "") else None
-                state.refresh(as_of, seed, bool(params.get("llm", False)))
+                state.refresh(as_of, seed, bool(params.get("llm", False)),
+                              params.get("source"), params.get("universe"))
                 return self._json(state.summary())
             except (ValueError, KeyError, json.JSONDecodeError) as e:
                 return self._json({"error": f"paramètres invalides : {e}"}, HTTPStatus.BAD_REQUEST)

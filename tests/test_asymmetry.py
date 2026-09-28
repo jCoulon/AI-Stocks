@@ -86,6 +86,46 @@ class AsymmetryTests(unittest.TestCase):
             self.assertEqual((saved["fetched"], saved["target_high"]), ("2026-09-28", 25.0))
 
 
+class NasdaqFallbackTests(unittest.TestCase):
+    def test_fallback_when_yahoo_refuses(self):
+        def row(label, *vals):
+            return {"value1": label, **{f"value{i + 2}": v for i, v in enumerate(vals)}}
+
+        pages = {
+            "targetprice": {"data": {"consensusOverview": {"priceTarget": 150.0, "highPriceTarget": 220,
+                                                           "lowPriceTarget": "90.00", "buy": 8, "hold": 3, "sell": 1}}},
+            "summary": {"data": {"summaryData": {"MarketCap": {"label": "Market Cap", "value": "10,000,000,000"}}}},
+            "frequency=2": {"data": {
+                "incomeStatementTable": {"rows": [row("Total Revenue", "$300,000", "$250,000", "$250,000", "$200,000")]},
+                "balanceSheetTable": {"rows": [row("Cash and Cash Equivalents", "$2,000,000", "$1", "$1", "$1"),
+                                               row("Long-Term Debt", "$1,000,000", "$1", "$1", "$1")]},
+                "cashFlowTable": {"rows": [row("Net Cash Flow-Operating", "$(100,000)", "$(50,000)", "$10,000", "$0"),
+                                           row("Capital Expenditures", "$(20,000)", "$(20,000)", "$(20,000)", "$(20,000)")]}}},
+            "frequency=1": {"data": {"incomeStatementTable": {"rows": [row("Total Revenue", "$900,000", "$600,000")]}}},
+        }
+
+        def nasdaq(url):
+            return json.dumps(next(v for k, v in pages.items() if k in url))
+
+        def yahoo_down():
+            raise RuntimeError("429")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            from unittest import mock
+            from sp500_analyzer.providers import fundamentals as fmod
+
+            with mock.patch.object(fmod, "yahoo_opener", yahoo_down):
+                errors = download_fundamentals(Path(tmp), ["NBIS"], pause=0, log=lambda *a: None,
+                                               nasdaq_get=nasdaq, today=date(2026, 9, 28))
+            self.assertIn("secours Nasdaq", errors[0])
+            d = json.loads((Path(tmp) / "fundamentals" / "NBIS.json").read_text())
+        self.assertEqual((d["source"], d["target_mean"], d["target_low"], d["analysts"]), ("Nasdaq", 150.0, 90.0, 12.0))
+        self.assertEqual(d["revenue"], 1_000_000_000)  # 4 trimestres, en milliers de dollars
+        self.assertAlmostEqual(d["revenue_growth"], 0.5)
+        self.assertEqual(d["free_cash_flow"], -220_000_000)
+        self.assertAlmostEqual(d["ev_to_revenue"], (10e9 + 1e9 - 2e9) / 1e9)
+
+
 class AiUniverseTests(unittest.TestCase):
     def test_universes(self):
         ia = {s.ticker for s in UNIVERSES["ia"]}

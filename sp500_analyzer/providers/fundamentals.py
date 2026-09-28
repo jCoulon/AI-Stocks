@@ -98,25 +98,109 @@ def _yahoo_session() -> tuple[Callable[[str], str], str]:
     return get, crumb
 
 
+# ------------------------------------------------ source de secours : API publique Nasdaq
+NASDAQ_API = "https://api.nasdaq.com/api"
+NASDAQ_HEADERS = {**HEADERS, "Accept": "application/json, text/plain, */*",
+                  "Origin": "https://www.nasdaq.com", "Referer": "https://www.nasdaq.com/"}
+
+
+def _num(v) -> Optional[float]:
+    """« $46,743,000 », « (1,234) », « 12.5% », « -- » -> nombre (None si absent)."""
+    if isinstance(v, (int, float)):
+        return float(v)
+    if not isinstance(v, str):
+        return None
+    t = v.strip().replace("$", "").replace(",", "").replace("%", "")
+    neg = t.startswith("(") and t.endswith(")")
+    try:
+        x = float(t.strip("()"))
+    except ValueError:
+        return None
+    return -x if neg else x
+
+
+def _row(table: dict, *labels: str) -> list[Optional[float]]:
+    """Valeurs (en dollars) d'une ligne d'un tableau financier Nasdaq, exprimé en milliers."""
+    for r in (table or {}).get("rows") or []:
+        if (r.get("value1") or "").strip().lower() in {l.lower() for l in labels}:
+            keys = sorted((k for k in r if k != "value1"), key=lambda k: int(k[5:]))
+            return [None if (x := _num(r[k])) is None else x * 1000 for k in keys]
+    return []
+
+
+def nasdaq_fundamentals(ticker: str, get: Callable[[str], str]) -> dict[str, Optional[float]]:
+    """Mêmes champs que extract(), depuis l'API publique de nasdaq.com (sans clé)."""
+    sym = urllib.parse.quote(ticker.lower())
+    out: dict[str, Optional[float]] = {k: None for k in FIELDS}
+    target = (json.loads(get(f"{NASDAQ_API}/analyst/{sym}/targetprice")).get("data") or {}).get("consensusOverview") or {}
+    out.update(target_mean=_num(target.get("priceTarget")), target_high=_num(target.get("highPriceTarget")),
+               target_low=_num(target.get("lowPriceTarget")))
+    votes = [_num(target.get(k)) for k in ("buy", "hold", "sell")]
+    out["analysts"] = sum(v for v in votes if v) or None
+    summary = (json.loads(get(f"{NASDAQ_API}/quote/{sym}/summary?assetclass=stocks")).get("data") or {})
+    out["market_cap"] = _num(((summary.get("summaryData") or {}).get("MarketCap") or {}).get("value"))
+    quarterly = json.loads(get(f"{NASDAQ_API}/company/{sym}/financials?frequency=2")).get("data") or {}
+    annual = json.loads(get(f"{NASDAQ_API}/company/{sym}/financials?frequency=1")).get("data") or {}
+    rev_q = [x for x in _row(quarterly.get("incomeStatementTable"), "Total Revenue") if x is not None]
+    rev_y = [x for x in _row(annual.get("incomeStatementTable"), "Total Revenue") if x is not None]
+    if len(rev_q) == 4:
+        out["revenue"] = sum(rev_q)  # 4 derniers trimestres
+    if len(rev_y) >= 2 and rev_y[1]:
+        out["revenue_growth"] = rev_y[0] / rev_y[1] - 1  # dernier exercice sur un an
+    bs = quarterly.get("balanceSheetTable")
+    cash = [(_row(bs, "Cash and Cash Equivalents") or [None])[0], (_row(bs, "Short-Term Investments") or [None])[0]]
+    debt = [(_row(bs, "Long-Term Debt") or [None])[0],
+            (_row(bs, "Short-Term Debt / Current Portion of Long-Term Debt") or [None])[0]]
+    out["cash"] = sum(x for x in cash if x) if any(cash) else None
+    out["debt"] = sum(x for x in debt if x) if any(debt) else None
+    cf = quarterly.get("cashFlowTable")
+    ocf, capex = _row(cf, "Net Cash Flow-Operating"), _row(cf, "Capital Expenditures")
+    if len(ocf) == 4 and len(capex) == 4 and None not in ocf + capex:
+        out["free_cash_flow"] = sum(ocf) + sum(capex)  # dépenses d'investissement négatives
+    if out["market_cap"] and out["revenue"]:
+        ev = out["market_cap"] + (out["debt"] or 0) - (out["cash"] or 0)
+        out["ev_to_revenue"] = ev / out["revenue"]
+    return out
+
+
 def download_fundamentals(out_dir: Path, tickers: list[str], pause: float = 0.8, log=print,
-                          session=None, today: Optional[date] = None) -> list[str]:
+                          session=None, today: Optional[date] = None, nasdaq_get=None) -> list[str]:
+    """Fondamentaux depuis Yahoo, ou depuis Nasdaq si Yahoo refuse la session (fréquent sur
+    les serveurs partagés comme ceux de GitHub)."""
     folder = out_dir / "fundamentals"
     folder.mkdir(parents=True, exist_ok=True)
+    errors = []
     try:
         get, crumb = session or yahoo_opener()
+        source = "Yahoo Finance"
     except Exception as e:  # noqa: BLE001
-        return [f"Fondamentaux : session Yahoo impossible ({type(e).__name__}: {e})"]
-    errors = []
+        errors.append(f"Fondamentaux : session Yahoo impossible ({type(e).__name__}: {e}) — secours Nasdaq")
+        get, crumb, source = None, "", "Nasdaq"
+    if get is None:
+        if nasdaq_get is None:
+            opener = urllib.request.build_opener()
+            opener.addheaders = list(NASDAQ_HEADERS.items())
+            nasdaq_get = lambda url: opener.open(url, timeout=30).read().decode("utf-8", "replace")  # noqa: E731
+    failures = 0
     for ticker in tickers:
-        url = QUOTE_SUMMARY.format(symbol=urllib.parse.quote(yahoo_symbol(ticker)), crumb=urllib.parse.quote(crumb))
         try:
-            data = extract(json.loads(get(url)))
+            if source == "Nasdaq":
+                data = nasdaq_fundamentals(ticker, nasdaq_get)
+            else:
+                url = QUOTE_SUMMARY.format(symbol=urllib.parse.quote(yahoo_symbol(ticker)),
+                                           crumb=urllib.parse.quote(crumb))
+                data = extract(json.loads(get(url)))
         except Exception as e:  # noqa: BLE001
-            errors.append(f"Fondamentaux {ticker} : {type(e).__name__}: {str(e)[:120]}")
+            errors.append(f"Fondamentaux {ticker} ({source}) : {type(e).__name__}: {str(e)[:120]}")
+            failures += 1
+            if failures == 3 and failures == len(errors) - (source == "Nasdaq"):
+                errors.append(f"Fondamentaux : {source} refuse les requêtes — arrêt")
+                return errors
             continue
-        data_out = {"ticker": ticker, "fetched": (today or date.today()).isoformat(), **data}
+        data_out = {"ticker": ticker, "fetched": (today or date.today()).isoformat(), "source": source, **data}
         (folder / f"{ticker}.json").write_text(json.dumps(data_out, indent=1), encoding="utf-8")
-        log(f"  fondamentaux {ticker:6} objectif moyen {data['target_mean']}, croissance {data['revenue_growth']}")
+        log(f"  fondamentaux {ticker:6} ({source}) objectif moyen {data['target_mean']}, "
+            f"croissance {data['revenue_growth']}, VE/CA {data['ev_to_revenue']}")
         time.sleep(pause)
     return errors
 

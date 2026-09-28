@@ -1,0 +1,16 @@
+{
+ "ticker": "CIFR",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-11-02",
+  "estimated": true,
+  "timing": ""
+ },
+ "past_earnings": [
+  "2025-11-03",
+  "2026-02-24",
+  "2026-05-05",
+  "2026-08-04"
+ ]
+}

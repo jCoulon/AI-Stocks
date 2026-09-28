@@ -1,0 +1,16 @@
+{
+ "ticker": "XOM",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-10-30",
+  "estimated": true,
+  "timing": ""
+ },
+ "past_earnings": [
+  "2025-10-31",
+  "2026-01-30",
+  "2026-05-01",
+  "2026-07-31"
+ ]
+}

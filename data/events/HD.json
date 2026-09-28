@@ -1,0 +1,16 @@
+{
+ "ticker": "HD",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-11-17",
+  "estimated": true,
+  "timing": "avant ouverture"
+ },
+ "past_earnings": [
+  "2025-11-18",
+  "2026-02-24",
+  "2026-05-19",
+  "2026-08-18"
+ ]
+}

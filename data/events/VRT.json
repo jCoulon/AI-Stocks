@@ -1,0 +1,16 @@
+{
+ "ticker": "VRT",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-10-28",
+  "estimated": true,
+  "timing": ""
+ },
+ "past_earnings": [
+  "2025-10-22",
+  "2026-02-11",
+  "2026-04-22",
+  "2026-07-29"
+ ]
+}

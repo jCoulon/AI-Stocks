@@ -1,0 +1,16 @@
+{
+ "ticker": "WMT",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-11-19",
+  "estimated": true,
+  "timing": "avant ouverture"
+ },
+ "past_earnings": [
+  "2025-11-20",
+  "2026-02-19",
+  "2026-05-21",
+  "2026-08-20"
+ ]
+}

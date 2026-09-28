@@ -1,0 +1,16 @@
+{
+ "ticker": "JPM",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-10-13",
+  "estimated": true,
+  "timing": "avant ouverture"
+ },
+ "past_earnings": [
+  "2025-10-14",
+  "2026-01-13",
+  "2026-04-14",
+  "2026-07-14"
+ ]
+}

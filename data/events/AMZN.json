@@ -1,0 +1,16 @@
+{
+ "ticker": "AMZN",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-10-29",
+  "estimated": true,
+  "timing": ""
+ },
+ "past_earnings": [
+  "2025-10-30",
+  "2026-02-05",
+  "2026-04-29",
+  "2026-07-30"
+ ]
+}

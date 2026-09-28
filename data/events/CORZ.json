@@ -1,0 +1,16 @@
+{
+ "ticker": "CORZ",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-10-23",
+  "estimated": true,
+  "timing": ""
+ },
+ "past_earnings": [
+  "2025-10-24",
+  "2026-03-02",
+  "2026-05-06",
+  "2026-07-28"
+ ]
+}

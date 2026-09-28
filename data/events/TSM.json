@@ -1,0 +1,16 @@
+{
+ "ticker": "TSM",
+ "fetched": "2026-09-28",
+ "source": "Nasdaq",
+ "next_earnings": {
+  "date": "2026-10-15",
+  "estimated": true,
+  "timing": "avant ouverture"
+ },
+ "past_earnings": [
+  "2025-10-16",
+  "2026-01-15",
+  "2026-04-16",
+  "2026-07-16"
+ ]
+}

@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import Optional
 
 from ..models import (
     Bar, Catalyst, KeyLevel, NewsItem, Peer, Signal, SocialPost, StockReport, TickerAnalysis,
 )
+from ..universe import AI_THEME
 from .coherence import CoherenceResult, reaction_index
 from .research import aligned_returns, ols
+from .scoring import CONTRARIAN_SHORT
 from .indicators import SessionReturns, pct_returns, sma, stdev
 from .sentiment import headline_tone
 
@@ -123,6 +126,12 @@ def _all_signals(t: TickerAnalysis, pillars: tuple[str, ...]) -> list[tuple[str,
         if pillar.pillar not in pillars:
             continue
         horizon = "CT" if key.endswith("_court") else "MT"
+        if horizon == "CT" and pillar.pillar in CONTRARIAN_SHORT and t.security.ticker in AI_THEME:
+            # Mode IA : même lecture que le score (signal inversé, voir scoring.CONTRARIAN_SHORT).
+            out += [(horizon, replace(s, score=-s.score, comment=f"{s.comment} — lu à contre-courant (mode IA : "
+                                                                 "la hausse récente tend à s'inverser)"))
+                    for s in pillar.signals]
+            continue
         out += [(horizon, s) for s in pillar.signals]
     return out
 

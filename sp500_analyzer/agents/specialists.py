@@ -9,13 +9,14 @@ from ..analysis.coherence import CoherenceResult, assess
 from ..analysis.macro import analyze_macro, macro_summary, variance_risk_premium, vrp_zscore
 from ..analysis.research import ResearchView, TickerInputs, build_research, fit_garch, trend_fallback_signal
 from ..analysis.scoring import HORIZON_DAYS
-from ..analysis.scoring import build_outlook
+from ..analysis.scoring import CONTRARIAN_SHORT, build_outlook
 from ..analysis.sentiment import analyze_sentiment
 from ..analysis.stock import build_stock_report
 from ..analysis.technical import analyze_technical
 from ..models import (
     Bar, Flag, MarketReport, NewsItem, PillarResult, Security, Signal, SocialPost, StockReport, TickerAnalysis,
 )
+from ..universe import AI_THEME
 from .base import Agent, Blackboard, Task
 
 
@@ -169,7 +170,8 @@ class StrategistAgent(Agent):
         # la même méthode.
         garch = research.garch if research else fit_garch(data.bars)
         short = build_outlook("court", pillars_s, last, vol, quality.data_quality, coherence, trust,
-                              garch.horizon_vol(HORIZON_DAYS["court"]) if garch else None)
+                              garch.horizon_vol(HORIZON_DAYS["court"]) if garch else None,
+                              CONTRARIAN_SHORT if t in AI_THEME else frozenset())
         medium = build_outlook("moyen", pillars_m, last, vol, quality.data_quality, coherence, trust,
                                garch.horizon_vol(HORIZON_DAYS["moyen"]) if garch else None)
 

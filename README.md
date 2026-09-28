@@ -219,6 +219,15 @@ rapportée à la valorisation (VE/CA), et signale les pièges : profil « loteri
 sous-performe en moyenne), trésorerie courte (dilution), consensus maigre. Les fondamentaux
 (Yahoo Finance) sont une photographie du jour : l'écran est descriptif, non backtesté.
 
+### Mode IA (score court terme des titres IA)
+
+Pour les titres du focus IA, les indicateurs techniques court terme (MACD, RSI, force relative
+5 j...) sont lus **à contre-courant** : sur ces titres très volatils, la hausse récente tend à
+s'inverser la semaine suivante. Trouvé et validé sur une période réservée selon un protocole
+écrit d'avance : IC à 5 séances de −0,10 à +0,08 sur juin-septembre 2026. Détails, candidats
+rejetés (ventes à découvert FINRA, Wikipédia, news, bitcoin...) et limites :
+[docs/RECHERCHE_IA.md](docs/RECHERCHE_IA.md).
+
 ### Écran « Best try » : catalyseurs à venir
 
 ```bash

@@ -15,6 +15,14 @@ WEIGHTS = {
 }
 HORIZON_DAYS = {"court": 5, "moyen": 63}
 
+# « Mode IA » : pour les titres du focus IA, le pilier technique court terme (MACD, RSI, force
+# relative 5 j, performance 5 séances...) est lu à contre-courant. Sur ces titres très volatils, la
+# hausse récente tend à s'inverser la semaine suivante (retournement de court terme : Lehmann, 1990 ;
+# Jegadeesh, 1990 ; plus marqué sur les titres volatils). Mesuré sur données réelles, univers IA :
+# lecture habituelle IC -0,13 (jan.-mai 2026, découverte) ; lecture inversée IC +0,14, t 1,73, sur
+# la réserve juin-sept. 2026 jamais utilisée pour la choisir (voir docs/RECHERCHE_IA.md).
+CONTRARIAN_SHORT = frozenset({"technique"})
+
 
 def label_for(score: float) -> str:
     if score >= 0.35:
@@ -37,12 +45,14 @@ def build_outlook(
     coherence: float,
     trust: dict[str, float] | None = None,
     horizon_vol: float | None = None,
+    contrarian: frozenset[str] = frozenset(),
 ) -> Outlook:
-    """`trust` réduit le poids d'un pilier jugé peu fiable par le moteur de cohérence."""
+    """`trust` réduit le poids d'un pilier jugé peu fiable par le moteur de cohérence ;
+    `contrarian` liste les piliers dont le score est lu à contre-courant (mode IA)."""
     trust = trust or {}
     weights = {k: w * trust.get(k, 1.0) for k, w in WEIGHTS[horizon].items() if k in pillars}
     total = sum(weights.values()) or 1.0
-    contrib = {k: w / total * pillars[k].score for k, w in weights.items()}
+    contrib = {k: w / total * pillars[k].score * (-1 if k in contrarian else 1) for k, w in weights.items()}
     score = sum(contrib.values())
 
     # Accord entre piliers : 1 si tous tirent dans le même sens.

@@ -19,6 +19,7 @@ from sp500_analyzer.universe import EXTRA_TICKERS, SP500_SAMPLE  # noqa: E402
 
 
 def main() -> int:
+    sys.stdout.reconfigure(line_buffering=True)
     today_ny = datetime.now(ZoneInfo("America/New_York")).date()
     p = argparse.ArgumentParser()
     p.add_argument("--start", type=date.fromisoformat, default=date(2026, 9, 1))
@@ -29,9 +30,10 @@ def main() -> int:
     args = p.parse_args()
     # Titres du focus IA hors S&P 500 toujours inclus, plus ceux passés en argument.
     extra = tuple(dict.fromkeys(EXTRA_TICKERS + [t.strip().upper() for t in args.extra.split(",") if t.strip()]))
-    errors = download_all(args.out, args.start, args.end, args.daily_years, extra=extra)
     # Fondamentaux du jour (objectifs d'analystes, croissance, valorisation) : écran d'asymétrie.
-    errors += download_fundamentals(Path(args.out), [p.security.ticker for p in SP500_SAMPLE] + list(extra))
+    # En premier : Yahoo limite plus volontiers une session ouverte après une rafale de requêtes.
+    errors = download_fundamentals(Path(args.out), [p.security.ticker for p in SP500_SAMPLE] + list(extra))
+    errors += download_all(args.out, args.start, args.end, args.daily_years, extra=extra)
     for e in errors:
         print(f"  ✗ {e}", file=sys.stderr)
     files = list(Path(args.out).rglob("*.csv"))

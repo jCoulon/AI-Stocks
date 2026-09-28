@@ -80,6 +80,7 @@ AI_EXTRA: list[Security] = [
     Security("SOUN", "SoundHound AI", "Technology", 2.6),
     Security("BBAI", "BigBear.ai", "Technology", 2.6),
     Security("PATH", "UiPath", "Technology", 1.6),
+    Security("CBRS", "Cerebras Systems", "Technology", 2.5),
 ]
 
 #: Sous-thème de chaque titre du focus IA
@@ -90,7 +91,7 @@ AI_THEME: dict[str, str] = {
     "NBIS": "Néocloud", "CRWV": "Néocloud", "IREN": "Néocloud / ex-mineur", "CIFR": "Ex-mineur → HPC",
     "WULF": "Ex-mineur → HPC", "APLD": "Data centers HPC", "CORZ": "Ex-mineur → HPC",
     "PLTR": "Logiciel IA", "AI": "Logiciel IA", "SOUN": "Logiciel IA", "BBAI": "Logiciel IA",
-    "PATH": "Automatisation",
+    "PATH": "Automatisation", "CBRS": "Puces (accélérateurs IA)",
 }
 
 

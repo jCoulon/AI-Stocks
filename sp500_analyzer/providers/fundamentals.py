@@ -65,8 +65,21 @@ def extract(payload: dict) -> dict[str, Optional[float]]:
     return out
 
 
-def yahoo_opener() -> tuple[Callable[[str], str], str]:
-    """Session Yahoo (cookie + « crumb » exigés par quoteSummary depuis 2023)."""
+def yahoo_opener(attempts: int = 4, wait: float = 20.0, sleep=time.sleep) -> tuple[Callable[[str], str], str]:
+    """Session Yahoo (cookie + « crumb » exigés par quoteSummary depuis 2023), avec nouvelles
+    tentatives espacées : Yahoo répond souvent 429 aux serveurs partagés."""
+    last: Exception = RuntimeError("inaccessible")
+    for i in range(attempts):
+        try:
+            return _yahoo_session()
+        except Exception as e:  # noqa: BLE001
+            last = e
+            if i < attempts - 1:
+                sleep(wait * 2 ** i)
+    raise last
+
+
+def _yahoo_session() -> tuple[Callable[[str], str], str]:
     jar = http.cookiejar.CookieJar()
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
     opener.addheaders = list(HEADERS.items())

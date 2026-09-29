@@ -83,6 +83,11 @@ AI_EXTRA: list[Security] = [
     Security("CBRS", "Cerebras Systems", "Technology", 2.5),
 ]
 
+#: Autres titres suivis à la demande (hors S&P 500 et hors focus IA) : univers « tout » seulement.
+OTHER_EXTRA: list[Security] = [
+    Security("FIGR", "Figure Technology Solutions", "Financials", 2.0),
+]
+
 #: Sous-thème de chaque titre du focus IA
 AI_THEME: dict[str, str] = {
     "NVDA": "Puces", "AMD": "Puces", "AVGO": "Puces", "TSM": "Puces", "ARM": "Puces", "MU": "Puces (mémoire)",
@@ -125,7 +130,8 @@ LINKS: dict[str, list[Link]] = {
 
 
 def _securities() -> dict[str, Security]:
-    return {p.security.ticker: p.security for p in SP500_SAMPLE} | {s.ticker: s for s in AI_EXTRA}
+    return ({p.security.ticker: p.security for p in SP500_SAMPLE} | {s.ticker: s for s in AI_EXTRA}
+            | {s.ticker: s for s in OTHER_EXTRA})
 
 
 #: Univers analysables : échantillon S&P 500, focus IA, ou les deux.
@@ -135,7 +141,7 @@ UNIVERSES: dict[str, list[Security]] = {
     "tout": list(_securities().values()),
 }
 #: Titres hors S&P 500 à télécharger en plus (cours, news, réseaux sociaux)
-EXTRA_TICKERS: list[str] = [s.ticker for s in AI_EXTRA]
+EXTRA_TICKERS: list[str] = [s.ticker for s in AI_EXTRA + OTHER_EXTRA]
 
 
 # Sensibilité de chaque secteur aux facteurs macro (valeurs dans [-1, 1]).

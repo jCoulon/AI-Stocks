@@ -110,6 +110,7 @@ GDELT_QUERIES: dict[str, str] = {
     "BBAI": '"BigBear.ai"',
     "PATH": '"UiPath"',
     "CBRS": '"Cerebras"',
+    "FIGR": '"Figure Technology"',
     MARKET: '("Wall Street" OR "S&P 500" OR "Federal Reserve" OR "stock market")',
 }
 

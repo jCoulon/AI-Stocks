@@ -90,8 +90,10 @@ verdict court et moyen terme avec sa conviction, ce qui soutient le titre, ce qu
 ce qu'il surveillerait, et s'il est d'accord ou non avec l'outil. Il ne dispose d'aucune
 autre source que ce dossier.
 
-- **Payant, uniquement sur demande** : un appel à l'API Anthropic (`claude-opus-5`) par clic,
-  de l'ordre de quelques centimes de dollar selon la longueur de la réflexion.
+- **Payant, uniquement sur demande** : un appel à l'API Anthropic (`claude-fable-5-1`, le modèle
+  le plus capable d'Anthropic : 10 $ / 50 $ par million de jetons en entrée / sortie) par clic,
+  de l'ordre de dix à quelques dizaines de centimes selon la longueur de la réflexion, qui peut
+  prendre une à plusieurs minutes. En cas de refus, l'API bascule d'elle-même sur un modèle de repli.
 - **Mis en cache** pour l'analyse en cours : revenir sur la fiche ne coûte rien ;
   « Régénérer » relance un appel. Une nouvelle analyse invalide le cache.
 - **Arrêter** interrompt l'appel en cours.

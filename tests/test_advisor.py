@@ -67,7 +67,7 @@ class AdvisorTests(unittest.TestCase):
         text = "".join(ClaudeAdvisor(client=client).stream(self.report, "NVDA", True))
         self.assertEqual(text, "## Avis de Claude\n- point")
         kw = client.calls[0]
-        self.assertEqual(kw["model"], "claude-opus-5")
+        self.assertEqual(kw["model"], "claude-fable-5-1")
         self.assertEqual(kw["thinking"], {"type": "adaptive"})
         self.assertEqual(kw["fallbacks"], "default")
         self.assertEqual(kw["system"], STOCK_PROMPT)

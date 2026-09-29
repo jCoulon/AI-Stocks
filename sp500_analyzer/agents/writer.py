@@ -13,7 +13,8 @@ from typing import Any
 from ..models import MarketReport, TickerAnalysis
 from .base import Agent, AgentUnavailable, Blackboard, Task
 
-MODEL = "claude-opus-5"
+# Claude Fable 5.1 : le modèle le plus capable (réflexion toujours active, tours parfois longs).
+MODEL = "claude-fable-5-1"
 
 SYSTEM_PROMPT = """Tu es le rédacteur d'une équipe d'analyse des marchés actions américains.
 D'autres agents ont déjà analysé les données (graphiques, news, réseaux sociaux, macro-économie)
@@ -77,7 +78,7 @@ class ClaudeWriterAgent(Agent):
             except ImportError as e:
                 raise AgentUnavailable("paquet 'anthropic' non installé (pip install anthropic)") from e
             try:
-                self._client = anthropic.Anthropic(timeout=300.0)
+                self._client = anthropic.Anthropic(timeout=900.0)
             except anthropic.AnthropicError as e:
                 raise AgentUnavailable(f"identifiants Anthropic introuvables : {e}") from e
         return self._client

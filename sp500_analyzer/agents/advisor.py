@@ -148,7 +148,7 @@ class ClaudeAdvisor:
                 import anthropic
             except ImportError as e:
                 raise AdvisorUnavailable("Le paquet « anthropic » n'est pas installé (pip install anthropic).") from e
-            kwargs: dict[str, Any] = {"timeout": 300.0}
+            kwargs: dict[str, Any] = {"timeout": 900.0}
             if self.api_key:
                 kwargs["api_key"] = self.api_key
             self._client = anthropic.Anthropic(**kwargs)

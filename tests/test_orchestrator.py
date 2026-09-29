@@ -168,7 +168,7 @@ class WriterAgentTests(unittest.TestCase):
         report = orch.run(focus=["META"])
         self.assertEqual(report.narrative, "## Synthèse\nMarché plutôt haussier.")
         kw = client.kwargs
-        self.assertEqual(kw["model"], "claude-opus-5")
+        self.assertEqual(kw["model"], "claude-fable-5-1")
         self.assertEqual(kw["thinking"], {"type": "adaptive"})
         self.assertEqual(kw["fallbacks"], "default")
         brief = json.loads(kw["messages"][0]["content"])

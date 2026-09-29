@@ -81,6 +81,7 @@ AI_EXTRA: list[Security] = [
     Security("BBAI", "BigBear.ai", "Technology", 2.6),
     Security("PATH", "UiPath", "Technology", 1.6),
     Security("CBRS", "Cerebras Systems", "Technology", 2.5),
+    Security("AIP", "Arteris", "Technology", 1.8),
 ]
 
 #: Autres titres suivis à la demande (hors S&P 500 et hors focus IA) : univers « tout » seulement.
@@ -97,6 +98,7 @@ AI_THEME: dict[str, str] = {
     "WULF": "Ex-mineur → HPC", "APLD": "Data centers HPC", "CORZ": "Ex-mineur → HPC",
     "PLTR": "Logiciel IA", "AI": "Logiciel IA", "SOUN": "Logiciel IA", "BBAI": "Logiciel IA",
     "PATH": "Automatisation", "CBRS": "Puces (accélérateurs IA)",
+    "AIP": "IP de puces (interconnexions NoC)",
 }
 
 

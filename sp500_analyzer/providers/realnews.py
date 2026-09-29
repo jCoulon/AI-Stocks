@@ -111,6 +111,7 @@ GDELT_QUERIES: dict[str, str] = {
     "PATH": '"UiPath"',
     "CBRS": '"Cerebras"',
     "FIGR": '"Figure Technology"',
+    "AIP": '"Arteris"',
     MARKET: '("Wall Street" OR "S&P 500" OR "Federal Reserve" OR "stock market")',
 }
 

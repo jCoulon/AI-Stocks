@@ -82,3 +82,19 @@ selon les dates retenues. À 21 séances, aucun effet (IC ≈ 0).
 - Rien ne garantit que le régime persiste ; à revérifier chaque mois (relancer
   `docs/recherche_ia/decomp.py` puis `decomp_an.py` sur les nouvelles semaines).
 - Ce n'est pas un conseil d'investissement.
+
+## Liste de surveillance : la règle « sur support » a-t-elle un avantage ?
+
+Règle fixée avant le test (écran « Ma liste ») : cours à ≤ 1 ATR au-dessus du support le plus
+proche ET gain jusqu'à la résistance ≥ 2 × la perte jusqu'à l'invalidation (support − ½ ATR).
+Test sur 2 ans de cours réels, 51 titres, dates espacées de 5 séances
+([script](recherche_ia/entry_rule.py)) — écart de rendement des titres concernés vs les autres :
+
+| Condition | 5 séances | 21 séances | Cas |
+|---|---|---|---|
+| Au contact d'un support | +0,28 % (t 0,7) | −0,70 % (t −0,4) | 1 171 |
+| Zone d'entrée (support + gain / risque ≥ 2) | +0,92 % (t 1,3) | +0,82 % (t 0,3) | 216 |
+| Zone d'entrée + tendance (cours > MM200) | +0,03 % (t 0,0) | −0,52 % (t −0,1) | 136 |
+
+Aucun avantage significatif : la grille structure une décision (où entrer, où se tromper, quel
+objectif) mais ne prédit pas la hausse.

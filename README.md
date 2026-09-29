@@ -219,6 +219,22 @@ rapportée à la valorisation (VE/CA), et signale les pièges : profil « loteri
 sous-performe en moyenne), trésorerie courte (dilution), consensus maigre. Les fondamentaux
 (Yahoo Finance) sont une photographie du jour : l'écran est descriptif, non backtesté.
 
+### Ma liste de surveillance
+
+```bash
+python -m sp500_analyzer --donnees data --surveillance FIGR,AIP,CBRS   # enregistre la liste et l'affiche
+python -m sp500_analyzer --donnees data --surveillance                 # liste enregistrée
+```
+
+Dans l'application : entrée « ★ Ma liste » (ajout / retrait des titres directement dans l'écran ;
+liste enregistrée dans `~/.sp500_analyzer/watchlist.json`). Pour chaque titre, une grille de
+conditions d'entrée — support proche (≤ 1 ATR), gain / risque ≥ 2, tendance de fond, survente,
+avis court terme de l'outil, économie (taux, VIX...), consensus des analystes, pas de résultats
+dans les 10 jours — et un statut : « Zone d'entrée technique », « À surveiller », « Attendre la
+publication » ou « Pas le moment », avec support, niveau d'invalidation et objectif. Règles fixes,
+testées sur 2 ans : pas d'avantage significatif (voir [docs/RECHERCHE_IA.md](docs/RECHERCHE_IA.md)).
+Un titre sans données doit d'abord être ajouté à l'univers (demandez-le). Pas un conseil.
+
 ### Écran Polymarket : meilleurs portefeuilles, marchés sous-évalués, suivi
 
 ```bash

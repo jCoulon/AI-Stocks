@@ -49,6 +49,8 @@ class AppState:
     def __init__(self, provider_factory: ProviderFactory = None, as_of: date | None = None, seed: int = 42,
                  advisor: Optional[ClaudeAdvisor] = None, data_dir: Optional[Path] = None):
         self.provider_factory = provider_factory
+        #: Fichier de la liste de surveillance (None : ~/.sp500_analyzer/watchlist.json ou SP500_WATCHLIST)
+        self.watchlist_file = None
         self.data_dir = Path(data_dir) if data_dir else None
         self.source = "reel" if self.data_dir and not provider_factory else "simule"
         self.universe = "tout" if self.source == "reel" else "sp500"
@@ -148,6 +150,38 @@ class AppState:
 
         path = self.data_dir / "polymarket" / "report.json" if self.data_dir else None
         return render_html(json.loads(path.read_text(encoding="utf-8")) if path and path.exists() else None)
+
+    def watchlist_html(self) -> str:
+        """Liste de surveillance de l'utilisateur, avec les conditions d'entrée de chaque titre."""
+        from ..analysis.watchlist import assess, load_watchlist, render_html
+        from ..providers.events import load_events
+        from ..providers.fundamentals import load_fundamentals
+
+        r = self.current()
+        tickers = load_watchlist(self.watchlist_file)
+        by = {t.security.ticker: t for t in r.tickers}
+        real = self.source == "reel" and self.data_dir
+        views, missing = [], []
+        for tk in tickers:
+            t = by.get(tk)
+            if t is None:
+                missing.append(tk)
+                continue
+            fund = load_fundamentals(self.data_dir, tk) if real else None
+            ev = (load_events(self.data_dir, tk) or {}).get("next_earnings") if real else None
+            nxt = (date.fromisoformat(ev["date"]), "Résultats" + (" (date estimée)" if ev.get("estimated") else "")) if ev else None
+            views.append(assess(t, fund, nxt, r.as_of, r.macro_summary))
+        return render_html(views, missing, r.as_of, tickers, sorted(by))
+
+    def update_watchlist(self, add: str = "", remove: str = "") -> list[str]:
+        from ..analysis.watchlist import load_watchlist, save_watchlist
+
+        tickers = load_watchlist(self.watchlist_file)
+        if add:
+            tickers.append(add.strip().upper())
+        if remove:
+            tickers = [t for t in tickers if t != remove.strip().upper()]
+        return save_watchlist(tickers, self.watchlist_file)
 
     def advice_key(self, ticker: str) -> tuple[int, str]:
         self.current()
@@ -253,6 +287,8 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     return self._send(200, html_market(r) + html_agents(r), "text/html; charset=utf-8")
                 if path == "/api/asymmetry":
                     return self._send(200, state.asymmetry_html(), "text/html; charset=utf-8")
+                if path == "/api/watchlist":
+                    return self._send(200, state.watchlist_html(), "text/html; charset=utf-8")
                 if path == "/api/polymarket":
                     return self._send(200, state.polymarket_html(), "text/html; charset=utf-8")
                 if path == "/api/besttry":
@@ -342,6 +378,13 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     return self._json({"error": "clé vide"}, HTTPStatus.BAD_REQUEST)
                 state.advisor.set_api_key(key)  # gardée en mémoire seulement, jamais écrite sur disque
                 return self._json({"ok": True})
+            if path == "/api/watchlist":
+                try:
+                    params = self._body()
+                    state.update_watchlist(str(params.get("add", "")), str(params.get("remove", "")))
+                    return self._send(200, state.watchlist_html(), "text/html; charset=utf-8")
+                except (ValueError, json.JSONDecodeError, OSError) as e:
+                    return self._json({"error": f"liste de surveillance : {e}"}, HTTPStatus.BAD_REQUEST)
             if path != "/api/refresh":
                 return self._json({"error": "introuvable"}, HTTPStatus.NOT_FOUND)
             try:

@@ -50,6 +50,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--best-try", action="store_true",
                    help="Écran « Best try » : titres ayant un catalyseur daté prochainement (résultats, lock-up...) ; "
                         "nécessite --donnees")
+    p.add_argument("--surveillance", nargs="?", const="", metavar="TITRES",
+                   help="Liste de surveillance : conditions d'entrée des titres suivis ; « --surveillance FIGR,AIP » "
+                        "remplace la liste enregistrée (~/.sp500_analyzer/watchlist.json)")
     p.add_argument("--polymarket", action="store_true",
                    help="Écran Polymarket (meilleurs portefeuilles, marchés sous-évalués, suivi) depuis data/polymarket")
     p.add_argument("--horizon", type=int, default=60, help="Horizon de l'écran « Best try », en jours (défaut 60)")
@@ -98,6 +101,30 @@ def _best_try(provider, args) -> int:
     return 0
 
 
+def _watchlist(provider, args) -> int:
+    from datetime import date as _date
+    from pathlib import Path
+
+    from .analysis.watchlist import assess, load_watchlist, render_text, save_watchlist
+    from .providers.events import load_events
+    from .providers.fundamentals import load_fundamentals
+
+    tickers = save_watchlist(args.surveillance.split(",")) if args.surveillance else load_watchlist()
+    report = Orchestrator(provider, max_workers=args.workers).run()
+    by = {t.security.ticker: t for t in report.tickers}
+    root = Path(args.donnees) if args.donnees else None
+    views = []
+    for tk in tickers:
+        if tk not in by:
+            continue
+        ev = (load_events(root, tk) or {}).get("next_earnings") if root else None
+        nxt = (_date.fromisoformat(ev["date"]), "Résultats") if ev else None
+        views.append(assess(by[tk], load_fundamentals(root, tk) if root else None, nxt, report.as_of,
+                            report.macro_summary))
+    print(render_text(views, [t for t in tickers if t not in by], report.as_of))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
@@ -127,7 +154,8 @@ def main(argv: list[str] | None = None) -> int:
         print("Les écrans d'asymétrie et « Best try » nécessitent des données réelles : ajoutez --donnees data",
               file=sys.stderr)
         return 2
-    universe = args.univers or ("ia" if args.asymetrie else "tout" if args.best_try else "sp500")
+    universe = args.univers or ("ia" if args.asymetrie else "tout" if (args.best_try or (args.surveillance is not None
+                                                                                          and args.donnees)) else "sp500")
     if universe != "sp500" and not (args.donnees or args.cours):
         print("Les univers « ia » et « tout » nécessitent des données réelles (--donnees ou --cours)", file=sys.stderr)
         return 2
@@ -173,6 +201,8 @@ def main(argv: list[str] | None = None) -> int:
         return _asymmetry(provider, args)
     if args.best_try:
         return _best_try(provider, args)
+    if args.surveillance is not None:
+        return _watchlist(provider, args)
 
     if args.backtest_periode:
         from .analysis.period_backtest import render_period_backtest, run_period_backtest

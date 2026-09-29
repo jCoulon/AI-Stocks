@@ -174,6 +174,24 @@ class RealDataAppTests(unittest.TestCase):
         self.assertIn('data-ticker="NBIS"', html)
         self.assertIn("29/10", html)
 
+    def test_watchlist_screen(self):
+        import tempfile
+        from pathlib import Path
+
+        server_state = self.server.state
+        with tempfile.TemporaryDirectory() as tmp:
+            server_state.watchlist_file = Path(tmp) / "w.json"
+            status, _, html = self.request("/api/watchlist")
+            self.assertEqual(status, 200)
+            self.assertIn("Ma liste de surveillance", html)
+            self.assertIn("NBIS", html)  # liste par défaut
+            status, _, html = self.request("/api/watchlist", method="POST", body={"add": "nvda"})
+            self.assertEqual(status, 200, html)
+            self.assertIn("data-watch-remove='NVDA'", html)
+            status, _, html = self.request("/api/watchlist", method="POST", body={"remove": "NVDA"})
+            self.assertNotIn("data-watch-remove='NVDA'", html)
+            server_state.watchlist_file = None
+
     def test_polymarket_screen(self):
         s = json.loads(self.request("/api/summary")[2])
         self.assertTrue(s["polymarket"])

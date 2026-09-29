@@ -112,6 +112,7 @@ GDELT_QUERIES: dict[str, str] = {
     "CBRS": '"Cerebras"',
     "FIGR": '"Figure Technology"',
     "AIP": '"Arteris"',
+    "ORCL": '"Oracle"',
     MARKET: '("Wall Street" OR "S&P 500" OR "Federal Reserve" OR "stock market")',
 }
 

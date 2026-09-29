@@ -82,6 +82,7 @@ AI_EXTRA: list[Security] = [
     Security("PATH", "UiPath", "Technology", 1.6),
     Security("CBRS", "Cerebras Systems", "Technology", 2.5),
     Security("AIP", "Arteris", "Technology", 1.8),
+    Security("ORCL", "Oracle", "Technology", 1.3),
 ]
 
 #: Autres titres suivis à la demande (hors S&P 500 et hors focus IA) : univers « tout » seulement.
@@ -99,6 +100,7 @@ AI_THEME: dict[str, str] = {
     "PLTR": "Logiciel IA", "AI": "Logiciel IA", "SOUN": "Logiciel IA", "BBAI": "Logiciel IA",
     "PATH": "Automatisation", "CBRS": "Puces (accélérateurs IA)",
     "AIP": "IP de puces (interconnexions NoC)",
+    "ORCL": "Cloud / data centers IA",
 }
 
 
@@ -123,6 +125,7 @@ LINKS: dict[str, list[Link]] = {
     "CRWV": [Link("OPENAI", "OpenAI", "client majeur (contrats pluriannuels)", 0.3),
              Link("MSFT", "Microsoft", "client majeur", 0.3),
              Link("NVDA", "Nvidia", "fournisseur et actionnaire", 0.2)],
+    "ORCL": [Link("OPENAI", "OpenAI", "client majeur : contrat de calcul pluriannuel (Stargate)", 0.4)],
     "NBIS": [Link("MSFT", "Microsoft", "client majeur (contrat pluriannuel, 2025)", 0.3)],
     "IREN": [Link("MSFT", "Microsoft", "client majeur (contrat de capacité IA, 2025)", 0.3)],
     "AMD": [Link("OPENAI", "OpenAI", "client (accord de puces 2025, bons OpenAI sur AMD)", 0.2)],

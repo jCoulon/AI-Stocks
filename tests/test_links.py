@@ -54,3 +54,18 @@ class LinkTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class QuotePageFilterTests(unittest.TestCase):
+    def test_quote_pages_are_not_news(self):
+        import tempfile
+        from pathlib import Path
+
+        from sp500_analyzer.providers.realdata import read_news
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "X.csv"
+            p.write_text("Published,Source,Title\n"
+                         "2026-09-28T10:00:00,Yahoo Finance,\"Fermi Inc. (FRMI) Stock Price, News, Quote & History\"\n"
+                         "2026-09-28T11:00:00,Yahoo Finance,Circle Internet Group (CRCL) stock price news quote and history\n"
+                         "2026-09-28T12:00:00,Reuters,Figure raises guidance after record quarter\n")
+            self.assertEqual([n.headline for n in read_news([p], "FIGR", {})], ["Figure raises guidance after record quarter"])

@@ -18,6 +18,7 @@ Réseaux sociaux : StockTwits et Reddit, historique construit à partir de la mi
 from __future__ import annotations
 
 import csv
+import re
 from bisect import bisect_left
 from datetime import date, datetime
 from pathlib import Path
@@ -31,6 +32,11 @@ from .stocktwits import load_posts
 from ..universe import LINKS
 
 
+# Pages de cotation (« XYZ Stock Price, News, Quote & History ») renvoyées par les flux : ce ne
+# sont pas des articles, et elles concernent souvent un autre titre.
+QUOTE_PAGE = re.compile(r"stock price,? news,? quote", re.IGNORECASE)
+
+
 def read_news(paths: list[Path], ticker: Optional[str], tones: dict[str, float]) -> list[NewsItem]:
     """News de plusieurs fichiers (GDELT, RSS), dédoublonnées par titre, avec le ton FinBERT
     quand il a été calculé."""
@@ -40,7 +46,7 @@ def read_news(paths: list[Path], ticker: Optional[str], tones: dict[str, float])
             continue
         with open(path, newline="", encoding="utf-8") as f:
             for r in csv.DictReader(f):
-                if not r.get("Title"):
+                if not r.get("Title") or QUOTE_PAGE.search(r["Title"]):
                     continue
                 key = title_key(r["Title"])
                 item = NewsItem(ticker, datetime.fromisoformat(r["Published"]), r["Source"], r["Title"], tones.get(key))

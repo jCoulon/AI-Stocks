@@ -61,6 +61,10 @@ class OptionsTests(unittest.TestCase):
         self.assertEqual(im["daily_source"], "implicite")
         self.assertAlmostEqual(im["event_move"], k * 0.08, places=4)  # 11 séances dont le jour de l'événement
         self.assertIsNone(implied_event_move(snap, date(2026, 12, 1), date(2026, 9, 30), 0.02))
+        # Cotations incohérentes (échéance après l'événement moins chère que les séances ordinaires).
+        bad = {"fetched": "2026-09-30", "straddles": [{"expiry": "2026-10-07", "move": 0.05},
+                                                       {"expiry": "2026-10-15", "move": 0.05}]}
+        self.assertIsNone(implied_event_move(bad, date(2026, 10, 12), date(2026, 9, 30), None)["event_move"])
 
     def test_download_writes_snapshot_and_history(self):
         with tempfile.TemporaryDirectory() as tmp:

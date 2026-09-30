@@ -186,8 +186,10 @@ def implied_event_move(snap: dict, event_day: date, as_of: date, hist_daily_vol:
         daily = hist_daily_vol
     total_var = (after["move"] / k) ** 2
     event_var = total_var - (n - 1) * (daily or 0) ** 2
+    # Variance de l'événement nulle ou négative : cotations incohérentes entre échéances (souvent des
+    # derniers cours périmés hors séance) -> non exploitable plutôt qu'un « 0 % » trompeur.
     return {"expiry": after["expiry"], "total_move": after["move"], "days": n,
-            "event_move": k * event_var ** 0.5 if event_var > 0 else 0.0,
+            "event_move": k * event_var ** 0.5 if event_var > 0 else None,
             "daily_source": "implicite" if before else "historique", "fetched": snap.get("fetched")}
 
 

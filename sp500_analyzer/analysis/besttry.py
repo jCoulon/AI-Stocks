@@ -254,8 +254,10 @@ def add_implied(row: BestTryRow, snap: Optional[dict], bars: list[Bar], as_of: d
     closes = [b.close for b in bars if b.day <= as_of][-61:]
     rets = [closes[i] / closes[i - 1] - 1 for i in range(1, len(closes))]
     im = implied_event_move(snap, row.event.day, max(as_of, fetched), stdev(rets) if len(rets) > 20 else None)
-    if im:
+    if im and im["event_move"] is not None:
         row.implied_move, row.implied_expiry = im["event_move"], im["expiry"]
+    elif im:
+        row.flags.append("options non exploitables (cotations incohérentes)")
 
 
 def screen(provider, root, horizon: int = 60, labels: Optional[dict] = None, only: Optional[set] = None

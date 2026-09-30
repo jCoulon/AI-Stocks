@@ -221,6 +221,27 @@ rapportée à la valorisation (VE/CA), et signale les pièges : profil « loteri
 sous-performe en moyenne), trésorerie courte (dilution), consensus maigre. Les fondamentaux
 (Yahoo Finance) sont une photographie du jour : l'écran est descriptif, non backtesté.
 
+### Journal des prévisions et mouvement anticipé par les options
+
+```bash
+python -m sp500_analyzer --journal --donnees data
+```
+
+Chaque collecte « Données de marché réelles » (chaque soir de semaine une fois sur `main`) :
+1. relève les **chaînes d'options** (API publique Nasdaq) : straddle à la monnaie de chaque échéance
+   des 75 prochains jours (`data/options/`). L'écran « Best try » en déduit le **mouvement de
+   l'événement anticipé par les options** (1re échéance après l'événement, moins la variance des
+   séances ordinaires) et le compare à la réaction habituelle du titre : « sous-évalué » si le titre
+   bouge d'habitude ≥ 1,25 × ce que les options anticipent, « surévalué » si ≤ 0,8 × ;
+2. **enregistre les prévisions** de l'outil dans `data/journal/calls.csv` : avis court / moyen terme,
+   statut de la grille d'entrée, support / invalidation / objectif, prochain catalyseur avec les
+   mouvements attendus (historique et options).
+
+Les prévisions sont **notées automatiquement** quand l'horizon est écoulé (IC à 5 et 21 séances,
+rendement des « zones d'entrée » vs les autres, erreur du mouvement attendu d'après l'historique et
+d'après les options). Rien n'est réglé sur le journal : c'est la mesure hors échantillon de l'outil
+tel qu'il est. Aussi dans l'application (entrée « Journal »).
+
 ### Ma liste de surveillance
 
 ```bash

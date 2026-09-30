@@ -151,6 +151,20 @@ class AppState:
         path = self.data_dir / "polymarket" / "report.json" if self.data_dir else None
         return render_html(json.loads(path.read_text(encoding="utf-8")) if path and path.exists() else None)
 
+    def journal_html(self) -> str:
+        """Journal des prévisions et leurs notes (données réelles)."""
+        from ..analysis.journal import read, render_html, score
+        from ..providers.csv_prices import CsvPriceProvider
+
+        if not self.data_dir:
+            return render_html(score([], {}))
+        try:
+            prices = CsvPriceProvider(self.data_dir / "daily", universe="tout")
+            closes = {s.ticker: [(b.day, b.close) for b in prices.price_history(s.ticker)] for s in prices.universe()}
+        except (OSError, ValueError):
+            closes = {}
+        return render_html(score(read(self.data_dir), closes))
+
     def watchlist_html(self) -> str:
         """Liste de surveillance de l'utilisateur, avec les conditions d'entrée de chaque titre."""
         from ..analysis.watchlist import assess, load_watchlist, render_html
@@ -206,6 +220,7 @@ class AppState:
             "asymmetry": real and self.universe != "sp500"
                          and any((self.data_dir / "fundamentals").glob("*.json")),
             "besttry": real,
+            "journal": bool(real and (self.data_dir / "journal" / "calls.csv").exists()),
             "polymarket": bool(self.data_dir and (self.data_dir / "polymarket" / "report.json").exists()),
             "seed": self.seed,
             "llm": self.use_llm,
@@ -289,6 +304,8 @@ def make_handler(state: AppState, token: str, port_ref: list[int]):
                     return self._send(200, state.asymmetry_html(), "text/html; charset=utf-8")
                 if path == "/api/watchlist":
                     return self._send(200, state.watchlist_html(), "text/html; charset=utf-8")
+                if path == "/api/journal":
+                    return self._send(200, state.journal_html(), "text/html; charset=utf-8")
                 if path == "/api/polymarket":
                     return self._send(200, state.polymarket_html(), "text/html; charset=utf-8")
                 if path == "/api/besttry":

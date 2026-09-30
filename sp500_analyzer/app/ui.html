@@ -175,6 +175,11 @@ function renderList() {
       <span class="tk">Best try</span><span class="wk"></span>
       <span class="nm">Catalyseurs à venir · mouvements rapides ↑↓</span><span class="ct"></span></div>`);
   }
+  if (summary.journal) {
+    rows.push(`<div class="item asym ${current === "__journal__" ? "active" : ""}" data-t="__journal__" role="option">
+      <span class="tk">Journal</span><span class="wk"></span>
+      <span class="nm">Prévisions notées après coup</span><span class="ct"></span></div>`);
+  }
   if (summary.polymarket) {
     rows.push(`<div class="item asym ${current === "__poly__" ? "active" : ""}" data-t="__poly__" role="option">
       <span class="tk">Polymarket</span><span class="wk"></span>
@@ -197,7 +202,7 @@ async function show(ticker) {
   const content = $("content");
   content.classList.add("loading");
   try {
-    const path = ticker === "__market__" ? "/api/market" : ticker === "__asym__" ? "/api/asymmetry" : ticker === "__best__" ? "/api/besttry" : ticker === "__poly__" ? "/api/polymarket" : ticker === "__watch__" ? "/api/watchlist"
+    const path = ticker === "__market__" ? "/api/market" : ticker === "__asym__" ? "/api/asymmetry" : ticker === "__best__" ? "/api/besttry" : ticker === "__poly__" ? "/api/polymarket" : ticker === "__watch__" ? "/api/watchlist" : ticker === "__journal__" ? "/api/journal"
       : `/api/stock/${encodeURIComponent(ticker)}`;
     const html = await (await api(path)).text();
     const head = ticker === "__market__"
@@ -205,7 +210,7 @@ async function show(ticker) {
     content.innerHTML = `<main>${head}${html}</main>`;
     content.scrollTop = 0;
     initCharts(content);
-    if (!["__asym__", "__best__", "__poly__", "__watch__"].includes(ticker)) mountAdvice(ticker);
+    if (!["__asym__", "__best__", "__poly__", "__watch__", "__journal__"].includes(ticker)) mountAdvice(ticker);
   } catch (e) {
     content.innerHTML = `<main><p class="empty">Erreur : ${esc(e.message)}</p></main>`;
   } finally {
@@ -226,7 +231,8 @@ function applySummary(s) {
   $("banner").textContent = s.source === "reel"
     ? `${s.disclaimer} Sources (${s.data_dir}) : ${s.coverage}.`
     : s.disclaimer;
-  const special = ["__market__", "__watch__", "__asym__", "__best__", "__poly__"];
+  const special = ["__market__", "__watch__", "__asym__", "__best__", "__poly__", "__journal__"];
+  if (current === "__journal__" && !s.journal) current = "__market__";
   if (current === "__poly__" && !s.polymarket) current = "__market__";
   if (current === "__asym__" && !s.asymmetry) current = "__market__";
   if (current === "__best__" && !s.besttry) current = "__market__";
@@ -455,7 +461,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); $("search").focus(); return; }
   if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !["INPUT", "SELECT"].includes(document.activeElement.tagName)) {
     e.preventDefault();
-    const ids = ["__market__", "__watch__", ...(summary.asymmetry ? ["__asym__"] : []), ...(summary.besttry ? ["__best__"] : []), ...(summary.polymarket ? ["__poly__"] : []), ...sortedTickers().map(t => t.ticker)];
+    const ids = ["__market__", "__watch__", ...(summary.asymmetry ? ["__asym__"] : []), ...(summary.besttry ? ["__best__"] : []), ...(summary.journal ? ["__journal__"] : []), ...(summary.polymarket ? ["__poly__"] : []), ...sortedTickers().map(t => t.ticker)];
     const i = ids.indexOf(current);
     const next = ids[Math.max(0, Math.min(ids.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
     if (next !== current) {

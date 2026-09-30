@@ -53,6 +53,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--surveillance", nargs="?", const="", metavar="TITRES",
                    help="Liste de surveillance : conditions d'entrée des titres suivis ; « --surveillance FIGR,AIP » "
                         "remplace la liste enregistrée (~/.sp500_analyzer/watchlist.json)")
+    p.add_argument("--journal", action="store_true",
+                   help="Journal des prévisions : notes des avis, de la grille d'entrée et des mouvements attendus "
+                        "(historique vs options) une fois l'horizon écoulé ; nécessite --donnees")
     p.add_argument("--polymarket", action="store_true",
                    help="Écran Polymarket (meilleurs portefeuilles, marchés sous-évalués, suivi) depuis data/polymarket")
     p.add_argument("--horizon", type=int, default=60, help="Horizon de l'écran « Best try », en jours (défaut 60)")
@@ -127,6 +130,21 @@ def _watchlist(provider, args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+
+    if args.journal:
+        from pathlib import Path
+
+        from .analysis.journal import read, render_text as render_journal, score
+        from .providers.csv_prices import CsvPriceProvider
+
+        root = Path(args.donnees or "data")
+        try:
+            prices = CsvPriceProvider(root / "daily", universe="tout")
+            closes = {s.ticker: [(b.day, b.close) for b in prices.price_history(s.ticker)] for s in prices.universe()}
+        except (OSError, ValueError):
+            closes = {}
+        print(render_journal(score(read(root), closes)))
+        return 0
 
     if args.polymarket:
         import json

@@ -22,6 +22,12 @@ on:
       - "sp500_analyzer/providers/yahoo.py"
       - "sp500_analyzer/providers/fundamentals.py"
       - "sp500_analyzer/providers/events.py"
+      - "sp500_analyzer/providers/options.py"
+      - "scripts/journal_record.py"
+  # Chaque soir de semaine après la clôture de New York (planification active seulement sur la
+  # branche par défaut) : cours, options, puis enregistrement des prévisions dans le journal.
+  schedule:
+    - cron: "15 22 * * 1-5"
 
 permissions:
   contents: write
@@ -29,7 +35,7 @@ permissions:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
 
@@ -43,7 +49,13 @@ jobs:
           python scripts/fetch_market_data.py --start "${{ github.event.inputs.start || '2026-09-01' }}" \
             ${END:+--end "$END"} --out data --extra "${{ github.event.inputs.extra || 'IREN' }}"
 
+      - name: Journal des prévisions
+        continue-on-error: true
+        timeout-minutes: 10
+        run: python -u scripts/journal_record.py --out data
+
       - name: Enregistrement dans la branche
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

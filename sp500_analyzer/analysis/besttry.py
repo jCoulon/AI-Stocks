@@ -47,6 +47,20 @@ class BestTryRow:
     medium_label: str = ""
     links: str = ""
     flags: list[str] = field(default_factory=list)
+    implied_move: Optional[float] = None   # mouvement de l'événement anticipé par les options
+    implied_expiry: str = ""
+
+    @property
+    def pricing(self) -> str:
+        """Historique du titre vs options : « sous-évalué » quand le titre bouge d'habitude nettement
+        plus que ce que les options anticipent, « surévalué » dans le cas inverse."""
+        if self.implied_move is None or self.expected_move is None or self.estimated_move:
+            return ""
+        if self.implied_move <= 0 or self.expected_move >= 1.25 * self.implied_move:
+            return "sous-évalué"
+        if self.expected_move <= 0.8 * self.implied_move:
+            return "surévalué"
+        return "cohérent"
 
     @property
     def multiple(self) -> Optional[float]:
@@ -137,14 +151,15 @@ def _event_text(r: BestTryRow) -> str:
 def render_besttry(rows: list[BestTryRow], as_of: date, horizon: int, market: list[Event]) -> str:
     out = [f"BEST TRY — CATALYSEURS DES {horizon} PROCHAINS JOURS (au {as_of:%d/%m/%Y})",
            "Potentiel de mouvement rapide, à la hausse COMME à la baisse. Descriptif : ce n'est pas un conseil.", "",
-           f"  {'Titre':6} {'Événement':46} {'J-':>4} {'Mvt att.':>8} {'Normal':>7} {'Mult.':>5} "
-           f"{'Réactions passées':30} {'Avis CT / MT':30} Remarques"]
+           f"  {'Titre':6} {'Événement':46} {'J-':>4} {'Mvt att.':>8} {'Options':>7} {'Lecture':12} {'Normal':>7} "
+           f"{'Mult.':>5} {'Réactions passées':30} {'Avis CT / MT':30} Remarques"]
     for r in rows:
         mult = "—" if r.multiple is None else f"{r.multiple:.1f}x"
         past = " ".join(f"{m:+.0%}" for m in r.past_moves[-5:]) or "—"
         exp = _pct(r.expected_move) + ("*" if r.estimated_move else "")
         notes = "; ".join(x for x in [r.bias, r.links, *r.flags] if x)
-        out.append(f"  {r.ticker:6} {_event_text(r)[:46]:46} {r.days:>4} {exp:>8} {_pct(r.normal_move):>7} {mult:>5} "
+        out.append(f"  {r.ticker:6} {_event_text(r)[:46]:46} {r.days:>4} {exp:>8} {_pct(r.implied_move):>7} "
+                   f"{r.pricing:12} {_pct(r.normal_move):>7} {mult:>5} "
                    f"{past[:30]:30} {(r.short_label + ' / ' + r.medium_label)[:30]:30} {notes}")
     if not rows:
         out.append("  (aucun catalyseur daté dans l'horizon — lancez le workflow « Données de marché réelles »)")
@@ -156,6 +171,10 @@ def render_besttry(rows: list[BestTryRow], as_of: date, horizon: int, market: li
             "  Mvt att. : variation absolue attendue sur 2 séances autour de l'événement (médiane des réactions",
             "  passées du titre ; * = estimation faute d'historique). Normal : médiane sur 2 séances ordinaires.",
             "  Mult. : Mvt att. / Normal. Réactions passées : variations signées aux dernières publications.",
+            "  Options : mouvement de l'événement seul anticipé par les options (straddle à la monnaie de la 1re",
+            "  échéance après l'événement, moins la variance des séances ordinaires). Lecture : « sous-évalué »",
+            "  si le titre bouge d'habitude ≥ 1,25 × ce que les options anticipent, « surévalué » si ≤ 0,8 ×",
+            "  (sur 4 réactions passées seulement : indice fragile, suivi dans le journal des prévisions).",
             "  ⚠ Le sens de la réaction aux résultats dépend de l'écart aux attentes, inconnu à l'avance.",
             "  ⚠ Fin de lock-up : baisse moyenne d'environ 1 à 3 % autour de l'échéance (Field & Hanka, 2001).",
             "  ⚠ Un mouvement attendu élevé est un risque autant qu'une opportunité ; écran non validé par backtest."]
@@ -181,14 +200,18 @@ def html_besttry(rows: list[BestTryRow], as_of: date, horizon: int, market: list
             f'<tr><td><a href="#{escape(r.ticker)}" data-ticker="{escape(r.ticker)}"><strong>{escape(r.ticker)}</strong></a>'
             f'<div class="muted small">{escape(r.theme)}</div></td>'
             f'<td>{escape(_event_text(r))}{extra}</td><td class="num"><span{soon}>J-{r.days}</span></td>'
-            f'<td class="num"><strong>±{exp}</strong></td><td class="num">±{_pct(r.normal_move)}</td>'
+            f'<td class="num"><strong>±{exp}</strong></td>'
+            f'<td class="num">{"—" if r.implied_move is None else "±" + _pct(r.implied_move)}'
+            + (f'<div class="small"><span class="badge {"pos" if r.pricing == "sous-évalué" else "neg" if r.pricing == "surévalué" else "neu"}">{r.pricing}</span></div>' if r.pricing else "")
+            + f'</td><td class="num">±{_pct(r.normal_move)}</td>'
             f'<td class="num">{mult}</td><td class="num small">{past}</td>'
             f'<td class="small">{escape(r.short_label)} / {escape(r.medium_label)}</td><td class="small">{notes}</td></tr>')
     if not body:
-        body.append('<tr><td colspan="9" class="muted">Aucun catalyseur daté dans l\'horizon (calendrier des résultats '
+        body.append('<tr><td colspan="10" class="muted">Aucun catalyseur daté dans l\'horizon (calendrier des résultats '
                     'absent ? lancez le workflow « Données de marché réelles »).</td></tr>')
     head = ("<tr><th>Titre</th><th>Catalyseur</th><th class='num'>Dans</th>"
             "<th class='num' title='Variation absolue attendue sur 2 séances autour de l&#39;événement'>Mvt attendu</th>"
+            "<th class='num' title='Mouvement de l&#39;événement anticipé par les options (straddle à la monnaie)'>Options</th>"
             "<th class='num' title='Variation absolue médiane sur 2 séances ordinaires'>Normal</th>"
             "<th class='num' title='Mouvement attendu / normal'>Mult.</th>"
             "<th class='num'>Réactions passées</th><th>Avis CT / MT</th><th>Remarques</th></tr>")
@@ -218,6 +241,23 @@ d'investissement.</p>
 </section>"""
 
 
+def add_implied(row: BestTryRow, snap: Optional[dict], bars: list[Bar], as_of: date) -> None:
+    """Mouvement anticipé par les options, si le relevé est contemporain de la date d'analyse."""
+    from ..providers.options import implied_event_move
+    from .indicators import stdev
+
+    if not snap or row.event.kind not in ("resultats", "lockup", "lie"):
+        return
+    fetched = date.fromisoformat(snap["fetched"])
+    if not -1 <= (fetched - as_of).days <= 4:  # relevé d'une autre période : non comparable
+        return
+    closes = [b.close for b in bars if b.day <= as_of][-61:]
+    rets = [closes[i] / closes[i - 1] - 1 for i in range(1, len(closes))]
+    im = implied_event_move(snap, row.event.day, max(as_of, fetched), stdev(rets) if len(rets) > 20 else None)
+    if im:
+        row.implied_move, row.implied_expiry = im["event_move"], im["expiry"]
+
+
 def screen(provider, root, horizon: int = 60, labels: Optional[dict] = None, only: Optional[set] = None
            ) -> tuple[list[BestTryRow], list[Event], str]:
     """Écran complet pour un fournisseur de données réelles (CsvPriceProvider / RealDataProvider)."""
@@ -225,6 +265,7 @@ def screen(provider, root, horizon: int = 60, labels: Optional[dict] = None, onl
 
     from ..providers.events import load_events, market_events, ticker_events
     from ..providers.fundamentals import load_fundamentals
+    from ..providers.options import load_options
     from ..universe import AI_THEME, LINKS
 
     root = Path(root)
@@ -248,6 +289,7 @@ def screen(provider, root, horizon: int = 60, labels: Optional[dict] = None, onl
                               [date.fromisoformat(d) for d in data.get("past_earnings", [])],
                               load_fundamentals(root, sec.ticker), links):
             row.short_label, row.medium_label = (labels or {}).get(sec.ticker, ("", ""))
+            add_implied(row, load_options(root, sec.ticker), bars, as_of)
             rows.append(row)
     return rank(rows), market_events(root, as_of, horizon), max(fetched) if fetched else ""
 

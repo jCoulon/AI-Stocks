@@ -1,11 +1,11 @@
 {
- "generated": "2026-09-30T10:33:05.056213+00:00",
+ "generated": "2026-10-01T11:00:59.510800+00:00",
  "markets": 250,
  "orders": 487024,
- "wallets": 51696,
+ "wallets": 53197,
  "period": [
-  "2026-07-02",
-  "2026-09-30"
+  "2026-07-03",
+  "2026-10-01"
  ],
  "top": [
   {
@@ -69,6 +69,18 @@
    "win_rate": 0.8888888888888888
   },
   {
+   "wallet": "0x2217d02641bbd7645035cdffab94f0c5baa61660",
+   "name": "Gleaming-Fraud",
+   "markets": 24,
+   "orders": 102,
+   "stake": 17319.347275011427,
+   "pnl": 7990.8927249885755,
+   "roi": 0.46138532810170835,
+   "mean_roi": 0.5304245714063952,
+   "z": 2.3500323003906485,
+   "win_rate": 0.7916666666666666
+  },
+  {
    "wallet": "0x0df107e1fe21d19682cecd0df67052fc126bd129",
    "name": "Judicious-Polarization",
    "markets": 11,
@@ -79,18 +91,6 @@
    "mean_roi": 0.5784646727303356,
    "z": 2.1739058591771827,
    "win_rate": 0.8181818181818182
-  },
-  {
-   "wallet": "0x7a962f7e3a540ae27d80e1a42108f0ca1ca7b71d",
-   "name": "Fluffy-Dolor",
-   "markets": 9,
-   "orders": 9,
-   "stake": 237.84999600202812,
-   "pnl": 280.9418269979719,
-   "roi": 1.181172300694831,
-   "mean_roi": 1.155426833102452,
-   "z": 2.1703345878294535,
-   "win_rate": 0.6666666666666666
   },
   {
    "wallet": "0x75dcffd938a4cf3535aae2f798ed110feb906a1d",
@@ -119,14 +119,14 @@
   {
    "wallet": "0x9a1d53e36d420bd9bd889b53fded021a157c8986",
    "name": "Downright-Stot",
-   "markets": 53,
-   "orders": 231,
-   "stake": 4545.047022055498,
-   "pnl": 3835.0370359445014,
-   "roi": 0.8437837974688556,
-   "mean_roi": -0.1120206863534646,
-   "z": 2.0734223200738087,
-   "win_rate": 0.4339622641509434
+   "markets": 51,
+   "orders": 228,
+   "stake": 4537.0170300554,
+   "pnl": 3841.6691859445996,
+   "roi": 0.8467389830136234,
+   "mean_roi": -0.0982816714419419,
+   "z": 2.077099070549211,
+   "win_rate": 0.43137254901960786
   },
   {
    "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
@@ -177,18 +177,6 @@
    "win_rate": 1.0
   },
   {
-   "wallet": "0x4edd3aba2dfe51fdfd878648a09104581044ddf1",
-   "name": "Fumbling-Status",
-   "markets": 9,
-   "orders": 20,
-   "stake": 2866.402290008324,
-   "pnl": 2024.337709991676,
-   "roi": 0.7062294490372449,
-   "mean_roi": 0.0019754135795425347,
-   "z": 1.8972128638470727,
-   "win_rate": 0.5555555555555556
-  },
-  {
    "wallet": "0x515d285a7d5065d0406db39f8626313502c80340",
    "name": "Dull-Catastrophe",
    "markets": 9,
@@ -199,6 +187,18 @@
    "mean_roi": 0.5351986312927245,
    "z": 1.887818898164247,
    "win_rate": 0.8888888888888888
+  },
+  {
+   "wallet": "0x4edd3aba2dfe51fdfd878648a09104581044ddf1",
+   "name": "Fumbling-Status",
+   "markets": 8,
+   "orders": 17,
+   "stake": 2528.76489000132,
+   "pnl": 1870.9751099986802,
+   "roi": 0.7398770512025353,
+   "mean_roi": -0.05455550778939246,
+   "z": 1.8125518682241348,
+   "win_rate": 0.5
   },
   {
    "wallet": "0xdc9602fcdf3de938e3b0d4f9186c9619bdd12791",
@@ -213,30 +213,6 @@
    "win_rate": 0.7777777777777778
   },
   {
-   "wallet": "0x19a104df5196d8142844792afb95523057d12fa0",
-   "name": "Wrong-Bloomer-Cucumber",
-   "markets": 13,
-   "orders": 13,
-   "stake": 130.0054780008472,
-   "pnl": 60.011399999152815,
-   "roi": 0.46160670244035207,
-   "mean_roi": 0.6055583670856916,
-   "z": 1.790658720492482,
-   "win_rate": 0.8461538461538461
-  },
-  {
-   "wallet": "0x2217d02641bbd7645035cdffab94f0c5baa61660",
-   "name": "Gleaming-Fraud",
-   "markets": 28,
-   "orders": 118,
-   "stake": 19054.431775011424,
-   "pnl": 6485.508224988575,
-   "roi": 0.34036744320520085,
-   "mean_roi": 0.36466417982957466,
-   "z": 1.7889719339420644,
-   "win_rate": 0.7142857142857143
-  },
-  {
    "wallet": "0x8d114f32faa0c5fb423e4d5d590f72deaad3a8e1",
    "name": "Winged-Inheritance",
    "markets": 8,
@@ -247,103 +223,127 @@
    "mean_roi": 0.8193507358257853,
    "z": 1.7745511133580707,
    "win_rate": 0.625
+  },
+  {
+   "wallet": "0x888456d503d5929ec87709b689f95237bfd23457",
+   "name": "Triangular-Hyena",
+   "markets": 8,
+   "orders": 15,
+   "stake": 1740.6388,
+   "pnl": 952.6212,
+   "roi": 0.547282526392035,
+   "mean_roi": 0.6363275685708352,
+   "z": 1.7664759819187525,
+   "win_rate": 1.0
+  },
+  {
+   "wallet": "0x3c5295869f916f626bec1116a381886552a799e1",
+   "name": "Harsh-Ore-Grandpa",
+   "markets": 36,
+   "orders": 68,
+   "stake": 146.99990199863868,
+   "pnl": 47.3087700013613,
+   "roi": 0.32182858191156766,
+   "mean_roi": 0.17123200824964047,
+   "z": 1.7473542592043354,
+   "win_rate": 0.6944444444444444
   }
  ],
  "persistence": {
   "ok": true,
-  "cut": "2026-08-28",
+  "cut": "2026-08-29",
   "ranked_on": 166,
   "tested_on": 84,
-  "top_active_later": 13,
-  "top_roi": 0.17912572055465292,
-  "others_roi": 0.0032810974961137215,
-  "top_mean_roi": 0.003022196434688478,
-  "others_mean_roi": -0.04526883886746509,
-  "diff_t": 0.22945440461483166
+  "top_active_later": 12,
+  "top_roi": 0.20514439380351562,
+  "others_roi": -0.0008860332025979535,
+  "top_mean_roi": 0.2448346497607342,
+  "others_mean_roi": -0.04920876376280802,
+  "diff_t": 1.6200694174436556
  },
  "calibration": [
   {
    "bucket": "0%–10%",
-   "orders": 51690,
-   "stake": 1060012.3009980358,
-   "price": 0.039155000654045556,
-   "win_freq": 0.007208234951190422,
-   "edge": -0.03194676570285514,
-   "roi": -0.8159051249959395
+   "orders": 53475,
+   "stake": 1097015.1993904032,
+   "price": 0.037771045632536145,
+   "win_freq": 0.005394231414289474,
+   "edge": -0.032376814218246674,
+   "roi": -0.8571860713953109
   },
   {
    "bucket": "10%–25%",
-   "orders": 47568,
-   "stake": 3967657.3662194926,
-   "price": 0.16800226779257532,
-   "win_freq": 0.10876131379254925,
-   "edge": -0.059240954000026075,
-   "roi": -0.3526199662564564
+   "orders": 46881,
+   "stake": 3947721.1964473245,
+   "price": 0.16750504288773593,
+   "win_freq": 0.10605565514112253,
+   "edge": -0.061449387746613404,
+   "roi": -0.36685097169162595
   },
   {
    "bucket": "25%–40%",
-   "orders": 55521,
-   "stake": 10762434.906699985,
-   "price": 0.33344652995299,
-   "win_freq": 0.2765062312697079,
-   "edge": -0.0569402986832821,
-   "roi": -0.1707629066984433
+   "orders": 54487,
+   "stake": 10653114.572982723,
+   "price": 0.3335710683948126,
+   "win_freq": 0.2727828061955667,
+   "edge": -0.06078826219924588,
+   "roi": -0.1822348157823367
   },
   {
    "bucket": "40%–60%",
-   "orders": 94081,
-   "stake": 38515288.93875587,
-   "price": 0.4953015405030133,
-   "win_freq": 0.5150829081751818,
-   "edge": 0.01978136767216848,
-   "roi": 0.03993802977491079
+   "orders": 92567,
+   "stake": 38282528.249320954,
+   "price": 0.4952860719013158,
+   "win_freq": 0.5148588111299182,
+   "edge": 0.019572739228602365,
+   "roi": 0.0395180489398097
   },
   {
    "bucket": "60%–75%",
-   "orders": 61234,
-   "stake": 26714482.52117892,
-   "price": 0.6574392856402835,
-   "win_freq": 0.7301989126512759,
-   "edge": 0.07275962701099237,
-   "roi": 0.1106712491939561
+   "orders": 59683,
+   "stake": 26417363.46563132,
+   "price": 0.6571907090533562,
+   "win_freq": 0.7318936090360885,
+   "edge": 0.07470289998273227,
+   "roi": 0.11367004882089304
   },
   {
    "bucket": "75%–90%",
-   "orders": 56120,
-   "stake": 23557056.05356772,
-   "price": 0.823976739814854,
-   "win_freq": 0.8990821050123743,
-   "edge": 0.07510536519752031,
-   "roi": 0.09114986087398091
+   "orders": 55728,
+   "stake": 23468215.062257193,
+   "price": 0.8243458052999568,
+   "win_freq": 0.9010242827204733,
+   "edge": 0.07667847742051648,
+   "roi": 0.09301736835139862
   },
   {
    "bucket": "90%–100%",
-   "orders": 52261,
-   "stake": 28164839.868895974,
-   "price": 0.9575765442481675,
-   "win_freq": 0.984880997421536,
-   "edge": 0.027304453173368493,
-   "roi": 0.028514120711683022
+   "orders": 55162,
+   "stake": 30266829.640058078,
+   "price": 0.9590755113082277,
+   "win_freq": 0.9887784219336987,
+   "edge": 0.029702910625471035,
+   "roi": 0.030970356635375618
   }
  ],
  "categories": [
   {
    "category": "Sports",
-   "stake": 119651861.41790086,
-   "roi": 0.028310126893648552,
-   "markets": 201
-  },
-  {
-   "category": "Autre",
-   "stake": 7321470.637347603,
-   "roi": -0.005363462642110844,
-   "markets": 26
+   "stake": 118407097.18658265,
+   "roi": 0.0278644284328504,
+   "markets": 197
   },
   {
    "category": "Géopolitique",
-   "stake": 4428750.405531917,
-   "roi": 0.0006906350837063015,
-   "markets": 13
+   "stake": 7249105.054805793,
+   "roi": 0.002335658030914113,
+   "markets": 18
+  },
+  {
+   "category": "Autre",
+   "stake": 7136895.649163035,
+   "roi": -0.000325975855401506,
+   "markets": 25
   },
   {
    "category": "Politique",
@@ -353,263 +353,557 @@
   }
  ],
  "calibration_split": {
-  "cut": "2026-08-28",
+  "cut": "2026-08-29",
   "a": [
    {
     "bucket": "0%–10%",
-    "orders": 38655,
-    "stake": 761468.1090213581,
-    "price": 0.038378766692673275,
-    "win_freq": 0.008645628519214986,
-    "edge": -0.02973313817345829,
-    "roi": -0.7747288601416813
+    "orders": 37662,
+    "stake": 753943.2452290474,
+    "price": 0.038499898379879986,
+    "win_freq": 0.006794824792858112,
+    "edge": -0.031705073587021876,
+    "roi": -0.8235105785004077
    },
    {
     "bucket": "10%–25%",
-    "orders": 36054,
-    "stake": 2432302.1878150585,
-    "price": 0.16430590655281713,
-    "win_freq": 0.07099041217964776,
-    "edge": -0.09331549437316937,
-    "roi": -0.5679375521608077
+    "orders": 36000,
+    "stake": 2439692.7127921134,
+    "price": 0.163403161422792,
+    "win_freq": 0.06803539354778244,
+    "edge": -0.09536776787500954,
+    "roi": -0.5836347782051379
    },
    {
     "bucket": "25%–40%",
-    "orders": 37212,
-    "stake": 6926668.6459004665,
-    "price": 0.331726218303267,
-    "win_freq": 0.2936940364442202,
-    "edge": -0.038032181859046776,
-    "roi": -0.1146493094624117
+    "orders": 37793,
+    "stake": 7027961.721609916,
+    "price": 0.33188366450207557,
+    "win_freq": 0.28739816519804673,
+    "edge": -0.04448549930402884,
+    "roi": -0.1340394362909374
    },
    {
     "bucket": "40%–60%",
-    "orders": 48556,
-    "stake": 15429587.458523886,
-    "price": 0.4926137318530002,
-    "win_freq": 0.566646317440188,
-    "edge": 0.07403258558718778,
-    "roi": 0.1502852657166278
+    "orders": 49368,
+    "stake": 16623115.71155963,
+    "price": 0.49277215875990377,
+    "win_freq": 0.5944353862681304,
+    "edge": 0.10166322750822665,
+    "roi": 0.2063087893684361
    },
    {
     "bucket": "60%–75%",
-    "orders": 40213,
-    "stake": 16682909.064466907,
-    "price": 0.6619311342606117,
-    "win_freq": 0.7335928667821066,
-    "edge": 0.07166173252149488,
-    "roi": 0.1082616133497667
+    "orders": 40271,
+    "stake": 16894200.59007717,
+    "price": 0.6619145611608211,
+    "win_freq": 0.7360790189959494,
+    "edge": 0.07416445783512826,
+    "roi": 0.112045363838293
    },
    {
     "bucket": "75%–90%",
-    "orders": 40335,
-    "stake": 14335139.592067784,
-    "price": 0.8277540930050192,
-    "win_freq": 0.910560660318657,
-    "edge": 0.08280656731363778,
-    "roi": 0.10003764162980189
+    "orders": 40426,
+    "stake": 14440788.771365449,
+    "price": 0.8280003932986197,
+    "win_freq": 0.9128821606673315,
+    "edge": 0.08488176736871178,
+    "roi": 0.10251416310390438
    },
    {
     "bucket": "90%–100%",
-    "orders": 38048,
-    "stake": 19173049.584011476,
-    "price": 0.9583123735219663,
-    "win_freq": 0.9829119450172726,
-    "edge": 0.024599571495306338,
-    "roi": 0.025669679506379106
+    "orders": 37233,
+    "stake": 18928859.644971702,
+    "price": 0.9584435499191625,
+    "win_freq": 0.987274303137377,
+    "edge": 0.02883075321821449,
+    "roi": 0.03008080467612939
    }
   ],
   "b": [
    {
     "bucket": "0%–10%",
-    "orders": 13035,
-    "stake": 298544.1919766685,
-    "price": 0.041284780422539205,
-    "win_freq": 0.003264408871818196,
-    "edge": -0.03802037155072101,
-    "roi": -0.920929484463577
+    "orders": 15813,
+    "stake": 343071.9541613428,
+    "price": 0.036262390146281714,
+    "win_freq": 0.0024951370604836334,
+    "edge": -0.03376725308579808,
+    "roi": -0.9311921511401123
    },
    {
     "bucket": "10%–25%",
-    "orders": 11514,
-    "stake": 1535355.1784041622,
-    "price": 0.17421103779053113,
-    "win_freq": 0.17220501572574307,
-    "edge": -0.00200602206478806,
-    "roi": -0.011514896474011493
+    "orders": 10881,
+    "stake": 1508028.4836549545,
+    "price": 0.174595619929383,
+    "win_freq": 0.17177807941831896,
+    "edge": -0.0028175405110640317,
+    "roi": -0.016137521160059065
    },
    {
     "bucket": "25%–40%",
-    "orders": 18309,
-    "stake": 3835766.2607999262,
-    "price": 0.3365987176340017,
-    "win_freq": 0.24501240993606238,
-    "edge": -0.0915863076979393,
-    "roi": -0.2720934540146557
+    "orders": 16694,
+    "stake": 3625152.8513731663,
+    "price": 0.3368917451647908,
+    "win_freq": 0.2440209411001916,
+    "edge": -0.09287080406459922,
+    "roi": -0.27566957456666497
    },
    {
     "bucket": "40%–60%",
-    "orders": 45525,
-    "stake": 23085701.480226696,
-    "price": 0.49711438018321846,
-    "win_freq": 0.4803050625257436,
-    "edge": -0.016809317657474843,
-    "roi": -0.03381378275816416
+    "orders": 43199,
+    "stake": 21659412.537756138,
+    "price": 0.49723290950092264,
+    "win_freq": 0.4532327087876937,
+    "edge": -0.04400020071322891,
+    "roi": -0.08849012177692006
    },
    {
     "bucket": "60%–75%",
-    "orders": 21021,
-    "stake": 10031573.456709143,
-    "price": 0.6501026497845057,
-    "win_freq": 0.7246554921861197,
-    "edge": 0.07455284240161397,
-    "roi": 0.11467857026321382
+    "orders": 19412,
+    "stake": 9523162.87555151,
+    "price": 0.6489743702862021,
+    "win_freq": 0.7246137989729463,
+    "edge": 0.07563942868674423,
+    "roi": 0.11655225868686725
    },
    {
     "bucket": "75%–90%",
-    "orders": 15785,
-    "stake": 9221916.46149886,
-    "price": 0.8181729441502902,
-    "win_freq": 0.8814456314908513,
-    "edge": 0.06327268734056113,
-    "roi": 0.07733412329623368
+    "orders": 15302,
+    "stake": 9027426.290890694,
+    "price": 0.8185663259042012,
+    "win_freq": 0.882271864857235,
+    "edge": 0.06370553895303377,
+    "roi": 0.07782575087322785
    },
    {
     "bucket": "90%–100%",
-    "orders": 14213,
-    "stake": 8991790.284883834,
-    "price": 0.9560113147487669,
-    "win_freq": 0.9890694946974484,
-    "edge": 0.03305817994868154,
-    "roi": 0.03457927687536744
+    "orders": 17929,
+    "stake": 11337969.995085828,
+    "price": 0.9601324366122306,
+    "win_freq": 0.9912939889345546,
+    "edge": 0.031161552322323982,
+    "roi": 0.032455472947331865
    }
   ]
  },
- "qualified": 3281,
+ "qualified": 3252,
  "habits": {
   "top": {
    "hour": {
-    "00h": 0.0022339181217395265,
-    "01h": 0.06882366729317717,
-    "02h": 0.021437708377513295,
-    "03h": 0.004115383756350431,
-    "04h": 0.02004929181830933,
-    "05h": 0.0015492503071312862,
-    "06h": 0.010913722736554587,
-    "07h": 0.053183879938743586,
-    "08h": 0.10792779478343383,
-    "09h": 0.02929926570315475,
-    "10h": 0.15649091664998424,
-    "11h": 0.09325652237844329,
-    "12h": 0.03468143815579913,
-    "13h": 0.015625778775264474,
-    "14h": 0.05292595683309261,
-    "15h": 0.030885796263910897,
-    "16h": 0.10555097385150271,
-    "17h": 0.03528603645499695,
-    "18h": 0.023139307352577587,
-    "19h": 0.008942725285687217,
-    "20h": 0.03680298703893798,
-    "21h": 0.025871934400926333,
-    "22h": 0.06060745022637558,
-    "23h": 0.00039829349639317567
+    "00h": 0.005728265274457743,
+    "01h": 0.06636868189367909,
+    "02h": 0.024289683239941115,
+    "03h": 0.003822556529242971,
+    "04h": 2.9987686140878238e-05,
+    "05h": 0.0029048521665739034,
+    "06h": 0.010825162332955496,
+    "07h": 0.053556657990650895,
+    "08h": 0.10868428553086257,
+    "09h": 0.029504630998122262,
+    "10h": 0.15760029232451347,
+    "11h": 0.09364153911346063,
+    "12h": 0.03462415167971581,
+    "13h": 0.01573530345413497,
+    "14h": 0.05334690648202001,
+    "15h": 0.03146463298671895,
+    "16h": 0.10605015363288102,
+    "17h": 0.035608333531586336,
+    "18h": 0.024425584547052223,
+    "19h": 0.009328386717035193,
+    "20h": 0.04115125796201086,
+    "21h": 0.02539604649597666,
+    "22h": 0.06531164454540397,
+    "23h": 0.0006010028848630763
    },
    "weekday": {
-    "dim": 0.2049941516299473,
-    "jeu": 0.21097479184929682,
-    "lun": 0.1624871225282382,
-    "mar": 0.05955784268919149,
-    "mer": 0.026954990917051537,
-    "sam": 0.22560557804272222,
-    "ven": 0.1094255223435525
+    "dim": 0.221795126229147,
+    "jeu": 0.21389115982617607,
+    "lun": 0.16303827328438728,
+    "mar": 0.05964293355384502,
+    "mer": 0.02719790234824254,
+    "sam": 0.23063233708588665,
+    "ven": 0.08380226767231548
    },
    "price": {
-    "0%–10%": 0.013383014666536578,
-    "10%–25%": 0.04283312088040608,
-    "25%–40%": 0.054815544057183196,
-    "40%–60%": 0.3939034444640276,
-    "60%–75%": 0.23567850817933286,
-    "75%–90%": 0.1394911988769428,
-    "90%–100%": 0.11989516887557088
+    "0%–10%": 0.011833766495769614,
+    "10%–25%": 0.04311267655626293,
+    "25%–40%": 0.05447712431666048,
+    "40%–60%": 0.3843084180370648,
+    "60%–75%": 0.24471344450710475,
+    "75%–90%": 0.14100120334138072,
+    "90%–100%": 0.1205533667457567
    },
    "category": {
-    "Autre": 0.026335226703068468,
-    "Géopolitique": 1.3601539326045321e-05,
-    "Sports": 0.9736511717576054
+    "Autre": 0.022301081207989716,
+    "Géopolitique": 1.3696875644846116e-05,
+    "Sports": 0.9776852219163654
    },
    "horizon": {
-    "1 h – 1 j": 0.4848062812036556,
-    "1 – 7 j": 0.23058470003364565,
-    "7 – 30 j": 0.004392768340328379,
-    "< 1 h": 0.009525950767961937,
-    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.2706902996544085
+    "1 h – 1 j": 0.4958182860243156,
+    "1 – 7 j": 0.23465185147612297,
+    "7 – 30 j": 0.004486032485563849,
+    "< 1 h": 0.00866966958158541,
+    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.2563741604324121
    },
-   "median_stake": 12.25
+   "median_stake": 9.699999000002894
   },
   "all": {
    "hour": {
-    "00h": 0.022853820628827,
-    "01h": 0.029359468953396767,
-    "02h": 0.056172593162896946,
-    "03h": 0.02737828430588639,
-    "04h": 0.010540678442274829,
-    "05h": 0.0060683190276114496,
-    "06h": 0.02377474959741045,
-    "07h": 0.02264495409740745,
-    "08h": 0.027576541644825564,
-    "09h": 0.023053059373563455,
-    "10h": 0.02959129496507058,
-    "11h": 0.053228745164150555,
-    "12h": 0.030791331871811475,
-    "13h": 0.04721747495657371,
-    "14h": 0.0516920657637085,
-    "15h": 0.056511613513823195,
-    "16h": 0.07370493596500324,
-    "17h": 0.06721994113842338,
-    "18h": 0.07203653278931677,
-    "19h": 0.051145626989048454,
-    "20h": 0.08497195309886771,
-    "21h": 0.056453584536269356,
-    "22h": 0.038431790637045306,
-    "23h": 0.03758063937678749
+    "00h": 0.02192935541710021,
+    "01h": 0.025991882226765815,
+    "02h": 0.05608240853526406,
+    "03h": 0.027262349098391085,
+    "04h": 0.006712939442281914,
+    "05h": 0.006895618510530278,
+    "06h": 0.024659619356339924,
+    "07h": 0.02326213001267558,
+    "08h": 0.027806390105240865,
+    "09h": 0.02370797879902446,
+    "10h": 0.02981325770038654,
+    "11h": 0.053243126851761274,
+    "12h": 0.0313166019271541,
+    "13h": 0.047652372147560317,
+    "14h": 0.05315451219706247,
+    "15h": 0.057142929586048316,
+    "16h": 0.0741773961662239,
+    "17h": 0.06742541848923485,
+    "18h": 0.07187436658372087,
+    "19h": 0.05133227802745662,
+    "20h": 0.08460854234720822,
+    "21h": 0.056363986432627924,
+    "22h": 0.03867991502450805,
+    "23h": 0.03890462501543231
    },
    "weekday": {
-    "dim": 0.26197813947544435,
-    "jeu": 0.11698424964558989,
-    "lun": 0.10832366406384374,
-    "mar": 0.09183844026961632,
-    "mer": 0.1264551931657918,
-    "sam": 0.1591624391555144,
-    "ven": 0.13525787422419946
+    "dim": 0.2628933917897888,
+    "jeu": 0.1175369347620566,
+    "lun": 0.11016318912230676,
+    "mar": 0.09408008821828408,
+    "mer": 0.1283797646549461,
+    "sam": 0.15996186241457314,
+    "ven": 0.12698476903804448
    },
    "price": {
-    "0%–10%": 0.00798552170410137,
-    "10%–25%": 0.02989004371227777,
-    "25%–40%": 0.08107798131730376,
-    "40%–60%": 0.2901519873595696,
-    "60%–75%": 0.20125151357758272,
-    "75%–90%": 0.17746528245321386,
-    "90%–100%": 0.2121776698759509
+    "0%–10%": 0.008178576027297138,
+    "10%–25%": 0.029431440838429745,
+    "25%–40%": 0.07942215159011631,
+    "40%–60%": 0.28540768439507985,
+    "60%–75%": 0.19694933640342197,
+    "75%–90%": 0.17496255404509153,
+    "90%–100%": 0.2256482567005634
    },
    "category": {
-    "Autre": 0.055155739820578885,
-    "Crypto": 0.0012854147187816814,
-    "Géopolitique": 0.03336365290488896,
-    "Politique": 0.008807033768496295,
-    "Sports": 0.9013881587872542
+    "Autre": 0.05320768909854899,
+    "Crypto": 0.0012720844082563885,
+    "Géopolitique": 0.05404424373839062,
+    "Politique": 0.008715700992213736,
+    "Sports": 0.8827602817625902
    },
    "horizon": {
-    "1 h – 1 j": 0.365248146347811,
-    "1 – 7 j": 0.21314504500816814,
-    "7 – 30 j": 0.04446187624736947,
-    "< 1 h": 0.12724380351599562,
-    "> 30 j": 0.004794558729060897,
-    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.24510657015159487
+    "1 h – 1 j": 0.36217832605460365,
+    "1 – 7 j": 0.21513640514692173,
+    "7 – 30 j": 0.05004794947133167,
+    "< 1 h": 0.1259242298496095,
+    "> 30 j": 0.014804532093881037,
+    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.2319085573836524
    },
-   "median_stake": 12.312000000000001
+   "median_stake": 12.189999999500001
   }
  },
  "monitor": [
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852745,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.667,
+   "now": 0.727,
+   "sure": false,
+   "stake": 121.394,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852744,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.667,
+   "now": 0.727,
+   "sure": false,
+   "stake": 16.675,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852726,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.67,
+   "now": 0.727,
+   "sure": false,
+   "stake": 60.7623,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852540,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.67,
+   "now": 0.727,
+   "sure": false,
+   "stake": 52.93,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852526,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.6700000076,
+   "now": 0.727,
+   "sure": false,
+   "stake": 20.303031000303037,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790852169,
+   "question": "Will CA Boca Juniors vs. CA Unión end in a draw?",
+   "slug": "arg-boc-uni-2026-10-04-draw",
+   "outcome": "Yes",
+   "paid": 0.25,
+   "now": 0.255,
+   "sure": false,
+   "stake": 1.69,
+   "end": "2026-10-03T00:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790852166,
+   "question": "Will CA Boca Juniors vs. CA Unión end in a draw?",
+   "slug": "arg-boc-uni-2026-10-04-draw",
+   "outcome": "Yes",
+   "paid": 0.25,
+   "now": 0.255,
+   "sure": false,
+   "stake": 0.43,
+   "end": "2026-10-03T00:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790852166,
+   "question": "Will CA Boca Juniors vs. CA Unión end in a draw?",
+   "slug": "arg-boc-uni-2026-10-04-draw",
+   "outcome": "Yes",
+   "paid": 0.25,
+   "now": 0.255,
+   "sure": false,
+   "stake": 6.476666,
+   "end": "2026-10-03T00:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852144,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.616,
+   "now": 0.727,
+   "sure": false,
+   "stake": 68.45608,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852103,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.677,
+   "now": 0.727,
+   "sure": false,
+   "stake": 264.03000000000003,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852103,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.677,
+   "now": 0.727,
+   "sure": false,
+   "stake": 277.57,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852093,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.68,
+   "now": 0.727,
+   "sure": false,
+   "stake": 47.6,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852087,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.68,
+   "now": 0.727,
+   "sure": false,
+   "stake": 22.58875,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852082,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.68,
+   "now": 0.727,
+   "sure": false,
+   "stake": 3.4000000000000004,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790852081,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.68,
+   "now": 0.727,
+   "sure": false,
+   "stake": 20.655,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790851851,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.7550000007,
+   "now": 0.727,
+   "sure": false,
+   "stake": 23.019796001342854,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790851850,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.755,
+   "now": 0.727,
+   "sure": false,
+   "stake": 85.70005,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790851850,
+   "question": "China Open: Harriet Dart vs Yihan Qu",
+   "slug": "wta-dart-qu-2026-09-30",
+   "outcome": "Harriet Dart",
+   "paid": 0.76,
+   "now": 0.727,
+   "sure": false,
+   "stake": 3594.04,
+   "end": "2026-10-08T02:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790851809,
+   "question": "Japan Open Tennis Championships: Adolfo Vallejo vs Rafael Jodar",
+   "slug": "atp-vallejo-jodar-2026-09-30",
+   "outcome": "Adolfo Vallejo",
+   "paid": 0.5500000082,
+   "now": 0.77,
+   "sure": false,
+   "stake": 23.552223001142227,
+   "end": "2026-10-08T01:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790851796,
+   "question": "Japan Open Tennis Championships: Adolfo Vallejo vs Rafael Jodar",
+   "slug": "atp-vallejo-jodar-2026-09-30",
+   "outcome": "Adolfo Vallejo",
+   "paid": 0.5500001575,
+   "now": 0.77,
+   "sure": false,
+   "stake": 1.2222230000001224,
+   "end": "2026-10-08T01:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x515d285a7d5065d0406db39f8626313502c80340",
+   "name": "Dull-Catastrophe",
+   "ts": 1790851787,
+   "question": "Valorant: TYLOO vs Team Liquid - Map 2 Winner",
+   "slug": "val-tyloo-tl1-2026-10-01-game2",
+   "outcome": "TYLOO",
+   "paid": 0.69,
+   "now": 0.9995,
+   "sure": false,
+   "stake": 17.25,
+   "end": "2026-10-01T13:00:00+00:00",
+   "category": "Sports"
+  },
   {
    "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
    "name": "Some-Sculpture",
@@ -653,34 +947,6 @@
    "category": "Sports"
   },
   {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849550,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 207.95426,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849499,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 8.30501,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
    "wallet": "0x515d285a7d5065d0406db39f8626313502c80340",
    "name": "Dull-Catastrophe",
    "ts": 1790849463,
@@ -688,7 +954,7 @@
    "slug": "val-tyloo-tl1-2026-10-01-game2",
    "outcome": "Team Liquid",
    "paid": 0.65,
-   "now": 0.815,
+   "now": 0.0005,
    "sure": false,
    "stake": 307.45,
    "end": "2026-10-01T13:00:00+00:00",
@@ -702,80 +968,10 @@
    "slug": "val-tyloo-tl1-2026-10-01-game2",
    "outcome": "TYLOO",
    "paid": 0.3799584413,
-   "now": 0.185,
+   "now": 0.9995,
    "sure": false,
    "stake": 159.9999999860797,
    "end": "2026-10-01T13:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849435,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 4147.52,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849430,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 5633.05,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849426,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 1465.59,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849426,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 7138.5199999999995,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790849423,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Carlos Alcaraz",
-   "paid": 0.997,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 105.74182,
-   "end": "2026-10-07T01:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -814,7 +1010,7 @@
    "slug": "cs2-msc-lavked-2026-10-01-game2",
    "outcome": "Lavked",
    "paid": 0.675,
-   "now": 0.495,
+   "now": 0.505,
    "sure": false,
    "stake": 27.0,
    "end": "2026-10-01T12:00:00+00:00",
@@ -863,34 +1059,6 @@
    "category": "Sports"
   },
   {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790846147,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.1400000018,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 7.778139000004643,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790846147,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.1400000043,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 3.2395349995000005,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
    "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
    "name": "Some-Sculpture",
    "ts": 1790845608,
@@ -916,34 +1084,6 @@
    "sure": false,
    "stake": 0.65,
    "end": "2026-10-03T00:30:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845557,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.1400000017,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 8.13953499883721,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845556,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.1400000188,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 0.4476740001162148,
-   "end": "2026-10-07T01:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -975,62 +1115,6 @@
    "category": "Sports"
   },
   {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845541,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.14,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 1.7500000000000002,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845517,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.140000086,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 0.16278999999951,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845517,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.140000086,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 0.16278999999951,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845508,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.14,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 0.8139530000000001,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
    "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
    "name": "Some-Sculpture",
    "ts": 1790845482,
@@ -1045,20 +1129,6 @@
    "category": "Sports"
   },
   {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790845479,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.14,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 23.445800000000002,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
    "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
    "name": "Gigantic-Intelligence",
    "ts": 1790845209,
@@ -1066,7 +1136,7 @@
    "slug": "atp-shimizu-tomic-2026-09-30",
    "outcome": "Bernard Tomic",
    "paid": 0.42,
-   "now": 0.365,
+   "now": 0.345,
    "sure": false,
    "stake": 12.6,
    "end": "2026-10-08T03:00:00+00:00",
@@ -1080,7 +1150,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Kristiana Sidorova",
    "paid": 0.72,
-   "now": 0.27,
+   "now": 0.0005,
    "sure": false,
    "stake": 0.0072,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1094,7 +1164,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Kristiana Sidorova",
    "paid": 0.7199999983,
-   "now": 0.27,
+   "now": 0.0005,
    "sure": false,
    "stake": 167.09000000548195,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1108,7 +1178,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Kristiana Sidorova",
    "paid": 0.7199999626,
-   "now": 0.27,
+   "now": 0.0005,
    "sure": false,
    "stake": 7.700000000027757,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1122,7 +1192,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Kristiana Sidorova",
    "paid": 0.7199999983,
-   "now": 0.27,
+   "now": 0.0005,
    "sure": false,
    "stake": 167.09000000548195,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1136,7 +1206,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Aliona Falei",
    "paid": 0.2899999991,
-   "now": 0.73,
+   "now": 0.9995,
    "sure": false,
    "stake": 63.039999994358624,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1150,7 +1220,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Aliona Falei",
    "paid": 0.2899999991,
-   "now": 0.73,
+   "now": 0.9995,
    "sure": false,
    "stake": 63.039999994358624,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1164,122 +1234,10 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Aliona Falei",
    "paid": 0.2899999991,
-   "now": 0.73,
+   "now": 0.9995,
    "sure": false,
    "stake": 63.039999994358624,
    "end": "2026-10-07T03:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844713,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.15,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 166.758,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844713,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.1500000085,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 1.764706000000001,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844713,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.15,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 2.1,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844713,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.15,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 1.71,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844711,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.15,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 90.0165,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844711,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.15,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 17.099999999999998,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844711,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.15,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 45.0,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790844647,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.21,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 1662.8892,
-   "end": "2026-10-07T01:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -1318,7 +1276,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Kristiana Sidorova",
    "paid": 0.61,
-   "now": 0.27,
+   "now": 0.0005,
    "sure": false,
    "stake": 129.1736,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1332,7 +1290,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Kristiana Sidorova",
    "paid": 0.61,
-   "now": 0.27,
+   "now": 0.0005,
    "sure": false,
    "stake": 129.1736,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1346,7 +1304,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Aliona Falei",
    "paid": 0.4,
-   "now": 0.73,
+   "now": 0.9995,
    "sure": false,
    "stake": 84.71000000000001,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1360,7 +1318,7 @@
    "slug": "wta-falei-sidorov-2026-09-29",
    "outcome": "Aliona Falei",
    "paid": 0.4,
-   "now": 0.73,
+   "now": 0.9995,
    "sure": false,
    "stake": 84.71000000000001,
    "end": "2026-10-07T03:00:00+00:00",
@@ -1388,7 +1346,7 @@
    "slug": "atp-shimizu-tomic-2026-09-30",
    "outcome": "Yuta Shimizu",
    "paid": 0.6799999999999999,
-   "now": 0.635,
+   "now": 0.655,
    "sure": false,
    "stake": 28.172399999999996,
    "end": "2026-10-08T03:00:00+00:00",
@@ -1402,7 +1360,7 @@
    "slug": "atp-shimizu-tomic-2026-09-30",
    "outcome": "Bernard Tomic",
    "paid": 0.3299999957,
-   "now": 0.365,
+   "now": 0.345,
    "sure": false,
    "stake": 13.680000001745451,
    "end": "2026-10-08T03:00:00+00:00",
@@ -1434,132 +1392,6 @@
    "sure": false,
    "stake": 2.563902,
    "end": "2026-10-04T22:15:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842169,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.32,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 429.92,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842167,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.32,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 169.728,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842167,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.3200000004,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 97.40705900175882,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842157,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.3200000054,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 4.7058819994117576,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842143,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.32,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 19.7792,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842131,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.32,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 1930.0384,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
-   "name": "Stormy-Influence",
-   "ts": 1790842131,
-   "question": "Japan Open Tennis Championships: Carlos Alcaraz vs Alex Michelsen",
-   "slug": "atp-alcaraz-michels-2026-09-29",
-   "outcome": "Alex Michelsen",
-   "paid": 0.32,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 21.4816,
-   "end": "2026-10-07T01:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x7a962f7e3a540ae27d80e1a42108f0ca1ca7b71d",
-   "name": "Fluffy-Dolor",
-   "ts": 1790839205,
-   "question": "M25 Darwin: Casey Hoole vs Mustafa Ege Sik",
-   "slug": "itf-hoole1-sik1-2026-10-01",
-   "outcome": "Casey Hoole",
-   "paid": 0.98,
-   "now": 0.9995,
-   "sure": true,
-   "stake": 19.6,
-   "end": "2026-10-08T05:30:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x7a962f7e3a540ae27d80e1a42108f0ca1ca7b71d",
-   "name": "Fluffy-Dolor",
-   "ts": 1790839203,
-   "question": "M25 Darwin: Casey Hoole vs Mustafa Ege Sik",
-   "slug": "itf-hoole1-sik1-2026-10-01",
-   "outcome": "Mustafa Ege Sik",
-   "paid": 0.5299999995,
-   "now": 0.0005,
-   "sure": false,
-   "stake": 10.999999999622641,
-   "end": "2026-10-08T05:30:00+00:00",
    "category": "Sports"
   },
   {
@@ -1598,7 +1430,7 @@
    "slug": "unl-wal-nor-2026-10-01-total-2pt5",
    "outcome": "Over",
    "paid": 0.64,
-   "now": 0.635,
+   "now": 0.645,
    "sure": false,
    "stake": 2.5,
    "end": "2026-10-01T18:45:00+00:00",
@@ -1612,7 +1444,7 @@
    "slug": "unl-den-prt-2026-10-01-corners-total-7pt5",
    "outcome": "Over",
    "paid": 0.7199999654,
-   "now": 0.69,
+   "now": 0.695,
    "sure": false,
    "stake": 2.499998999861153,
    "end": "2026-10-01T18:45:00+00:00",
@@ -2060,7 +1892,7 @@
    "slug": "kbo-ssg-nc-2026-08-07",
    "outcome": "SSG Landers",
    "paid": 0.9299999999999999,
-   "now": 0.62,
+   "now": 0.625,
    "sure": false,
    "stake": 9.299999999999999,
    "end": "2026-10-11T05:00:00+00:00",
@@ -2074,7 +1906,7 @@
    "slug": "kbo-nc-doo-2026-08-04",
    "outcome": "NC Dinos",
    "paid": 0.0050000000000000044,
-   "now": 0.006,
+   "now": 0.007,
    "sure": false,
    "stake": 0.025000000000000022,
    "end": "2026-10-06T09:30:00+00:00",
@@ -2207,7 +2039,7 @@
    "category": "Sports"
   }
  ],
- "monitor_at": "2026-10-01 10:28",
+ "monitor_at": "2026-10-01 11:11",
  "leaderboard": [
   {
    "wallet": "0x51698a47f840a242abc2ca0351371c7ffac41842",
@@ -2216,58 +2048,52 @@
    "volume": 28166736.980958
   },
   {
-   "wallet": "0x34dd4a4b70eaf79a17878f7938263c801d4dfd83",
-   "name": "vito3corleone",
-   "pnl": 2748967.1673980006,
-   "volume": 7044565.6770560015
-  },
-  {
-   "wallet": "0x4f1d5ae26fc31472966e951af3183308736d8de2",
-   "name": "e46m3",
-   "pnl": 2352716.8133099996,
-   "volume": 2577832.5294610234
-  },
-  {
    "wallet": "0xf0318c32136c2db7fec88b84869aee6a1106c80c",
    "name": "BreakTheBank",
-   "pnl": 2137332.9371770835,
-   "volume": 37050606.260055006
+   "pnl": 2114706.824625816,
+   "volume": 36498481.862284
   },
   {
    "wallet": "0x3a8aa345d5db7ec5138298c8c4f4540259be7699",
    "name": "TheReturnOfDarthMaul",
-   "pnl": 2071673.9371554628,
-   "volume": 4413590.702855
+   "pnl": 1963902.5655650776,
+   "volume": 4263931.004120001
+  },
+  {
+   "wallet": "0x4f1d5ae26fc31472966e951af3183308736d8de2",
+   "name": "e46m3",
+   "pnl": 1857788.479121192,
+   "volume": 2580177.619774024
   },
   {
    "wallet": "0x924379a79c64b77ad5816ad362122a5f6228658e",
    "name": "Kch-Temp",
-   "pnl": 1705063.5299250009,
-   "volume": 9970331.514568001
+   "pnl": 1708234.2614864255,
+   "volume": 9982296.539333
   },
   {
    "wallet": "0x0f6f76ced62a911bccef92f50faaff143854d977",
    "name": "totoro3miyazaki",
-   "pnl": 1655316.1539499997,
+   "pnl": 1655316.15395,
    "volume": 20946245.291640002
   },
   {
    "wallet": "0x224a89dbe0db0d6124b335edabd15b3f877da3d5",
    "name": "wr0ngw4yb3tt0r",
-   "pnl": 1218820.7913359923,
-   "volume": 103103338.19870603
+   "pnl": 1119956.8162610796,
+   "volume": 103114917.59208302
+  },
+  {
+   "wallet": "0x2a69660046d7acc4ab204d7cc5ba78b0776cd2f7",
+   "name": "UpTheBlues",
+   "pnl": 1112860.5675615706,
+   "volume": 112879508.28605822
   },
   {
    "wallet": "0xcbc666209b4c17ea84c03c0dda71b5dab9e4ec62",
    "name": "raybanman",
    "pnl": 1088104.6023599987,
-   "volume": 8423204.837702
-  },
-  {
-   "wallet": "0x2a69660046d7acc4ab204d7cc5ba78b0776cd2f7",
-   "name": "UpTheBlues",
-   "pnl": 1036032.0093323736,
-   "volume": 113610229.30554321
+   "volume": 8423204.837702002
   },
   {
    "wallet": "0x9319a045cdd0c2180e5eb7ad44374383db9a6410",
@@ -2278,92 +2104,86 @@
   {
    "wallet": "0x361b16e3ddfe1d415d41008daac2631d94ab74fe",
    "name": "0x361b16e3ddfe1d415d41008daac2631d94ab74fe",
-   "pnl": 902251.1223619995,
-   "volume": 4142241.7569499994
-  },
-  {
-   "wallet": "0xd570e634aeb745d6501566dba5f81a555cc7e4f8",
-   "name": "0xd9670ea74384c1e1b9dc1e4267ffadaf4cdd140",
-   "pnl": 772900.7820320007,
-   "volume": 3585798.8907780005
+   "pnl": 897642.2125953495,
+   "volume": 4440210.225787
   },
   {
    "wallet": "0xbc43c8bfbc4d77c2fc9011adad38ba43b88996d3",
    "name": "0xBc43c8bfBC4d77c2FC9011adaD38Ba43b88996d3-1765231687816",
-   "pnl": 748042.7051149128,
-   "volume": 15749371.200946001
-  },
-  {
-   "wallet": "0xc2e7800b5af46e6093872b177b7a5e7f0563be51",
-   "name": "beachboy4",
-   "pnl": 688546.225809669,
-   "volume": 2480735.7489000005
+   "pnl": 796912.353257148,
+   "volume": 15447112.399837
   },
   {
    "wallet": "0x5e9458202b5817a72cf81105ec8a30e6f3705ba1",
    "name": "pleaseplease123",
-   "pnl": 666117.2548429988,
-   "volume": 17419017.519964997
-  },
-  {
-   "wallet": "0xb7271c112cbd83eb4c1ef1b554ff963604ae2a9d",
-   "name": "Elaran1993",
-   "pnl": 644091.3142020002,
-   "volume": 5211996.08184
-  },
-  {
-   "wallet": "0xd38b71f3e8ed1af71983e5c309eac3dfa9b35029",
-   "name": "primm",
-   "pnl": 634696.7307379991,
-   "volume": 5280687.431838
+   "pnl": 665940.5935596002,
+   "volume": 16757301.739308998
   },
   {
    "wallet": "0xb0e74df9430a089aa102e2207af5fde1967439d2",
    "name": "0xb0e74DF9430A089Aa102e2207Af5fde1967439D2-1789545517033",
-   "pnl": 613715.5881579333,
-   "volume": 2557.6
+   "pnl": 655230.618605548,
+   "volume": 337.0
   },
   {
-   "wallet": "0x7b02b2bac2a30ed5e40b7094e734f4c3dc2a4991",
-   "name": "foodenjoyer",
-   "pnl": 556823.764279389,
-   "volume": 4710023.690550999
+   "wallet": "0xb7271c112cbd83eb4c1ef1b554ff963604ae2a9d",
+   "name": "Elaran1993",
+   "pnl": 642723.0695329302,
+   "volume": 5239632.199439
   },
   {
-   "wallet": "0x1465b79bff7992bc703e1aafb3683b1089647072",
-   "name": "JnStrtPrdctnMrkts",
-   "pnl": 547435.3324347769,
-   "volume": 3631461.9278240004
-  },
-  {
-   "wallet": "0xc8ab97a9089a9ff7e6ef0688e6e591a066946418",
-   "name": "ArmageddonRewardsBilly",
-   "pnl": 522761.1343151118,
-   "volume": 7564838.900802999
+   "wallet": "0xd38b71f3e8ed1af71983e5c309eac3dfa9b35029",
+   "name": "primm",
+   "pnl": 629512.9087409992,
+   "volume": 5371401.005908
   },
   {
    "wallet": "0x73e3fec494611d73c170cb2f23850fd998b21be9",
    "name": "mmklop",
-   "pnl": 519563.23297900014,
-   "volume": 5187845.342797001
+   "pnl": 534893.9206110002,
+   "volume": 4824699.203794001
   },
   {
-   "wallet": "0xbda25d40a34a17d819f3c87fedde35f2429d5689",
-   "name": "lolsterfun",
-   "pnl": 513970.04480399995,
-   "volume": 2928990.401533
+   "wallet": "0xc2e7800b5af46e6093872b177b7a5e7f0563be51",
+   "name": "beachboy4",
+   "pnl": 531052.1561695959,
+   "volume": 2137635.4920590003
+  },
+  {
+   "wallet": "0x7b02b2bac2a30ed5e40b7094e734f4c3dc2a4991",
+   "name": "foodenjoyer",
+   "pnl": 529227.9309713782,
+   "volume": 4608436.486712999
   },
   {
    "wallet": "0xa080dadd87036ad01dbf5e9c254b0c3dbdba234f",
    "name": "bands1",
-   "pnl": 513375.63318102516,
-   "volume": 4134250.5216500005
+   "pnl": 522875.60502712015,
+   "volume": 4107946.6622560006
+  },
+  {
+   "wallet": "0x1465b79bff7992bc703e1aafb3683b1089647072",
+   "name": "JnStrtPrdctnMrkts",
+   "pnl": 520399.1623231911,
+   "volume": 3388936.834095001
+  },
+  {
+   "wallet": "0xc8ab97a9089a9ff7e6ef0688e6e591a066946418",
+   "name": "ArmageddonRewardsBilly",
+   "pnl": 497966.3771937542,
+   "volume": 7296801.162454998
   },
   {
    "wallet": "0x7ad71d79a3bb90d0a87a06500fa0fe11663842aa",
    "name": "theowalcott",
-   "pnl": 491172.58502500004,
-   "volume": 5413231.661812001
+   "pnl": 491172.58502499945,
+   "volume": 5413231.661812
+  },
+  {
+   "wallet": "0xd570e634aeb745d6501566dba5f81a555cc7e4f8",
+   "name": "0xd9670ea74384c1e1b9dc1e4267ffadaf4cdd140",
+   "pnl": 466079.68378800096,
+   "volume": 2718964.7619700003
   },
   {
    "wallet": "0x7f8e1877a0907f2b2c7cabf8bdb2e2a8f3854487",
@@ -2378,58 +2198,70 @@
    "volume": 3419882.746366
   },
   {
-   "wallet": "0xcd30f4698c6f5f3829893e68e183a8e5ea18f316",
-   "name": "SPCEXBUYER",
-   "pnl": 419807.53833399987,
-   "volume": 840152.6975859998
-  },
-  {
    "wallet": "0xe9b710551dd82a44e79203c2394a2b10163ace7b",
    "name": "googleplay",
    "pnl": 408565.8748999991,
    "volume": 1992209.3200140002
   },
   {
-   "wallet": "0x1058f156b207cafe61d102e97bf6796931d301c1",
-   "name": "TheyAreTakingTheHobitsToIsengard",
-   "pnl": 388880.91414377803,
-   "volume": 777108.573051
+   "wallet": "0x076daa87c4fe1a85402a9b6b8e0a866224388d4c",
+   "name": "omnibus-076daa",
+   "pnl": 397539.27455431764,
+   "volume": 30649141.94625798
   },
   {
-   "wallet": "0x1109da04152c38666464f5adb5d7c55618810b2c",
-   "name": "MumiaTriste",
-   "pnl": 370955.0168951114,
-   "volume": 4573049.602282005
+   "wallet": "0x16bb9951a36fce71e2ef57890b786145e0ba8492",
+   "name": "0x16bb9951a36fce71e2ef57890b786145e0ba8492",
+   "pnl": 387737.4942460002,
+   "volume": 8053252.3388300035
+  },
+  {
+   "wallet": "0x1058f156b207cafe61d102e97bf6796931d301c1",
+   "name": "TheyAreTakingTheHobitsToIsengard",
+   "pnl": 377255.0152752439,
+   "volume": 764644.406743
   },
   {
    "wallet": "0x054964a95e2cb3fc2105a62a1edf3da44979c052",
    "name": "COMEONDUDE",
    "pnl": 369948.5578980001,
-   "volume": 881038.277672
-  },
-  {
-   "wallet": "0xe015b5a2a299167be835a2fd1e86f09c49e06ffd",
-   "name": "TAIWANNUMBERONE",
-   "pnl": 369160.28708520334,
-   "volume": 7968989.463660999
-  },
-  {
-   "wallet": "0x03e8a544e97eeff5753bc1e90d46e5ef22af1697",
-   "name": "weflyhigh",
-   "pnl": 355841.06210000004,
-   "volume": 1206817.7645460002
-  },
-  {
-   "wallet": "0x04d5524a0a5af2eca6e39e03defc261d42fe66d8",
-   "name": "WTSA",
-   "pnl": 354342.8863041501,
-   "volume": 2932817.9523349996
+   "volume": 881038.2776720001
   },
   {
    "wallet": "0x369f46433349a57cd6d08abf2819da737c09873e",
    "name": "kindar",
-   "pnl": 351481.58729587344,
+   "pnl": 363533.53094424494,
    "volume": 2556838.7986009996
+  },
+  {
+   "wallet": "0x5268527977f700f9bf9b6d5cd843859e4e70135d",
+   "name": "HomeRunHazard",
+   "pnl": 362432.67010178685,
+   "volume": 100657919.33925998
+  },
+  {
+   "wallet": "0x03e8a544e97eeff5753bc1e90d46e5ef22af1697",
+   "name": "weflyhigh",
+   "pnl": 355841.0621,
+   "volume": 1206817.7645460002
+  },
+  {
+   "wallet": "0x111f73e91f85b6fe4de1ddec3de2fe32122e355b",
+   "name": "Papeasy",
+   "pnl": 353853.4803558914,
+   "volume": 0.0
+  },
+  {
+   "wallet": "0xe015b5a2a299167be835a2fd1e86f09c49e06ffd",
+   "name": "TAIWANNUMBERONE",
+   "pnl": 343711.3586097284,
+   "volume": 7961254.187252
+  },
+  {
+   "wallet": "0x04d5524a0a5af2eca6e39e03defc261d42fe66d8",
+   "name": "WTSA",
+   "pnl": 343594.7633010345,
+   "volume": 2662971.5952329994
   },
   {
    "wallet": "0x80d5aebbe7a714879177e4dae0014195beb3987e",
@@ -2438,76 +2270,76 @@
    "volume": 698702.2302609999
   },
   {
-   "wallet": "0x0346afae2603313d2bbee96b628536c8cbe352a5",
-   "name": "GoalLineGhost",
-   "pnl": 337948.23686059023,
-   "volume": 69017574.17645387
+   "wallet": "0x1109da04152c38666464f5adb5d7c55618810b2c",
+   "name": "MumiaTriste",
+   "pnl": 339661.8509420479,
+   "volume": 4399024.114146006
   },
   {
-   "wallet": "0x076daa87c4fe1a85402a9b6b8e0a866224388d4c",
-   "name": "omnibus-076daa",
-   "pnl": 313319.4347384757,
-   "volume": 30960546.952613983
+   "wallet": "0x397062018dfb77e855608fe23223592bc82c44ce",
+   "name": "11vsldfdsgfkjgos",
+   "pnl": 311846.6953180001,
+   "volume": 2091714.441818
+  },
+  {
+   "wallet": "0xbca08c1bc204a34f2fddbe47b438b9bd42ac9705",
+   "name": "justaluckydude",
+   "pnl": 306897.25621454493,
+   "volume": 10943528.223526996
   },
   {
    "wallet": "0xc6587b11a2209e46dfe3928b31c5514a8e33b784",
    "name": "Erasmus.",
-   "pnl": 303042.70521229994,
-   "volume": 2816470.44
+   "pnl": 280883.4841700796,
+   "volume": 3039657.023514
   },
   {
    "wallet": "0xc95ed399d2fbaec9461f2abd70e0d96df1921288",
    "name": "Siddhartha1",
-   "pnl": 279233.2490377384,
-   "volume": 3445723.4622040004
-  },
-  {
-   "wallet": "0xf5f92940519a72da460b1c2a606bc1230f0e87b0",
-   "name": "kekasaur",
-   "pnl": 273301.10061637446,
-   "volume": 1506091.637916
+   "pnl": 278631.58659244096,
+   "volume": 3499055.976593
   },
   {
    "wallet": "0x2117ae94a97d69b78cbc81b6680a62deb1955c26",
    "name": "Zzzz87",
-   "pnl": 262951.7845681681,
-   "volume": 8075387.879029
+   "pnl": 277392.9671772035,
+   "volume": 7872990.690762001
   },
   {
    "wallet": "0xd3b034d7bfb2473fb252d0414646d9786bac329e",
    "name": "Sunshine.Smile",
-   "pnl": 254357.98418601058,
-   "volume": 7783481.493438
+   "pnl": 276569.24628100055,
+   "volume": 7949915.615442999
   },
   {
-   "wallet": "0x06dc51826bc524d9a83770e7de9dd7e005b04524",
-   "name": "0x06dc51826bc524d9a83770e7de9dd7e005b0452",
-   "pnl": 243278.9586539386,
-   "volume": 27995794.55894603
+   "wallet": "0x0346afae2603313d2bbee96b628536c8cbe352a5",
+   "name": "GoalLineGhost",
+   "pnl": 267160.7938062059,
+   "volume": 67251036.32016087
   },
   {
-   "wallet": "0xafd492974cd531aae7786210438ae46b42047e61",
-   "name": "RevengeRange",
-   "pnl": 240860.29629542277,
-   "volume": 4181986.4858179996
-  },
-  {
-   "wallet": "0x9b11866433281ade9f2811dbde8acdefc45f5375",
-   "name": "0x9b11866433281ade9f2811dbde8acdefc45f5375",
-   "pnl": 237781.6046741159,
-   "volume": 24099330.689518996
-  },
-  {
-   "wallet": "0x05f6cb63d4ffdfaecd7ad8acd0765b6f6a5a25a1",
-   "name": "ethBELIVER",
-   "pnl": 237554.94615229208,
-   "volume": 1525252.3915269997
+   "wallet": "0x2dc13c6bda81b202281e796953a7323de675b33c",
+   "name": "xifutloong3",
+   "pnl": 266562.2759829999,
+   "volume": 3570471.7435050006
   },
   {
    "wallet": "0x103721386ec40df5ab93df0bd0964e8fe70b5b09",
    "name": "equalsignificance",
-   "pnl": 233930.93724652886,
-   "volume": 3245913.8199790004
+   "pnl": 259034.2337157514,
+   "volume": 3436128.5751860007
+  },
+  {
+   "wallet": "0x05f6cb63d4ffdfaecd7ad8acd0765b6f6a5a25a1",
+   "name": "ethBELIVER",
+   "pnl": 255276.0917710861,
+   "volume": 1319102.5117669997
+  },
+  {
+   "wallet": "0xafd492974cd531aae7786210438ae46b42047e61",
+   "name": "RevengeRange",
+   "pnl": 247094.9983232997,
+   "volume": 4284521.397895999
   }
  ]
 }

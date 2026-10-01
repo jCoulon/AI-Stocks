@@ -1,50 +1,50 @@
 {
  "ticker": "SMCI",
- "fetched": "2026-09-30",
+ "fetched": "2026-10-01",
  "source": "Nasdaq",
- "spot": 41.84,
+ "spot": 41.02,
  "straddles": [
   {
    "expiry": "2026-10-02",
-   "strike": 42.0,
-   "straddle": 2.46,
-   "move": 0.05879541108986615
+   "strike": 41.0,
+   "straddle": 1.995,
+   "move": 0.04863481228668942
   },
   {
    "expiry": "2026-10-09",
-   "strike": 42.0,
-   "straddle": 3.9,
-   "move": 0.09321223709369024
+   "strike": 41.0,
+   "straddle": 3.63,
+   "move": 0.08849341784495367
   },
   {
    "expiry": "2026-10-16",
-   "strike": 42.0,
-   "straddle": 4.97,
-   "move": 0.11878585086042064
+   "strike": 41.0,
+   "straddle": 4.675,
+   "move": 0.11396879570941003
   },
   {
    "expiry": "2026-10-23",
-   "strike": 42.0,
-   "straddle": 6.15,
-   "move": 0.1469885277246654
+   "strike": 41.0,
+   "straddle": 5.665,
+   "move": 0.1381033642125792
   },
   {
    "expiry": "2026-10-30",
-   "strike": 42.0,
-   "straddle": 6.859999999999999,
-   "move": 0.16395793499043973
+   "strike": 41.0,
+   "straddle": 6.625,
+   "move": 0.16150658215504632
   },
   {
    "expiry": "2026-11-06",
-   "strike": 42.0,
-   "straddle": 8.31,
-   "move": 0.19861376673040151
+   "strike": 41.0,
+   "straddle": 8.375,
+   "move": 0.20416869819600195
   },
   {
    "expiry": "2026-11-20",
-   "strike": 42.0,
-   "straddle": 9.8,
-   "move": 0.23422562141491396
+   "strike": 41.0,
+   "straddle": 9.7,
+   "move": 0.23647001462701117
   }
  ]
 }

@@ -1,8 +1,8 @@
 {
  "ticker": "CBRS",
- "fetched": "2026-09-30",
+ "fetched": "2026-10-01",
  "source": "Nasdaq",
- "market_cap": 42810821919.0,
+ "market_cap": 42203251884.0,
  "price": null,
  "target_mean": 288.67,
  "target_high": 330.0,

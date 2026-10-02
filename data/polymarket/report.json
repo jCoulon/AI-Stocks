@@ -1,10 +1,10 @@
 {
- "generated": "2026-10-01T11:00:59.510800+00:00",
+ "generated": "2026-10-02T10:34:05.363914+00:00",
  "markets": 250,
- "orders": 487024,
- "wallets": 53197,
+ "orders": 486969,
+ "wallets": 52955,
  "period": [
-  "2026-07-03",
+  "2026-07-04",
   "2026-10-01"
  ],
  "top": [
@@ -35,14 +35,14 @@
   {
    "wallet": "0x96f8e4e985756ee5d20cc616a81cfbb3e3eb2560",
    "name": "Testy-Luck",
-   "markets": 22,
-   "orders": 34,
-   "stake": 3906.8360620229664,
-   "pnl": 2151.4991299770336,
-   "roi": 0.5507011545457537,
-   "mean_roi": 1.4886037429022276,
-   "z": 2.799925925210096,
-   "win_rate": 0.7272727272727273
+   "markets": 23,
+   "orders": 35,
+   "stake": 3916.836052022966,
+   "pnl": 2152.488139977034,
+   "roi": 0.5495476735272893,
+   "mean_roi": 1.428181888815222,
+   "z": 2.8011895470582022,
+   "win_rate": 0.7391304347826086
   },
   {
    "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
@@ -71,14 +71,14 @@
   {
    "wallet": "0x2217d02641bbd7645035cdffab94f0c5baa61660",
    "name": "Gleaming-Fraud",
-   "markets": 24,
-   "orders": 102,
-   "stake": 17319.347275011427,
-   "pnl": 7990.8927249885755,
-   "roi": 0.46138532810170835,
-   "mean_roi": 0.5304245714063952,
-   "z": 2.3500323003906485,
-   "win_rate": 0.7916666666666666
+   "markets": 23,
+   "orders": 104,
+   "stake": 17877.627275011426,
+   "pnl": 8235.512724988575,
+   "roi": 0.46066027657371617,
+   "mean_roi": 0.6040257070150163,
+   "z": 2.3789148078609927,
+   "win_rate": 0.8260869565217391
   },
   {
    "wallet": "0x0df107e1fe21d19682cecd0df67052fc126bd129",
@@ -119,14 +119,14 @@
   {
    "wallet": "0x9a1d53e36d420bd9bd889b53fded021a157c8986",
    "name": "Downright-Stot",
-   "markets": 51,
-   "orders": 228,
-   "stake": 4537.0170300554,
-   "pnl": 3841.6691859445996,
-   "roi": 0.8467389830136234,
-   "mean_roi": -0.0982816714419419,
-   "z": 2.077099070549211,
-   "win_rate": 0.43137254901960786
+   "markets": 53,
+   "orders": 230,
+   "stake": 4567.167030055534,
+   "pnl": 3811.519185944465,
+   "roi": 0.8345477975431345,
+   "mean_roi": -0.13230877817998182,
+   "z": 2.060666121657043,
+   "win_rate": 0.41509433962264153
   },
   {
    "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
@@ -151,6 +151,18 @@
    "mean_roi": 0.16811672255943708,
    "z": 2.0093840316948093,
    "win_rate": 0.6842105263157895
+  },
+  {
+   "wallet": "0x62421d7cc1ff94026271af257fef25dd52d5841b",
+   "name": "Jolly-Drake",
+   "markets": 12,
+   "orders": 43,
+   "stake": 9052.5543249936,
+   "pnl": 7084.4456750064,
+   "roi": 0.7825907937880736,
+   "mean_roi": 0.6558867678003286,
+   "z": 1.95065844559097,
+   "win_rate": 0.75
   },
   {
    "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
@@ -235,115 +247,103 @@
    "mean_roi": 0.6363275685708352,
    "z": 1.7664759819187525,
    "win_rate": 1.0
-  },
-  {
-   "wallet": "0x3c5295869f916f626bec1116a381886552a799e1",
-   "name": "Harsh-Ore-Grandpa",
-   "markets": 36,
-   "orders": 68,
-   "stake": 146.99990199863868,
-   "pnl": 47.3087700013613,
-   "roi": 0.32182858191156766,
-   "mean_roi": 0.17123200824964047,
-   "z": 1.7473542592043354,
-   "win_rate": 0.6944444444444444
   }
  ],
  "persistence": {
   "ok": true,
-  "cut": "2026-08-29",
+  "cut": "2026-08-31",
   "ranked_on": 166,
   "tested_on": 84,
-  "top_active_later": 12,
-  "top_roi": 0.20514439380351562,
-  "others_roi": -0.0008860332025979535,
-  "top_mean_roi": 0.2448346497607342,
-  "others_mean_roi": -0.04920876376280802,
-  "diff_t": 1.6200694174436556
+  "top_active_later": 13,
+  "top_roi": 0.20437704885710192,
+  "others_roi": 0.00030699831660532226,
+  "top_mean_roi": 0.11807476583631311,
+  "others_mean_roi": -0.046196595934211465,
+  "diff_t": 0.8433592966135743
  },
  "calibration": [
   {
    "bucket": "0%–10%",
-   "orders": 53475,
-   "stake": 1097015.1993904032,
-   "price": 0.037771045632536145,
-   "win_freq": 0.005394231414289474,
-   "edge": -0.032376814218246674,
-   "roi": -0.8571860713953109
+   "orders": 54162,
+   "stake": 1107412.8683371781,
+   "price": 0.03716365204975098,
+   "win_freq": 0.005257654341180942,
+   "edge": -0.03190599770857004,
+   "roi": -0.8585269732333485
   },
   {
    "bucket": "10%–25%",
-   "orders": 46881,
-   "stake": 3947721.1964473245,
-   "price": 0.16750504288773593,
-   "win_freq": 0.10605565514112253,
-   "edge": -0.061449387746613404,
-   "roi": -0.36685097169162595
+   "orders": 45945,
+   "stake": 4047308.023128727,
+   "price": 0.1691149535052558,
+   "win_freq": 0.10725859552557367,
+   "edge": -0.06185635797968213,
+   "roi": -0.3657651597187692
   },
   {
    "bucket": "25%–40%",
-   "orders": 54487,
-   "stake": 10653114.572982723,
-   "price": 0.3335710683948126,
-   "win_freq": 0.2727828061955667,
-   "edge": -0.06078826219924588,
-   "roi": -0.1822348157823367
+   "orders": 54349,
+   "stake": 10730355.67698871,
+   "price": 0.3328444238725843,
+   "win_freq": 0.2875107286077012,
+   "edge": -0.04533369526488307,
+   "roi": -0.13620085545503147
   },
   {
    "bucket": "40%–60%",
-   "orders": 92567,
-   "stake": 38282528.249320954,
-   "price": 0.4952860719013158,
-   "win_freq": 0.5148588111299182,
-   "edge": 0.019572739228602365,
-   "roi": 0.0395180489398097
+   "orders": 91820,
+   "stake": 38038438.674137495,
+   "price": 0.4952380424859364,
+   "win_freq": 0.5150512624043125,
+   "edge": 0.019813219918376146,
+   "roi": 0.040007467558267784
   },
   {
    "bucket": "60%–75%",
-   "orders": 59683,
-   "stake": 26417363.46563132,
-   "price": 0.6571907090533562,
-   "win_freq": 0.7318936090360885,
-   "edge": 0.07470289998273227,
-   "roi": 0.11367004882089304
+   "orders": 59096,
+   "stake": 26146140.03403651,
+   "price": 0.657383090101173,
+   "win_freq": 0.7227514789332098,
+   "edge": 0.06536838883203677,
+   "roi": 0.09943728370313942
   },
   {
    "bucket": "75%–90%",
-   "orders": 55728,
-   "stake": 23468215.062257193,
-   "price": 0.8243458052999568,
-   "win_freq": 0.9010242827204733,
-   "edge": 0.07667847742051648,
-   "roi": 0.09301736835139862
+   "orders": 55792,
+   "stake": 23922791.960372534,
+   "price": 0.8226721468035042,
+   "win_freq": 0.8873382404097114,
+   "edge": 0.06466609360620723,
+   "roi": 0.07860493862283735
   },
   {
    "bucket": "90%–100%",
-   "orders": 55162,
-   "stake": 30266829.640058078,
-   "price": 0.9590755113082277,
-   "win_freq": 0.9887784219336987,
-   "edge": 0.029702910625471035,
-   "roi": 0.030970356635375618
+   "orders": 55745,
+   "stake": 30502611.40189439,
+   "price": 0.9592067170186244,
+   "win_freq": 0.9888618662694115,
+   "edge": 0.02965514925078716,
+   "roi": 0.030916327757754214
   }
  ],
  "categories": [
   {
    "category": "Sports",
-   "stake": 118407097.18658265,
-   "roi": 0.0278644284328504,
-   "markets": 197
-  },
-  {
-   "category": "Géopolitique",
-   "stake": 7249105.054805793,
-   "roi": 0.002335658030914113,
-   "markets": 18
+   "stake": 118544604.15252514,
+   "roi": 0.025809108386167418,
+   "markets": 196
   },
   {
    "category": "Autre",
-   "stake": 7136895.649163035,
-   "roi": -0.000325975855401506,
-   "markets": 25
+   "stake": 7584344.646945988,
+   "roi": -0.0009363152418147842,
+   "markets": 26
+  },
+  {
+   "category": "Géopolitique",
+   "stake": 6988369.459436435,
+   "roi": 0.0012503700297023773,
+   "markets": 17
   },
   {
    "category": "Politique",
@@ -353,275 +353,892 @@
   }
  ],
  "calibration_split": {
-  "cut": "2026-08-29",
+  "cut": "2026-08-31",
   "a": [
    {
     "bucket": "0%–10%",
-    "orders": 37662,
-    "stake": 753943.2452290474,
-    "price": 0.038499898379879986,
-    "win_freq": 0.006794824792858112,
-    "edge": -0.031705073587021876,
-    "roi": -0.8235105785004077
+    "orders": 37413,
+    "stake": 743158.2283009747,
+    "price": 0.038162778538949824,
+    "win_freq": 0.006833072530032893,
+    "edge": -0.03132970600891693,
+    "roi": -0.8209492916492205
    },
    {
     "bucket": "10%–25%",
-    "orders": 36000,
-    "stake": 2439692.7127921134,
-    "price": 0.163403161422792,
-    "win_freq": 0.06803539354778244,
-    "edge": -0.09536776787500954,
-    "roi": -0.5836347782051379
+    "orders": 34853,
+    "stake": 2378691.7192456457,
+    "price": 0.1643216306625972,
+    "win_freq": 0.07483171874709667,
+    "edge": -0.08948991191550053,
+    "roi": -0.544602141268004
    },
    {
     "bucket": "25%–40%",
-    "orders": 37793,
-    "stake": 7027961.721609916,
-    "price": 0.33188366450207557,
-    "win_freq": 0.28739816519804673,
-    "edge": -0.04448549930402884,
-    "roi": -0.1340394362909374
+    "orders": 38698,
+    "stake": 7577176.195067707,
+    "price": 0.33332489435363016,
+    "win_freq": 0.29437662910519496,
+    "edge": -0.0389482652484352,
+    "roi": -0.11684775397277802
    },
    {
     "bucket": "40%–60%",
-    "orders": 49368,
-    "stake": 16623115.71155963,
-    "price": 0.49277215875990377,
-    "win_freq": 0.5944353862681304,
-    "edge": 0.10166322750822665,
-    "roi": 0.2063087893684361
+    "orders": 50406,
+    "stake": 17849196.986173414,
+    "price": 0.4874694377761949,
+    "win_freq": 0.5901536271998551,
+    "edge": 0.1026841894236602,
+    "roi": 0.21064744057001628
    },
    {
     "bucket": "60%–75%",
-    "orders": 40271,
-    "stake": 16894200.59007717,
-    "price": 0.6619145611608211,
-    "win_freq": 0.7360790189959494,
-    "edge": 0.07416445783512826,
-    "roi": 0.112045363838293
+    "orders": 40647,
+    "stake": 17090341.43727361,
+    "price": 0.6618381021588496,
+    "win_freq": 0.7264909064481971,
+    "edge": 0.0646528042893475,
+    "roi": 0.097686736497123
    },
    {
     "bucket": "75%–90%",
-    "orders": 40426,
-    "stake": 14440788.771365449,
-    "price": 0.8280003932986197,
-    "win_freq": 0.9128821606673315,
-    "edge": 0.08488176736871178,
-    "roi": 0.10251416310390438
+    "orders": 39990,
+    "stake": 14473977.187833471,
+    "price": 0.8258344777424592,
+    "win_freq": 0.8871543461808058,
+    "edge": 0.06131986843834658,
+    "roi": 0.07425200823047917
    },
    {
     "bucket": "90%–100%",
-    "orders": 37233,
-    "stake": 18928859.644971702,
-    "price": 0.9584435499191625,
-    "win_freq": 0.987274303137377,
-    "edge": 0.02883075321821449,
-    "roi": 0.03008080467612939
+    "orders": 36724,
+    "stake": 18495477.272519227,
+    "price": 0.9582286823149124,
+    "win_freq": 0.9869761143302627,
+    "edge": 0.02874743201535024,
+    "roi": 0.03000059646085873
    }
   ],
   "b": [
    {
     "bucket": "0%–10%",
-    "orders": 15813,
-    "stake": 343071.9541613428,
-    "price": 0.036262390146281714,
-    "win_freq": 0.0024951370604836334,
-    "edge": -0.03376725308579808,
-    "roi": -0.9311921511401123
+    "orders": 16749,
+    "stake": 364254.64003619907,
+    "price": 0.035279239866799206,
+    "win_freq": 0.0022863216216482086,
+    "edge": -0.032992918245151,
+    "roi": -0.9351935690712023
    },
    {
     "bucket": "10%–25%",
-    "orders": 10881,
-    "stake": 1508028.4836549545,
-    "price": 0.174595619929383,
-    "win_freq": 0.17177807941831896,
-    "edge": -0.0028175405110640317,
-    "roi": -0.016137521160059065
+    "orders": 11092,
+    "stake": 1668616.303882717,
+    "price": 0.17645251009134616,
+    "win_freq": 0.15689723892284543,
+    "edge": -0.019555271168500726,
+    "roi": -0.11082455646778444
    },
    {
     "bucket": "25%–40%",
-    "orders": 16694,
-    "stake": 3625152.8513731663,
-    "price": 0.3368917451647908,
-    "win_freq": 0.2440209411001916,
-    "edge": -0.09287080406459922,
-    "roi": -0.27566957456666497
+    "orders": 15651,
+    "stake": 3153179.4819213464,
+    "price": 0.33169548423127587,
+    "win_freq": 0.271092435359395,
+    "edge": -0.060603048871880894,
+    "roi": -0.1827068855409114
    },
    {
     "bucket": "40%–60%",
-    "orders": 43199,
-    "stake": 21659412.537756138,
-    "price": 0.49723290950092264,
-    "win_freq": 0.4532327087876937,
-    "edge": -0.04400020071322891,
-    "roi": -0.08849012177692006
+    "orders": 41414,
+    "stake": 20189241.687959168,
+    "price": 0.5023153944638669,
+    "win_freq": 0.44663152811507895,
+    "edge": -0.055683866348787914,
+    "roi": -0.11085438941846626
    },
    {
     "bucket": "60%–75%",
-    "orders": 19412,
-    "stake": 9523162.87555151,
-    "price": 0.6489743702862021,
-    "win_freq": 0.7246137989729463,
-    "edge": 0.07563942868674423,
-    "roi": 0.11655225868686725
+    "orders": 18449,
+    "stake": 9055798.596760325,
+    "price": 0.6491368239383375,
+    "win_freq": 0.7158297659983907,
+    "edge": 0.06669294206005316,
+    "roi": 0.10274096246061748
    },
    {
     "bucket": "75%–90%",
-    "orders": 15302,
-    "stake": 9027426.290890694,
-    "price": 0.8185663259042012,
-    "win_freq": 0.882271864857235,
-    "edge": 0.06370553895303377,
-    "roi": 0.07782575087322785
+    "orders": 15802,
+    "stake": 9448814.772537999,
+    "price": 0.8178746839513359,
+    "win_freq": 0.8876172199816976,
+    "edge": 0.06974253603036173,
+    "roi": 0.08527288764266405
    },
    {
     "bucket": "90%–100%",
-    "orders": 17929,
-    "stake": 11337969.995085828,
-    "price": 0.9601324366122306,
-    "win_freq": 0.9912939889345546,
-    "edge": 0.031161552322323982,
-    "roi": 0.032455472947331865
+    "orders": 19021,
+    "stake": 12007134.129374519,
+    "price": 0.960717168680606,
+    "win_freq": 0.9917741731025941,
+    "edge": 0.03105700442198811,
+    "roi": 0.03232689644199871
    }
   ]
  },
- "qualified": 3252,
+ "qualified": 3246,
  "habits": {
   "top": {
    "hour": {
-    "00h": 0.005728265274457743,
-    "01h": 0.06636868189367909,
-    "02h": 0.024289683239941115,
-    "03h": 0.003822556529242971,
-    "04h": 2.9987686140878238e-05,
-    "05h": 0.0029048521665739034,
-    "06h": 0.010825162332955496,
-    "07h": 0.053556657990650895,
-    "08h": 0.10868428553086257,
-    "09h": 0.029504630998122262,
-    "10h": 0.15760029232451347,
-    "11h": 0.09364153911346063,
-    "12h": 0.03462415167971581,
-    "13h": 0.01573530345413497,
-    "14h": 0.05334690648202001,
-    "15h": 0.03146463298671895,
-    "16h": 0.10605015363288102,
-    "17h": 0.035608333531586336,
-    "18h": 0.024425584547052223,
-    "19h": 0.009328386717035193,
-    "20h": 0.04115125796201086,
-    "21h": 0.02539604649597666,
-    "22h": 0.06531164454540397,
-    "23h": 0.0006010028848630763
+    "00h": 0.0050978951929861295,
+    "01h": 0.07512366060210902,
+    "02h": 0.02154613343379055,
+    "03h": 0.0032827840908912077,
+    "04h": 2.6804610682294053e-05,
+    "05h": 0.002596513483862664,
+    "06h": 0.009676113740298344,
+    "07h": 0.047891373489815425,
+    "08h": 0.0971478742058335,
+    "09h": 0.02637282995140253,
+    "10h": 0.14086046986852513,
+    "11h": 0.08369068783989317,
+    "12h": 0.030948933559576713,
+    "13h": 0.014065062608511487,
+    "14h": 0.0476396669362308,
+    "15h": 0.02780089648096815,
+    "16h": 0.1080426408943221,
+    "17h": 0.07393522955956465,
+    "18h": 0.020576326558722536,
+    "19h": 0.009014808098774717,
+    "20h": 0.051447701009674274,
+    "21h": 0.04394401485613951,
+    "22h": 0.05891306732656968,
+    "23h": 0.00035851160085543593
    },
    "weekday": {
-    "dim": 0.221795126229147,
-    "jeu": 0.21389115982617607,
-    "lun": 0.16303827328438728,
-    "mar": 0.05964293355384502,
-    "mer": 0.02719790234824254,
-    "sam": 0.23063233708588665,
-    "ven": 0.08380226767231548
+    "dim": 0.20017611966379986,
+    "jeu": 0.2112462345007485,
+    "lun": 0.1594158179167971,
+    "mar": 0.11624125441691145,
+    "mer": 0.030879421630809006,
+    "sam": 0.20935959910166022,
+    "ven": 0.07268155276927384
    },
    "price": {
-    "0%–10%": 0.011833766495769614,
-    "10%–25%": 0.04311267655626293,
-    "25%–40%": 0.05447712431666048,
-    "40%–60%": 0.3843084180370648,
-    "60%–75%": 0.24471344450710475,
-    "75%–90%": 0.14100120334138072,
-    "90%–100%": 0.1205533667457567
+    "0%–10%": 0.012103064240284444,
+    "10%–25%": 0.04175254130923182,
+    "25%–40%": 0.07480264468586742,
+    "40%–60%": 0.3515290461776957,
+    "60%–75%": 0.27220603035458174,
+    "75%–90%": 0.13973788853966945,
+    "90%–100%": 0.10786878469266946
    },
    "category": {
-    "Autre": 0.022301081207989716,
-    "Géopolitique": 1.3696875644846116e-05,
-    "Sports": 0.9776852219163654
+    "Autre": 0.02187713135254513,
+    "Géopolitique": 1.2243005929137806e-05,
+    "Sports": 0.9781106256415256
    },
    "horizon": {
-    "1 h – 1 j": 0.4958182860243156,
-    "1 – 7 j": 0.23465185147612297,
-    "7 – 30 j": 0.004486032485563849,
-    "< 1 h": 0.00866966958158541,
-    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.2563741604324121
+    "1 h – 1 j": 0.4431667793263928,
+    "1 – 7 j": 0.20877280979820473,
+    "7 – 30 j": 0.0039540148763151815,
+    "< 1 h": 0.007727080950813028,
+    "> 30 j": 1.954502862401079e-05,
+    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.33635977001965023
    },
-   "median_stake": 9.699999000002894
+   "median_stake": 13.7274
   },
   "all": {
    "hour": {
-    "00h": 0.02192935541710021,
-    "01h": 0.025991882226765815,
-    "02h": 0.05608240853526406,
-    "03h": 0.027262349098391085,
-    "04h": 0.006712939442281914,
-    "05h": 0.006895618510530278,
-    "06h": 0.024659619356339924,
-    "07h": 0.02326213001267558,
-    "08h": 0.027806390105240865,
-    "09h": 0.02370797879902446,
-    "10h": 0.02981325770038654,
-    "11h": 0.053243126851761274,
-    "12h": 0.0313166019271541,
-    "13h": 0.047652372147560317,
-    "14h": 0.05315451219706247,
-    "15h": 0.057142929586048316,
-    "16h": 0.0741773961662239,
-    "17h": 0.06742541848923485,
-    "18h": 0.07187436658372087,
-    "19h": 0.05133227802745662,
-    "20h": 0.08460854234720822,
-    "21h": 0.056363986432627924,
-    "22h": 0.03867991502450805,
-    "23h": 0.03890462501543231
+    "00h": 0.021981306396725683,
+    "01h": 0.026014637759120822,
+    "02h": 0.0550920441194876,
+    "03h": 0.026029668873949276,
+    "04h": 0.006747526440884688,
+    "05h": 0.006955510854250377,
+    "06h": 0.024996392115675357,
+    "07h": 0.023362164633615335,
+    "08h": 0.02804888016140021,
+    "09h": 0.023793440833208137,
+    "10h": 0.030350559074150074,
+    "11h": 0.05324527025513028,
+    "12h": 0.03128122579616001,
+    "13h": 0.04798641564365611,
+    "14h": 0.05319995990589788,
+    "15h": 0.05709552231346824,
+    "16h": 0.07608870572307484,
+    "17h": 0.07123327667878414,
+    "18h": 0.07256198292614277,
+    "19h": 0.05117329284811717,
+    "20h": 0.08472125859613203,
+    "21h": 0.05519162112615947,
+    "22h": 0.03670267241876973,
+    "23h": 0.03614666450603987
    },
    "weekday": {
-    "dim": 0.2628933917897888,
-    "jeu": 0.1175369347620566,
-    "lun": 0.11016318912230676,
-    "mar": 0.09408008821828408,
-    "mer": 0.1283797646549461,
-    "sam": 0.15996186241457314,
-    "ven": 0.12698476903804448
+    "dim": 0.27001957511683544,
+    "jeu": 0.11782732164056121,
+    "lun": 0.11019674653243158,
+    "mar": 0.10052511685130414,
+    "mer": 0.12865502576445212,
+    "sam": 0.15724414620399782,
+    "ven": 0.11553206789041764
    },
    "price": {
-    "0%–10%": 0.008178576027297138,
-    "10%–25%": 0.029431440838429745,
-    "25%–40%": 0.07942215159011631,
-    "40%–60%": 0.28540768439507985,
-    "60%–75%": 0.19694933640342197,
-    "75%–90%": 0.17496255404509153,
-    "90%–100%": 0.2256482567005634
+    "0%–10%": 0.008233855425948846,
+    "10%–25%": 0.03009261503052915,
+    "25%–40%": 0.0797825272213051,
+    "40%–60%": 0.28282406104053626,
+    "60%–75%": 0.19440223528387035,
+    "75%–90%": 0.1778711590037118,
+    "90%–100%": 0.2267935469940985
    },
    "category": {
-    "Autre": 0.05320768909854899,
-    "Crypto": 0.0012720844082563885,
-    "Géopolitique": 0.05404424373839062,
-    "Politique": 0.008715700992213736,
-    "Sports": 0.8827602817625902
+    "Autre": 0.05639125127493855,
+    "Crypto": 0.0015515745636548895,
+    "Géopolitique": 0.051960046191713224,
+    "Politique": 0.008692224680522444,
+    "Sports": 0.8814049032891708
    },
    "horizon": {
-    "1 h – 1 j": 0.36217832605460365,
-    "1 – 7 j": 0.21513640514692173,
-    "7 – 30 j": 0.05004794947133167,
-    "< 1 h": 0.1259242298496095,
-    "> 30 j": 0.014804532093881037,
-    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.2319085573836524
+    "1 h – 1 j": 0.35926414916769595,
+    "1 – 7 j": 0.22046950875942342,
+    "7 – 30 j": 0.05321680745532439,
+    "< 1 h": 0.1233191247525887,
+    "> 30 j": 0.016600694603502178,
+    "après la fin prévue (≤ 6 h, souvent match en cours)": 0.22712971526146544
    },
-   "median_stake": 12.189999999500001
+   "median_stake": 12.25999200025575
   }
  },
  "monitor": [
   {
-   "wallet": "0x96f8e4e985756ee5d20cc616a81cfbb3e3eb2560",
-   "name": "Testy-Luck",
-   "ts": 1790921151,
-   "question": "LoL: Chinese Taipei vs South Korea - Game 3 Winner",
-   "slug": "lol-tpe-kor-2026-10-01-game3",
-   "outcome": "South Korea",
-   "paid": 0.9,
-   "now": 0.94,
+   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
+   "name": "Gigantic-Intelligence",
+   "ts": 1790937131,
+   "question": "Will Bolivia vs. Gambia end in a draw?",
+   "slug": "fif-bol-gam-2026-10-04-draw",
+   "outcome": "No",
+   "paid": 0.2159999961,
+   "now": 0.1125,
    "sure": false,
-   "stake": 49.999995,
-   "end": "2026-10-02T09:50:00+00:00",
+   "stake": 5.250000001208331,
+   "end": "2026-10-04T22:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
+   "name": "Gigantic-Intelligence",
+   "ts": 1790937095,
+   "question": "Will Bolivia vs. Gambia end in a draw?",
+   "slug": "fif-bol-gam-2026-10-04-draw",
+   "outcome": "No",
+   "paid": 0.18,
+   "now": 0.1125,
+   "sure": false,
+   "stake": 4.41,
+   "end": "2026-10-04T22:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
+   "name": "Gigantic-Intelligence",
+   "ts": 1790937095,
+   "question": "Will Bolivia vs. Gambia end in a draw?",
+   "slug": "fif-bol-gam-2026-10-04-draw",
+   "outcome": "No",
+   "paid": 0.18,
+   "now": 0.1125,
+   "sure": false,
+   "stake": 4.41,
+   "end": "2026-10-04T22:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
+   "name": "Gigantic-Intelligence",
+   "ts": 1790937095,
+   "question": "Will Bolivia vs. Gambia end in a draw?",
+   "slug": "fif-bol-gam-2026-10-04-draw",
+   "outcome": "No",
+   "paid": 0.1799999979,
+   "now": 0.1125,
+   "sure": false,
+   "stake": 5.24999999875,
+   "end": "2026-10-04T22:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
+   "name": "Gigantic-Intelligence",
+   "ts": 1790937093,
+   "question": "Will Bolivia vs. Gambia end in a draw?",
+   "slug": "fif-bol-gam-2026-10-04-draw",
+   "outcome": "No",
+   "paid": 0.1799999979,
+   "now": 0.1125,
+   "sure": false,
+   "stake": 5.24999999875,
+   "end": "2026-10-04T22:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
+   "name": "Gigantic-Intelligence",
+   "ts": 1790937093,
+   "question": "Will Bolivia vs. Gambia end in a draw?",
+   "slug": "fif-bol-gam-2026-10-04-draw",
+   "outcome": "No",
+   "paid": 0.1799999979,
+   "now": 0.1125,
+   "sure": false,
+   "stake": 5.24999999875,
+   "end": "2026-10-04T22:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790937032,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.642,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 259.1754,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790937029,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.642,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 3.21,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790937027,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.642,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 1624.26,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790936967,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.6420000462,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 3.0306710000950003,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790936960,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.6420000014,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 125.53072700774302,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790936934,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.6420000099,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 10.759776999921792,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790936901,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.6420000006,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 181.3560339974916,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790936865,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.642,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 396.28092,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x198fa74120438fb7cabccb61aa824c6720dfc419",
+   "name": "Stormy-Influence",
+   "ts": 1790936859,
+   "question": "China Open: Maria Timofeeva vs Naomi Osaka",
+   "slug": "wta-timofee-osaka-2026-10-01",
+   "outcome": "Naomi Osaka",
+   "paid": 0.642,
+   "now": 0.9665,
+   "sure": false,
+   "stake": 3.21,
+   "end": "2026-10-09T03:00:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932607,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.7278999999999999,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932607,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000048,
+   "now": 0.285,
+   "sure": false,
+   "stake": 9.15746500157183,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932605,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932605,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000042,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.3805629999943605,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932604,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932604,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 3.136901,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932602,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932602,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000185,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.878872999859132,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932601,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932601,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000224,
+   "now": 0.285,
+   "sure": false,
+   "stake": 2.4547889996112735,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932599,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932599,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000174,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.3315489998929353,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932598,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932598,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000403,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.727746000097083,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932596,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932595,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000152,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.3397180002196984,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932595,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000637,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.1845070001830322,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932593,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932592,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000244,
+   "now": 0.285,
+   "sure": false,
+   "stake": 3.2063379997746226,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932592,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932592,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932590,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000174,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.3315489998929353,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932589,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932589,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000507,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.4295769999294525,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932569,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 0.58,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932569,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.2900000129,
+   "now": 0.285,
+   "sure": false,
+   "stake": 2.4670419997408284,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790932112,
+   "question": "Will CA Unión win on 2026-10-04?",
+   "slug": "arg-boc-uni-2026-10-04-uni",
+   "outcome": "Yes",
+   "paid": 0.14,
+   "now": 0.135,
+   "sure": false,
+   "stake": 0.0364,
+   "end": "2026-10-03T00:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790925519,
+   "question": "Will CA Unión win on 2026-10-04?",
+   "slug": "arg-boc-uni-2026-10-04-uni",
+   "outcome": "Yes",
+   "paid": 0.14,
+   "now": 0.135,
+   "sure": false,
+   "stake": 0.9632000000000001,
+   "end": "2026-10-03T00:30:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x99302f8beaefd9e337c3a263bc2ac9dc52c8696e",
+   "name": "Some-Sculpture",
+   "ts": 1790924817,
+   "question": "Will CA Banfield vs. CA Rosario Central end in a draw?",
+   "slug": "arg-ban-ros-2026-10-05-draw",
+   "outcome": "Yes",
+   "paid": 0.29,
+   "now": 0.285,
+   "sure": false,
+   "stake": 1.45,
+   "end": "2026-10-06T00:15:00+00:00",
+   "category": "Sports"
+  },
+  {
+   "wallet": "0x6cb1619a70230674c8bf1ef44ee9d670cb4b1002",
+   "name": "Relieved-Shirtdress",
+   "ts": 1790922804,
+   "question": "Barbados vs. Bermuda: O/U 3.5",
+   "slug": "conl-brb-ber-2026-10-02-total-3pt5",
+   "outcome": "Under",
+   "paid": 0.5199999961,
+   "now": 0.52,
+   "sure": false,
+   "stake": 5.290000000325,
+   "end": "2026-10-03T00:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -632,7 +1249,7 @@
    "slug": "fif-bol-gam-2026-10-04-bol",
    "outcome": "No",
    "paid": 0.98,
-   "now": 0.9655,
+   "now": 0.948,
    "sure": true,
    "stake": 43.943200000000004,
    "end": "2026-10-04T22:30:00+00:00",
@@ -646,7 +1263,7 @@
    "slug": "fif-bol-gam-2026-10-04-bol",
    "outcome": "No",
    "paid": 0.979500223,
-   "now": 0.9655,
+   "now": 0.948,
    "sure": true,
    "stake": 43.92078999932,
    "end": "2026-10-04T22:30:00+00:00",
@@ -660,7 +1277,7 @@
    "slug": "fif-bol-gam-2026-10-04-bol",
    "outcome": "Yes",
    "paid": 0.0389999999,
-   "now": 0.0345,
+   "now": 0.052,
    "sure": false,
    "stake": 1.7500000005128205,
    "end": "2026-10-04T22:30:00+00:00",
@@ -674,24 +1291,10 @@
    "slug": "fif-bol-gam-2026-10-04-bol",
    "outcome": "Yes",
    "paid": 0.0389999999,
-   "now": 0.0345,
+   "now": 0.052,
    "sure": false,
    "stake": 1.7500000005128205,
    "end": "2026-10-04T22:30:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x9079e3b10d8422844afd9cb7f36468a3c6a0b19b",
-   "name": "Gigantic-Intelligence",
-   "ts": 1790918849,
-   "question": "China Open: Linda Fruhvirtova vs Liudmila Samsonova",
-   "slug": "wta-fruhvir-samsono-2026-10-01",
-   "outcome": "Liudmila Samsonova",
-   "paid": 0.4699999944,
-   "now": 0.9995,
-   "sure": false,
-   "stake": 5.000000000425532,
-   "end": "2026-10-09T03:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -702,38 +1305,10 @@
    "slug": "itf-ifi1-nijboe1-2026-10-02",
    "outcome": "Ryan Nijboer",
    "paid": 0.8161270557,
-   "now": 0.805,
+   "now": 0.88,
    "sure": false,
    "stake": 109.82999900219806,
    "end": "2026-10-09T11:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x96f8e4e985756ee5d20cc616a81cfbb3e3eb2560",
-   "name": "Testy-Luck",
-   "ts": 1790916500,
-   "question": "LoL: Chinese Taipei vs South Korea - Game 2 Winner",
-   "slug": "lol-tpe-kor-2026-10-01-game2",
-   "outcome": "South Korea",
-   "paid": 0.928286383,
-   "now": 0.9995,
-   "sure": false,
-   "stake": 99.99999500292309,
-   "end": "2026-10-02T09:50:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x6cb1619a70230674c8bf1ef44ee9d670cb4b1002",
-   "name": "Relieved-Shirtdress",
-   "ts": 1790915711,
-   "question": "M15 Baku: Marcus Walters vs James Connel",
-   "slug": "itf-walter1-connel1-2026-10-02",
-   "outcome": "James Connel",
-   "paid": 0.6249457724,
-   "now": 0.66,
-   "sure": false,
-   "stake": 66.77000000434695,
-   "end": "2026-10-09T06:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -779,34 +1354,6 @@
    "category": "Sports"
   },
   {
-   "wallet": "0x96f8e4e985756ee5d20cc616a81cfbb3e3eb2560",
-   "name": "Testy-Luck",
-   "ts": 1790911868,
-   "question": "LoL: Chinese Taipei vs South Korea - Game 1 Winner",
-   "slug": "lol-tpe-kor-2026-10-01-game1",
-   "outcome": "South Korea",
-   "paid": 0.9038405936,
-   "now": 0.9995,
-   "sure": false,
-   "stake": 200.00000000547527,
-   "end": "2026-10-02T09:50:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x96f8e4e985756ee5d20cc616a81cfbb3e3eb2560",
-   "name": "Testy-Luck",
-   "ts": 1790911830,
-   "question": "LoL: Chinese Taipei vs South Korea - Game 1 Winner",
-   "slug": "lol-tpe-kor-2026-10-01-game1",
-   "outcome": "South Korea",
-   "paid": 0.88,
-   "now": 0.9995,
-   "sure": false,
-   "stake": 199.999998,
-   "end": "2026-10-02T09:50:00+00:00",
-   "category": "Sports"
-  },
-  {
    "wallet": "0xd89b14c50162bb600b6c2584421c481ccaa4e23f",
    "name": "Cold-Transit",
    "ts": 1790909213,
@@ -814,7 +1361,7 @@
    "slug": "unl-bel-tur-2026-10-02-corners-total-7pt5",
    "outcome": "Over",
    "paid": 0.7599999088,
-   "now": 0.505,
+   "now": 0.675,
    "sure": false,
    "stake": 0.9999980000002257,
    "end": "2026-10-02T18:45:00+00:00",
@@ -859,7 +1406,7 @@
    "now": 0.555,
    "sure": false,
    "stake": 56.00000000000001,
-   "end": "2026-10-03T14:00:00+00:00",
+   "end": "2026-10-03T19:00:00+00:00",
    "category": "Sports"
   },
   {
@@ -870,7 +1417,7 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.33,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 13.9227,
    "end": "2026-10-04T20:00:00+00:00",
@@ -884,7 +1431,7 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.3300000278,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 2.4971640003671314,
    "end": "2026-10-04T20:00:00+00:00",
@@ -898,7 +1445,7 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.33,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 1.32,
    "end": "2026-10-04T20:00:00+00:00",
@@ -912,24 +1459,10 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.330000001,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 16.716716000656714,
    "end": "2026-10-04T20:00:00+00:00",
-   "category": "Sports"
-  },
-  {
-   "wallet": "0x96f8e4e985756ee5d20cc616a81cfbb3e3eb2560",
-   "name": "Testy-Luck",
-   "ts": 1790878881,
-   "question": "LoL: Chinese Taipei vs South Korea (BO5) - Asian Games Playoffs",
-   "slug": "lol-tpe-kor-2026-10-01",
-   "outcome": "South Korea",
-   "paid": 0.9869161679,
-   "now": 0.9965,
-   "sure": true,
-   "stake": 99.99993799863532,
-   "end": "2026-10-02T09:50:00+00:00",
    "category": "Sports"
   },
   {
@@ -940,7 +1473,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.2100000009,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 15.90683499817215,
    "end": "2026-10-05T00:30:00+00:00",
@@ -954,7 +1487,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.21,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 0.42,
    "end": "2026-10-05T00:30:00+00:00",
@@ -968,7 +1501,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.2100000048,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 4.784809999367083,
    "end": "2026-10-05T00:30:00+00:00",
@@ -982,7 +1515,7 @@
    "slug": "unl-aze-lit-2026-10-04-aze",
    "outcome": "Yes",
    "paid": 0.5599999916,
-   "now": 0.47,
+   "now": 0.435,
    "sure": false,
    "stake": 15.930000001049995,
    "end": "2026-10-04T13:00:00+00:00",
@@ -996,7 +1529,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.21,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 2.31,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1010,7 +1543,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.21,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 33.81,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1024,7 +1557,7 @@
    "slug": "mls-chi-vwh-2026-07-16-vwh",
    "outcome": "Yes",
    "paid": 0.42,
-   "now": 0.41,
+   "now": 0.415,
    "sure": false,
    "stake": 13.998599999999998,
    "end": "2026-10-07T00:30:00+00:00",
@@ -1094,7 +1627,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.2100000297,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 1.3450630002303117,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1108,7 +1641,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.21,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 2.31,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1122,7 +1655,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.21,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 33.81,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1178,7 +1711,7 @@
    "slug": "arg-ind-iac-2026-10-02-ind",
    "outcome": "Yes",
    "paid": 0.41,
-   "now": 0.385,
+   "now": 0.375,
    "sure": false,
    "stake": 33.8496,
    "end": "2026-10-02T22:15:00+00:00",
@@ -1192,7 +1725,7 @@
    "slug": "arg-ind-iac-2026-10-02-ind",
    "outcome": "Yes",
    "paid": 0.41,
-   "now": 0.385,
+   "now": 0.375,
    "sure": false,
    "stake": 2.46,
    "end": "2026-10-02T22:15:00+00:00",
@@ -1206,7 +1739,7 @@
    "slug": "arg-ind-iac-2026-10-02-ind",
    "outcome": "Yes",
    "paid": 0.4100000034,
-   "now": 0.385,
+   "now": 0.375,
    "sure": false,
    "stake": 33.68949199937627,
    "end": "2026-10-02T22:15:00+00:00",
@@ -1248,7 +1781,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.180000001,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 6.897072998317072,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1262,7 +1795,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.18,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 1.26,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1276,7 +1809,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.180000001,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 18.445609002475603,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1346,7 +1879,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.19,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 18.81,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1360,7 +1893,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.18,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 1.17,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1374,7 +1907,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.18,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 17.82,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1402,7 +1935,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.18,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 0.27,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1416,7 +1949,7 @@
    "slug": "arg-aaj-tig-2026-10-03-tig",
    "outcome": "Yes",
    "paid": 0.18,
-   "now": 0.19,
+   "now": 0.185,
    "sure": false,
    "stake": 2.563902,
    "end": "2026-10-04T22:15:00+00:00",
@@ -1444,7 +1977,7 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.32,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 1.6,
    "end": "2026-10-04T20:00:00+00:00",
@@ -1458,7 +1991,7 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.3200001088,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 0.47058799999986567,
    "end": "2026-10-04T20:00:00+00:00",
@@ -1472,7 +2005,7 @@
    "slug": "arg-tal-bel-2026-10-04-draw",
    "outcome": "Yes",
    "paid": 0.3200001088,
-   "now": 0.33,
+   "now": 0.325,
    "sure": false,
    "stake": 0.47058799999986567,
    "end": "2026-10-04T20:00:00+00:00",
@@ -1486,7 +2019,7 @@
    "slug": "arg-ban-ros-2026-10-05-draw",
    "outcome": "Yes",
    "paid": 0.2900001491,
-   "now": 0.295,
+   "now": 0.285,
    "sure": false,
    "stake": 0.4084510000000441,
    "end": "2026-10-06T00:15:00+00:00",
@@ -1514,7 +2047,7 @@
    "slug": "arg-ban-ros-2026-10-05-draw",
    "outcome": "Yes",
    "paid": 0.2900001491,
-   "now": 0.295,
+   "now": 0.285,
    "sure": false,
    "stake": 0.4084510000000441,
    "end": "2026-10-06T00:15:00+00:00",
@@ -1598,7 +2131,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.21,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 0.42,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1612,7 +2145,7 @@
    "slug": "arg-aae-rac-2026-10-04-aae",
    "outcome": "Yes",
    "paid": 0.2100000043,
-   "now": 0.2,
+   "now": 0.21,
    "sure": false,
    "stake": 3.878353999413913,
    "end": "2026-10-05T00:30:00+00:00",
@@ -1640,7 +2173,7 @@
    "slug": "kbo-ssg-nc-2026-08-07",
    "outcome": "SSG Landers",
    "paid": 0.9299999999999999,
-   "now": 0.6,
+   "now": 0.51,
    "sure": false,
    "stake": 9.299999999999999,
    "end": "2026-10-11T05:00:00+00:00",
@@ -1654,14 +2187,14 @@
    "slug": "kbo-nc-doo-2026-08-04",
    "outcome": "NC Dinos",
    "paid": 0.0050000000000000044,
-   "now": 0.007,
+   "now": 0.0055,
    "sure": false,
    "stake": 0.025000000000000022,
    "end": "2026-10-06T09:30:00+00:00",
    "category": "Sports"
   }
  ],
- "monitor_at": "2026-10-02 06:15",
+ "monitor_at": "2026-10-02 10:46",
  "leaderboard": [
   {
    "wallet": "0x51698a47f840a242abc2ca0351371c7ffac41842",
@@ -1672,50 +2205,50 @@
   {
    "wallet": "0xf0318c32136c2db7fec88b84869aee6a1106c80c",
    "name": "BreakTheBank",
-   "pnl": 2114706.824625816,
-   "volume": 36498481.862284
-  },
-  {
-   "wallet": "0x3a8aa345d5db7ec5138298c8c4f4540259be7699",
-   "name": "TheReturnOfDarthMaul",
-   "pnl": 1963902.5655650776,
-   "volume": 4263931.004120001
+   "pnl": 2255516.651930022,
+   "volume": 36920316.06014699
   },
   {
    "wallet": "0x4f1d5ae26fc31472966e951af3183308736d8de2",
    "name": "e46m3",
-   "pnl": 1857788.479121192,
-   "volume": 2580177.619774024
+   "pnl": 1912858.9025308623,
+   "volume": 2565112.1302560167
+  },
+  {
+   "wallet": "0x3a8aa345d5db7ec5138298c8c4f4540259be7699",
+   "name": "TheReturnOfDarthMaul",
+   "pnl": 1840905.7780505838,
+   "volume": 4212676.714852001
   },
   {
    "wallet": "0x924379a79c64b77ad5816ad362122a5f6228658e",
    "name": "Kch-Temp",
-   "pnl": 1708234.2614864255,
-   "volume": 9982296.539333
+   "pnl": 1670794.937560001,
+   "volume": 10047349.340023
   },
   {
    "wallet": "0x0f6f76ced62a911bccef92f50faaff143854d977",
    "name": "totoro3miyazaki",
-   "pnl": 1655316.15395,
+   "pnl": 1655316.1539499997,
    "volume": 20946245.291640002
   },
   {
    "wallet": "0x224a89dbe0db0d6124b335edabd15b3f877da3d5",
    "name": "wr0ngw4yb3tt0r",
-   "pnl": 1119956.8162610796,
-   "volume": 103114917.59208302
+   "pnl": 1220164.4101319823,
+   "volume": 102278556.00422703
   },
   {
    "wallet": "0x2a69660046d7acc4ab204d7cc5ba78b0776cd2f7",
    "name": "UpTheBlues",
-   "pnl": 1112860.5675615706,
-   "volume": 112879508.28605822
+   "pnl": 1156338.6417257097,
+   "volume": 114534687.03185421
   },
   {
    "wallet": "0xcbc666209b4c17ea84c03c0dda71b5dab9e4ec62",
    "name": "raybanman",
    "pnl": 1088104.6023599987,
-   "volume": 8423204.837702002
+   "volume": 8423204.837702
   },
   {
    "wallet": "0x9319a045cdd0c2180e5eb7ad44374383db9a6410",
@@ -1724,88 +2257,88 @@
    "volume": 2923410.097154
   },
   {
-   "wallet": "0x361b16e3ddfe1d415d41008daac2631d94ab74fe",
-   "name": "0x361b16e3ddfe1d415d41008daac2631d94ab74fe",
-   "pnl": 897642.2125953495,
-   "volume": 4440210.225787
-  },
-  {
    "wallet": "0xbc43c8bfbc4d77c2fc9011adad38ba43b88996d3",
    "name": "0xBc43c8bfBC4d77c2FC9011adaD38Ba43b88996d3-1765231687816",
-   "pnl": 796912.353257148,
-   "volume": 15447112.399837
-  },
-  {
-   "wallet": "0x5e9458202b5817a72cf81105ec8a30e6f3705ba1",
-   "name": "pleaseplease123",
-   "pnl": 665940.5935596002,
-   "volume": 16757301.739308998
+   "pnl": 877002.7798281679,
+   "volume": 15718817.975298
   },
   {
    "wallet": "0xb0e74df9430a089aa102e2207af5fde1967439d2",
    "name": "0xb0e74DF9430A089Aa102e2207Af5fde1967439D2-1789545517033",
-   "pnl": 655230.618605548,
+   "pnl": 707434.0999259616,
    "volume": 337.0
+  },
+  {
+   "wallet": "0x361b16e3ddfe1d415d41008daac2631d94ab74fe",
+   "name": "0x361b16e3ddfe1d415d41008daac2631d94ab74fe",
+   "pnl": 700046.8648584797,
+   "volume": 4618064.211898999
   },
   {
    "wallet": "0xb7271c112cbd83eb4c1ef1b554ff963604ae2a9d",
    "name": "Elaran1993",
-   "pnl": 642723.0695329302,
-   "volume": 5239632.199439
-  },
-  {
-   "wallet": "0xd38b71f3e8ed1af71983e5c309eac3dfa9b35029",
-   "name": "primm",
-   "pnl": 629512.9087409992,
-   "volume": 5371401.005908
-  },
-  {
-   "wallet": "0x73e3fec494611d73c170cb2f23850fd998b21be9",
-   "name": "mmklop",
-   "pnl": 534893.9206110002,
-   "volume": 4824699.203794001
+   "pnl": 695633.2551769781,
+   "volume": 5441697.948373
   },
   {
    "wallet": "0xc2e7800b5af46e6093872b177b7a5e7f0563be51",
    "name": "beachboy4",
-   "pnl": 531052.1561695959,
-   "volume": 2137635.4920590003
-  },
-  {
-   "wallet": "0x7b02b2bac2a30ed5e40b7094e734f4c3dc2a4991",
-   "name": "foodenjoyer",
-   "pnl": 529227.9309713782,
-   "volume": 4608436.486712999
-  },
-  {
-   "wallet": "0xa080dadd87036ad01dbf5e9c254b0c3dbdba234f",
-   "name": "bands1",
-   "pnl": 522875.60502712015,
-   "volume": 4107946.6622560006
+   "pnl": 649654.0349324659,
+   "volume": 1433838.844689
   },
   {
    "wallet": "0x1465b79bff7992bc703e1aafb3683b1089647072",
    "name": "JnStrtPrdctnMrkts",
-   "pnl": 520399.1623231911,
-   "volume": 3388936.834095001
+   "pnl": 595673.6824637045,
+   "volume": 3152466.8608860006
   },
   {
-   "wallet": "0xc8ab97a9089a9ff7e6ef0688e6e591a066946418",
-   "name": "ArmageddonRewardsBilly",
-   "pnl": 497966.3771937542,
-   "volume": 7296801.162454998
+   "wallet": "0xd38b71f3e8ed1af71983e5c309eac3dfa9b35029",
+   "name": "primm",
+   "pnl": 554635.6619819992,
+   "volume": 5725833.745092
+  },
+  {
+   "wallet": "0x5268527977f700f9bf9b6d5cd843859e4e70135d",
+   "name": "HomeRunHazard",
+   "pnl": 529322.5993458919,
+   "volume": 101418909.81566705
+  },
+  {
+   "wallet": "0x73e3fec494611d73c170cb2f23850fd998b21be9",
+   "name": "mmklop",
+   "pnl": 523318.56127300014,
+   "volume": 4678340.962542
+  },
+  {
+   "wallet": "0x7b02b2bac2a30ed5e40b7094e734f4c3dc2a4991",
+   "name": "foodenjoyer",
+   "pnl": 506881.3364937156,
+   "volume": 4681488.187204999
   },
   {
    "wallet": "0x7ad71d79a3bb90d0a87a06500fa0fe11663842aa",
    "name": "theowalcott",
-   "pnl": 491172.58502499945,
+   "pnl": 491172.5850249997,
    "volume": 5413231.661812
   },
   {
-   "wallet": "0xd570e634aeb745d6501566dba5f81a555cc7e4f8",
-   "name": "0xd9670ea74384c1e1b9dc1e4267ffadaf4cdd140",
-   "pnl": 466079.68378800096,
-   "volume": 2718964.7619700003
+   "wallet": "0x111f73e91f85b6fe4de1ddec3de2fe32122e355b",
+   "name": "Papeasy",
+   "pnl": 487158.7175549399,
+   "volume": 0.0
+  },
+  {
+   "wallet": "0xa080dadd87036ad01dbf5e9c254b0c3dbdba234f",
+   "name": "bands1",
+   "pnl": 481685.3330982087,
+   "volume": 4194523.907050001
+  },
+  {
+   "wallet": "0xc8ab97a9089a9ff7e6ef0688e6e591a066946418",
+   "name": "ArmageddonRewardsBilly",
+   "pnl": 465667.93730698444,
+   "volume": 7017594.270607002
   },
   {
    "wallet": "0x7f8e1877a0907f2b2c7cabf8bdb2e2a8f3854487",
@@ -1820,6 +2353,12 @@
    "volume": 3419882.746366
   },
   {
+   "wallet": "0x1058f156b207cafe61d102e97bf6796931d301c1",
+   "name": "TheyAreTakingTheHobitsToIsengard",
+   "pnl": 422095.60365408007,
+   "volume": 629831.140932
+  },
+  {
    "wallet": "0xe9b710551dd82a44e79203c2394a2b10163ace7b",
    "name": "googleplay",
    "pnl": 408565.8748999991,
@@ -1828,38 +2367,20 @@
   {
    "wallet": "0x076daa87c4fe1a85402a9b6b8e0a866224388d4c",
    "name": "omnibus-076daa",
-   "pnl": 397539.27455431764,
-   "volume": 30649141.94625798
+   "pnl": 399751.80345607956,
+   "volume": 30557757.237868972
   },
   {
-   "wallet": "0x16bb9951a36fce71e2ef57890b786145e0ba8492",
-   "name": "0x16bb9951a36fce71e2ef57890b786145e0ba8492",
-   "pnl": 387737.4942460002,
-   "volume": 8053252.3388300035
-  },
-  {
-   "wallet": "0x1058f156b207cafe61d102e97bf6796931d301c1",
-   "name": "TheyAreTakingTheHobitsToIsengard",
-   "pnl": 377255.0152752439,
-   "volume": 764644.406743
+   "wallet": "0x1f3a646ce5cbe2c70270e7a46161d89b7c7b895d",
+   "name": "mooseborzoii",
+   "pnl": 384956.04079166416,
+   "volume": 3398510.371494999
   },
   {
    "wallet": "0x054964a95e2cb3fc2105a62a1edf3da44979c052",
    "name": "COMEONDUDE",
-   "pnl": 369948.5578980001,
-   "volume": 881038.2776720001
-  },
-  {
-   "wallet": "0x369f46433349a57cd6d08abf2819da737c09873e",
-   "name": "kindar",
-   "pnl": 363533.53094424494,
-   "volume": 2556838.7986009996
-  },
-  {
-   "wallet": "0x5268527977f700f9bf9b6d5cd843859e4e70135d",
-   "name": "HomeRunHazard",
-   "pnl": 362432.67010178685,
-   "volume": 100657919.33925998
+   "pnl": 369950.45789800014,
+   "volume": 881033.277672
   },
   {
    "wallet": "0x03e8a544e97eeff5753bc1e90d46e5ef22af1697",
@@ -1868,22 +2389,16 @@
    "volume": 1206817.7645460002
   },
   {
-   "wallet": "0x111f73e91f85b6fe4de1ddec3de2fe32122e355b",
-   "name": "Papeasy",
-   "pnl": 353853.4803558914,
-   "volume": 0.0
-  },
-  {
-   "wallet": "0xe015b5a2a299167be835a2fd1e86f09c49e06ffd",
-   "name": "TAIWANNUMBERONE",
-   "pnl": 343711.3586097284,
-   "volume": 7961254.187252
-  },
-  {
    "wallet": "0x04d5524a0a5af2eca6e39e03defc261d42fe66d8",
    "name": "WTSA",
-   "pnl": 343594.7633010345,
-   "volume": 2662971.5952329994
+   "pnl": 355086.1082780896,
+   "volume": 2422381.8723089998
+  },
+  {
+   "wallet": "0x369f46433349a57cd6d08abf2819da737c09873e",
+   "name": "kindar",
+   "pnl": 351724.3484390819,
+   "volume": 2556838.7986009996
   },
   {
    "wallet": "0x80d5aebbe7a714879177e4dae0014195beb3987e",
@@ -1894,74 +2409,92 @@
   {
    "wallet": "0x1109da04152c38666464f5adb5d7c55618810b2c",
    "name": "MumiaTriste",
-   "pnl": 339661.8509420479,
-   "volume": 4399024.114146006
-  },
-  {
-   "wallet": "0x397062018dfb77e855608fe23223592bc82c44ce",
-   "name": "11vsldfdsgfkjgos",
-   "pnl": 311846.6953180001,
-   "volume": 2091714.441818
-  },
-  {
-   "wallet": "0xbca08c1bc204a34f2fddbe47b438b9bd42ac9705",
-   "name": "justaluckydude",
-   "pnl": 306897.25621454493,
-   "volume": 10943528.223526996
-  },
-  {
-   "wallet": "0xc6587b11a2209e46dfe3928b31c5514a8e33b784",
-   "name": "Erasmus.",
-   "pnl": 280883.4841700796,
-   "volume": 3039657.023514
-  },
-  {
-   "wallet": "0xc95ed399d2fbaec9461f2abd70e0d96df1921288",
-   "name": "Siddhartha1",
-   "pnl": 278631.58659244096,
-   "volume": 3499055.976593
+   "pnl": 336388.5589983473,
+   "volume": 4365343.295601005
   },
   {
    "wallet": "0x2117ae94a97d69b78cbc81b6680a62deb1955c26",
    "name": "Zzzz87",
-   "pnl": 277392.9671772035,
-   "volume": 7872990.690762001
+   "pnl": 318799.09803872555,
+   "volume": 7776010.035475002
+  },
+  {
+   "wallet": "0xbca08c1bc204a34f2fddbe47b438b9bd42ac9705",
+   "name": "justaluckydude",
+   "pnl": 317314.48553176585,
+   "volume": 11073525.965239994
+  },
+  {
+   "wallet": "0x16bb9951a36fce71e2ef57890b786145e0ba8492",
+   "name": "0x16bb9951a36fce71e2ef57890b786145e0ba8492",
+   "pnl": 302873.0089254201,
+   "volume": 8046958.287106003
   },
   {
    "wallet": "0xd3b034d7bfb2473fb252d0414646d9786bac329e",
    "name": "Sunshine.Smile",
-   "pnl": 276569.24628100055,
-   "volume": 7949915.615442999
+   "pnl": 300544.9932086336,
+   "volume": 7932963.103897998
+  },
+  {
+   "wallet": "0x11fe63de4b738f0c663276687f6dd8df26b841b4",
+   "name": "teslaRoadster",
+   "pnl": 275937.97763,
+   "volume": 993628.5503909999
   },
   {
    "wallet": "0x0346afae2603313d2bbee96b628536c8cbe352a5",
    "name": "GoalLineGhost",
-   "pnl": 267160.7938062059,
-   "volume": 67251036.32016087
-  },
-  {
-   "wallet": "0x2dc13c6bda81b202281e796953a7323de675b33c",
-   "name": "xifutloong3",
-   "pnl": 266562.2759829999,
-   "volume": 3570471.7435050006
+   "pnl": 272702.23524584994,
+   "volume": 68257382.36499788
   },
   {
    "wallet": "0x103721386ec40df5ab93df0bd0964e8fe70b5b09",
    "name": "equalsignificance",
-   "pnl": 259034.2337157514,
-   "volume": 3436128.5751860007
+   "pnl": 269703.5219938424,
+   "volume": 3599271.527505
+  },
+  {
+   "wallet": "0x2dc13c6bda81b202281e796953a7323de675b33c",
+   "name": "xifutloong3",
+   "pnl": 266562.27598299994,
+   "volume": 3570471.7435050006
+  },
+  {
+   "wallet": "0xc6587b11a2209e46dfe3928b31c5514a8e33b784",
+   "name": "Erasmus.",
+   "pnl": 264706.76771820977,
+   "volume": 3014906.998514
+  },
+  {
+   "wallet": "0xee88371850f0e1332c526e1b8e6f43a7e3ef2826",
+   "name": "comboseoa",
+   "pnl": 262743.9313088286,
+   "volume": 8462794.187714003
   },
   {
    "wallet": "0x05f6cb63d4ffdfaecd7ad8acd0765b6f6a5a25a1",
    "name": "ethBELIVER",
-   "pnl": 255276.0917710861,
-   "volume": 1319102.5117669997
+   "pnl": 255686.36713136622,
+   "volume": 1183370.4859119998
   },
   {
-   "wallet": "0xafd492974cd531aae7786210438ae46b42047e61",
-   "name": "RevengeRange",
-   "pnl": 247094.9983232997,
-   "volume": 4284521.397895999
+   "wallet": "0xe015b5a2a299167be835a2fd1e86f09c49e06ffd",
+   "name": "TAIWANNUMBERONE",
+   "pnl": 238381.61411550525,
+   "volume": 7743763.556434998
+  },
+  {
+   "wallet": "0x5e9458202b5817a72cf81105ec8a30e6f3705ba1",
+   "name": "pleaseplease123",
+   "pnl": 229061.57120122056,
+   "volume": 16226554.844050996
+  },
+  {
+   "wallet": "0x6c557de3d1056971396317b2553b15b094a24a8c",
+   "name": "Di88medes",
+   "pnl": 226375.53204100003,
+   "volume": 914635.756443
   }
  ]
 }

@@ -1,11 +1,11 @@
 {
  "ticker": "BA",
- "fetched": "2026-10-02",
+ "fetched": "2026-10-03",
  "source": "Nasdaq",
  "next_earnings": {
-  "date": "2026-11-04",
+  "date": "2026-10-27",
   "estimated": true,
-  "timing": ""
+  "timing": "avant ouverture"
  },
  "past_earnings": [
   "2025-10-29",

@@ -5,7 +5,13 @@ on:
     inputs:
       symbols:
         description: "Symboles Yahoo séparés par des virgules (ex. SXGC.TO,NBIS,AIXA.DE)"
-        required: true
+        required: false
+  # Sans saisie : symboles du fichier data/listes/symbols.txt (une modification relance la collecte).
+  push:
+    branches: ["claude/**"]
+    paths:
+      - "data/listes/symbols.txt"
+      - ".github/workflows/fetch-quotes.yml"
 
 permissions:
   contents: write
@@ -20,7 +26,10 @@ jobs:
         with:
           python-version: "3.12"
       - name: Cours
-        run: python -u scripts/fetch_quotes.py --symbols "${{ github.event.inputs.symbols }}" --out data/quotes/latest.csv
+        run: |
+          SYMBOLS="${{ github.event.inputs.symbols }}"
+          [ -z "$SYMBOLS" ] && SYMBOLS="$(tr '\n' ',' < data/listes/symbols.txt)"
+          python -u scripts/fetch_quotes.py --symbols "$SYMBOLS" --out data/quotes/latest.csv
       - name: Enregistrement dans la branche
         run: |
           git config user.name "github-actions[bot]"

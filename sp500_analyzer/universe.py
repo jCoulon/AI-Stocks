@@ -88,6 +88,7 @@ AI_EXTRA: list[Security] = [
 #: Autres titres suivis à la demande (hors S&P 500 et hors focus IA) : univers « tout » seulement.
 OTHER_EXTRA: list[Security] = [
     Security("FIGR", "Figure Technology Solutions", "Financials", 2.0),
+    Security("SHMD", "SCHMID Group", "Technology", 1.5),
 ]
 
 #: Sous-thème de chaque titre du focus IA

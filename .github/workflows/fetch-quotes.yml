@@ -1,0 +1,32 @@
+name: Cours de symboles (liste libre)
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: "Symboles Yahoo séparés par des virgules (ex. SXGC.TO,NBIS,AIXA.DE)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  quotes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cours
+        run: python -u scripts/fetch_quotes.py --symbols "${{ github.event.inputs.symbols }}" --out data/quotes/latest.csv
+      - name: Enregistrement dans la branche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/quotes
+          if git diff --cached --quiet; then echo "Aucune donnée nouvelle."; else
+            git commit -m "Cours de symboles (liste libre)"
+            for i in 1 2 3; do git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 5; done
+          fi

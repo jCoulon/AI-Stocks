@@ -1,50 +1,50 @@
 {
  "ticker": "APLD",
- "fetched": "2026-10-10",
+ "fetched": "2026-10-13",
  "source": "Nasdaq",
- "spot": 23.68,
+ "spot": 23.25,
  "straddles": [
   {
    "expiry": "2026-10-16",
-   "strike": 23.5,
-   "straddle": 1.845,
-   "move": 0.07791385135135136
+   "strike": 23.0,
+   "straddle": 1.525,
+   "move": 0.06559139784946236
   },
   {
    "expiry": "2026-10-23",
-   "strike": 23.5,
-   "straddle": 2.57,
-   "move": 0.1085304054054054
+   "strike": 23.0,
+   "straddle": 2.25,
+   "move": 0.0967741935483871
   },
   {
    "expiry": "2026-10-30",
-   "strike": 24.0,
-   "straddle": 3.54,
-   "move": 0.14949324324324326
+   "strike": 23.0,
+   "straddle": 3.16,
+   "move": 0.13591397849462367
   },
   {
    "expiry": "2026-11-06",
-   "strike": 24.0,
-   "straddle": 3.955,
-   "move": 0.16701858108108109
+   "strike": 23.0,
+   "straddle": 3.54,
+   "move": 0.15225806451612903
   },
   {
    "expiry": "2026-11-13",
-   "strike": 24.0,
-   "straddle": 4.13,
-   "move": 0.17440878378378377
+   "strike": 23.0,
+   "straddle": 3.96,
+   "move": 0.1703225806451613
   },
   {
    "expiry": "2026-11-20",
-   "strike": 24.0,
-   "straddle": 4.875,
-   "move": 0.20586993243243243
+   "strike": 23.0,
+   "straddle": 4.365,
+   "move": 0.18774193548387097
   },
   {
    "expiry": "2026-11-27",
-   "strike": 23.5,
-   "straddle": 5.04,
-   "move": 0.21283783783783783
+   "strike": 23.0,
+   "straddle": 4.375,
+   "move": 0.1881720430107527
   }
  ]
 }

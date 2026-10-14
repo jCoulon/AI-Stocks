@@ -1,8 +1,8 @@
 {
  "ticker": "NBIS",
- "fetched": "2026-10-13",
+ "fetched": "2026-10-14",
  "source": "Nasdaq",
- "market_cap": 57105907093.0,
+ "market_cap": 56235970395.0,
  "price": null,
  "target_mean": 300.18,
  "target_high": 410.0,

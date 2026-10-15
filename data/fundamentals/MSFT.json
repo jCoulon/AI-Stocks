@@ -1,10 +1,10 @@
 {
  "ticker": "MSFT",
- "fetched": "2026-10-14",
+ "fetched": "2026-10-15",
  "source": "Nasdaq",
  "market_cap": 4035412697084.0,
  "price": null,
- "target_mean": 588.56,
+ "target_mean": 591.14,
  "target_high": 725.0,
  "target_low": 440.0,
  "analysts": 35.0,

@@ -1,50 +1,50 @@
 {
  "ticker": "FIGR",
- "fetched": "2026-10-14",
+ "fetched": "2026-10-15",
  "source": "Nasdaq",
- "spot": 28.46,
+ "spot": 27.25,
  "straddles": [
   {
    "expiry": "2026-10-16",
-   "strike": 28.5,
-   "straddle": 2.075,
-   "move": 0.07290934645115953
+   "strike": 27.0,
+   "straddle": 2.15,
+   "move": 0.07889908256880733
   },
   {
    "expiry": "2026-10-23",
-   "strike": 28.5,
-   "straddle": 2.825,
-   "move": 0.09926212227687983
+   "strike": 27.0,
+   "straddle": 2.875,
+   "move": 0.10550458715596331
   },
   {
    "expiry": "2026-10-30",
-   "strike": 28.5,
-   "straddle": 3.675,
-   "move": 0.1291286015460295
+   "strike": 27.0,
+   "straddle": 3.65,
+   "move": 0.13394495412844037
   },
   {
    "expiry": "2026-11-06",
-   "strike": 28.0,
-   "straddle": 4.1,
-   "move": 0.14406184118060433
+   "strike": 27.0,
+   "straddle": 4.25,
+   "move": 0.1559633027522936
   },
   {
    "expiry": "2026-11-13",
-   "strike": 28.0,
-   "straddle": 5.35,
-   "move": 0.18798313422347152
+   "strike": 27.0,
+   "straddle": 5.325,
+   "move": 0.19541284403669726
   },
   {
    "expiry": "2026-11-20",
    "strike": 27.5,
-   "straddle": 5.775,
-   "move": 0.2029163738580464
+   "straddle": 5.875,
+   "move": 0.21559633027522937
   },
   {
    "expiry": "2026-11-27",
-   "strike": 28.0,
-   "straddle": 5.625,
-   "move": 0.19764581869290232
+   "strike": 27.0,
+   "straddle": 5.725,
+   "move": 0.21009174311926604
   }
  ]
 }

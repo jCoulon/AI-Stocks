@@ -1,50 +1,44 @@
 {
  "ticker": "SOUN",
- "fetched": "2026-10-14",
+ "fetched": "2026-10-15",
  "source": "Nasdaq",
- "spot": 4.97,
+ "spot": 4.88,
  "straddles": [
   {
    "expiry": "2026-10-16",
-   "strike": 5.0,
-   "straddle": 0.24,
-   "move": 0.048289738430583505
+   "strike": 4.5,
+   "straddle": 0.18,
+   "move": 0.036885245901639344
   },
   {
    "expiry": "2026-10-23",
-   "strike": 5.0,
-   "straddle": 0.385,
-   "move": 0.07746478873239437
+   "strike": 4.5,
+   "straddle": 0.305,
+   "move": 0.0625
   },
   {
    "expiry": "2026-10-30",
-   "strike": 5.0,
-   "straddle": 0.425,
-   "move": 0.08551307847082495
+   "strike": 4.5,
+   "straddle": 0.475,
+   "move": 0.09733606557377049
   },
   {
    "expiry": "2026-11-06",
-   "strike": 5.0,
-   "straddle": 0.73,
-   "move": 0.14688128772635814
+   "strike": 4.5,
+   "straddle": 0.765,
+   "move": 0.1567622950819672
   },
   {
    "expiry": "2026-11-13",
-   "strike": 5.0,
-   "straddle": 0.825,
-   "move": 0.1659959758551308
-  },
-  {
-   "expiry": "2026-11-20",
-   "strike": 5.0,
-   "straddle": 0.87,
-   "move": 0.1750503018108652
+   "strike": 4.5,
+   "straddle": 0.835,
+   "move": 0.1711065573770492
   },
   {
    "expiry": "2026-11-27",
-   "strike": 5.0,
-   "straddle": 1.01,
-   "move": 0.20321931589537223
+   "strike": 4.5,
+   "straddle": 0.885,
+   "move": 0.18135245901639344
   }
  ]
 }

@@ -1,20 +1,26 @@
 {
  "ticker": "AIP",
- "fetched": "2026-10-15",
+ "fetched": "2026-10-16",
  "source": "Nasdaq",
- "spot": 21.16,
+ "spot": 19.67,
  "straddles": [
   {
    "expiry": "2026-10-16",
    "strike": 20.0,
-   "straddle": 2.375,
-   "move": 0.11224007561436673
+   "straddle": 1.47,
+   "move": 0.07473309608540925
   },
   {
    "expiry": "2026-11-20",
    "strike": 20.0,
-   "straddle": 4.55,
-   "move": 0.21502835538752363
+   "straddle": 4.25,
+   "move": 0.21606507371631925
+  },
+  {
+   "expiry": "2026-12-18",
+   "strike": 20.0,
+   "straddle": 5.25,
+   "move": 0.2669039145907473
   }
  ]
 }

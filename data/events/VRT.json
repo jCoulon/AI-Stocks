@@ -1,11 +1,11 @@
 {
  "ticker": "VRT",
- "fetched": "2026-10-15",
+ "fetched": "2026-10-16",
  "source": "Nasdaq",
  "next_earnings": {
   "date": "2026-10-28",
   "estimated": true,
-  "timing": ""
+  "timing": "avant ouverture"
  },
  "past_earnings": [
   "2025-10-22",

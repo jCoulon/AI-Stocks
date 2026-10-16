@@ -1,10 +1,10 @@
 {
  "ticker": "META",
- "fetched": "2026-10-15",
+ "fetched": "2026-10-16",
  "source": "Nasdaq",
  "market_cap": 1878887741187.0,
  "price": null,
- "target_mean": 822.38,
+ "target_mean": 830.2,
  "target_high": 1000.0,
  "target_low": 580.0,
  "analysts": 45.0,

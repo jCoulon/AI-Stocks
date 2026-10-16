@@ -1,10 +1,10 @@
 {
  "ticker": "AMZN",
- "fetched": "2026-10-15",
+ "fetched": "2026-10-16",
  "source": "Nasdaq",
  "market_cap": 2740586552374.0,
  "price": null,
- "target_mean": 331.34,
+ "target_mean": 330.88,
  "target_high": 400.0,
  "target_low": 230.0,
  "analysts": 43.0,

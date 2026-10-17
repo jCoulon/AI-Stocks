@@ -1,10 +1,10 @@
 {
  "ticker": "WULF",
- "fetched": "2026-10-16",
+ "fetched": "2026-10-17",
  "source": "Nasdaq",
  "market_cap": 6296984704.0,
  "price": null,
- "target_mean": 32.19,
+ "target_mean": 31.75,
  "target_high": 65.0,
  "target_low": 15.0,
  "analysts": 20.0,

@@ -1566,3 +1566,33 @@ Id,Posted,Author,Joined,Followers,Likes,Sentiment,Text
 666811593,2026-10-19 00:52:39,graph,2023-03-28,159,1,Bullish,"$CBRS Cerebras addresses the 44 GB on-chip SRAM capacity limit of its Wafer-Scale Engine (WSE-3) through model sharding, layer pipelining, and disaggregated inference."
 666811607,2026-10-19 00:53:50,graph,2023-03-28,159,1,Bullish,"$CBRS Cerebras solves the 44 GB on-chip SRAM capacity limit using MemoryX and SwarmX technology. How MemoryX and SwarmX Work • Decoupled Architecture: Instead of forcing an entire large language model (LLM) to sit inside the wafer&#39;s 44 GB of SRAM, Cerebras separates compute from weight storage. • External Weight Storage (MemoryX): Massive model parameters (such as models with tens or hundreds of billions of parameters) are stored in external MemoryX units, which provide up to 1,200 TB of memory capacity per system. • Layer-by-Layer Streaming: During inference, model weights are streamed dynamically from MemoryX onto the Wafer-Scale Engine (WSE) layer-by-layer as they are needed."
 666811614,2026-10-19 00:54:14,graph,2023-03-28,159,1,Bullish,$CBRS • SRAM Role: The 44 GB of on-chip SRAM is reserved for active computation and holding activation states / intermediate data—where the wafer&#39;s massive internal memory bandwidth (21+ petabytes/second) delivers high-speed token generation. • Cluster Distribution (SwarmX): SwarmX handles high-speed fabric distribution to scale and coordinate work across multiple clustered Cerebras systems when running massive models.
+666825420,2026-10-19 09:32:37,Jduejene,2025-05-04,14,3,Bearish,$IREN $NBIS $CBRS $STX - red by EOD all of them
+666825531,2026-10-19 09:33:26,usmantanvir,2024-05-24,17,0,,$CBRS wTF
+666825829,2026-10-19 09:35:42,senna,2015-02-03,9,1,Bearish,$CBRS semis green and this POS red LMAO you can&#39;t make this shit up
+666825838,2026-10-19 09:35:48,usmantanvir,2024-05-24,17,0,Bearish,$CBRS new 52 weeks low
+666825868,2026-10-19 09:36:00,Cheesecakelover,2026-01-28,4,1,,$CBRS how many shares do tou guys own? I guess i bought way too soon
+666825892,2026-10-19 09:36:07,DangerFUD,2026-09-29,0,0,,$CBRS total POS 🤣🤦🏻‍♂️🙈
+666826041,2026-10-19 09:37:10,SpudZone,2020-01-22,27051,0,,"Can&#39;t believe how fast $CBRS has dropped since my SHORT IDEA off $160 breakdown what a beauty, left 1,000s of %s on the table.. should have stayed with it.... my goodness this is falling 5-10% a day consecutively"
+666826125,2026-10-19 09:37:43,Jagan11,2024-11-26,17,1,Bearish,$CBRS I’m sorry my friends I told you long ago This stock is dead
+666826361,2026-10-19 09:39:15,Triple888,2026-05-10,3,0,,$CBRS are you talking about CBRS or another stock. ????
+666826441,2026-10-19 09:39:51,Steezbeez,2023-12-01,154,0,,$CBRS an average analyst target of nearly 300$ and this is what price action we are getting - disturbs me so much bro
+666826452,2026-10-19 09:39:53,Cpak,2021-03-20,148,0,Bearish,$CBRS going below 100
+666826571,2026-10-19 09:40:40,Nashir1985,2020-03-09,22,0,Bearish,$CBRS Fair Value $80
+666826608,2026-10-19 09:40:53,Triple888,2026-05-10,3,0,,$CBRS it got downgraded by TD and others could follow soon.
+666826637,2026-10-19 09:41:04,senna,2015-02-03,9,1,Bearish,$CBRS The first of several more.
+666826800,2026-10-19 09:42:11,PimpersParadise,2023-01-24,59,2,Bearish,$CBRS More instant bagholders this morning
+666826824,2026-10-19 09:42:19,missalyssa,2021-10-26,168,0,Bearish,$CBRS below $100
+666826890,2026-10-19 09:42:50,ssam09,2024-11-11,31,0,,$CBRS what the fk is going on here
+666826911,2026-10-19 09:42:58,eha,2018-10-18,4,0,Bullish,"$CBRS pre market +3% to -3% open, smdh"
+666826932,2026-10-19 09:43:12,Baazigar123,2022-03-08,33,0,Bearish,$CBRS just a shadow
+666826967,2026-10-19 09:43:24,senna,2015-02-03,9,0,Bearish,$CBRS CEO is liquidating his shares atm.
+666826975,2026-10-19 09:43:27,StrongArmor,2014-07-16,485,0,,$CBRS many buy puts or short Cathie plays so could easily go sub 100 soon. ⚠️ caution ‼️
+666826989,2026-10-19 09:43:33,Cheesecakelover,2026-01-28,4,0,,$CBRS someone make an analyst at one of the firms so i can drop my target and short or long beforehand. What a stupid way to manipulate
+666826994,2026-10-19 09:43:34,Dimihoudini,2026-05-08,4,2,,$CBRS dang it this stock is complete shit
+666827011,2026-10-19 09:43:42,usmantanvir,2024-05-24,17,0,,$CBRS all are green except this
+666827112,2026-10-19 09:44:24,buddyopalosam,2020-12-11,76,0,,$CBRS who downgraded this?
+666827135,2026-10-19 09:44:36,Steezbeez,2023-12-01,154,1,,$CBRS what in gods name is this bro
+666827236,2026-10-19 09:45:13,usmantanvir,2024-05-24,17,0,Bearish,$CBRS non stop
+666827314,2026-10-19 09:45:44,Cheesecakelover,2026-01-28,4,0,,$CBRS i wonder what cathie is thinking about this. She loaded at 190-200 range
+666827332,2026-10-19 09:45:50,Jduejene,2025-05-04,14,1,Bearish,$CBRS truly incredible - worst company on the market for sure
+666827423,2026-10-19 09:46:30,Value_Amigo,2016-07-13,143,0,,$CBRS 100

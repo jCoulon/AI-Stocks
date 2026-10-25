@@ -1,63 +1,63 @@
 {
  "market": {
-  "condition_id": "0xff54c0bca341ff5ff0d1e2aeef4d883635104d7b9582cb9bdaf503b4141abdfb",
-  "question": "LSU vs. Ole Miss",
-  "slug": "cfb-lsu-miss-2026-09-19",
-  "end": "2026-09-19 23:30:00+00:00",
+  "condition_id": "0x33a835240ed22c5ef25d3fff2cf5d21fca053a141a7529488a2396cd78f90e2e",
+  "question": "Will Arsenal FC win on 2026-10-24?",
+  "slug": "epl-ars-eve-2026-10-24-ars",
+  "end": "2026-10-24 14:00:00+00:00",
   "outcomes": [
-   "LSU",
-   "Ole Miss"
+   "Yes",
+   "No"
   ],
-  "winner": 1,
-  "volume": 2985108.3795239986,
+  "winner": 0,
+  "volume": 2986795.0604809998,
   "category": "Sports",
   "prices": [
-   0.0,
-   1.0
+   1.0,
+   0.0
   ]
  },
  "trades": [
   {
-   "proxyWallet": "0x50bec18c474d9a1d18b3be72332441302375371b",
+   "proxyWallet": "0xce313775a548425af05f858bb3f87b32db45a72f",
    "side": "SELL",
-   "asset": "10443448103808219251984443542919547786294289140649663375473217039223392708800",
-   "conditionId": "0xff54c0bca341ff5ff0d1e2aeef4d883635104d7b9582cb9bdaf503b4141abdfb",
-   "size": 4972.07,
+   "asset": "114460869056021695126097471762228510096841940195417663873021964330022095891387",
+   "conditionId": "0x33a835240ed22c5ef25d3fff2cf5d21fca053a141a7529488a2396cd78f90e2e",
+   "size": 3.4,
    "price": 0.999,
-   "timestamp": 1789876236,
-   "title": "LSU vs. Ole Miss",
-   "slug": "cfb-lsu-miss-2026-09-19",
-   "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/espn+college+football+logo.png",
-   "eventSlug": "cfb-lsu-miss-2026-09-19",
-   "outcome": "Ole Miss",
-   "outcomeIndex": 1,
-   "name": "0x50bec18C474d9A1D18B3bE72332441302375371B-1761434422891",
-   "pseudonym": "Black-And-White-Nougat",
+   "timestamp": 1792861001,
+   "title": "Will Arsenal FC win on 2026-10-24?",
+   "slug": "epl-ars-eve-2026-10-24-ars",
+   "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/Repetitive-markets/premier+league.jpg",
+   "eventSlug": "epl-ars-eve-2026-10-24",
+   "outcome": "Yes",
+   "outcomeIndex": 0,
+   "name": "",
+   "pseudonym": "",
    "bio": "",
    "profileImage": "",
    "profileImageOptimized": "",
-   "transactionHash": "0xdd8e5f3612536ee0d1866170f9dbef99f9aba5fe21c270ff757af4e4ac09e511"
+   "transactionHash": "0x115db2c3168553f00fec43f1f8a745be8c1d0700fa69acdc0e61afe1fc57b599"
   },
   {
-   "proxyWallet": "0x60299d9b8743e309eeab94d35af615aafffa04af",
+   "proxyWallet": "0xe546a123329478d0ea0a60b3e66f3e62130d49d1",
    "side": "SELL",
-   "asset": "10443448103808219251984443542919547786294289140649663375473217039223392708800",
-   "conditionId": "0xff54c0bca341ff5ff0d1e2aeef4d883635104d7b9582cb9bdaf503b4141abdfb",
-   "size": 69.76,
+   "asset": "114460869056021695126097471762228510096841940195417663873021964330022095891387",
+   "conditionId": "0x33a835240ed22c5ef25d3fff2cf5d21fca053a141a7529488a2396cd78f90e2e",
+   "size": 1.47,
    "price": 0.999,
-   "timestamp": 1789876201,
-   "title": "LSU vs. Ole Miss",
-   "slug": "cfb-lsu-miss-2026-09-19",
-   "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/espn+college+football+logo.png",
-   "eventSlug": "cfb-lsu-miss-2026-09-19",
-   "outcome": "Ole Miss",
-   "outcomeIndex": 1,
-   "name": "0x60299d9b8743e309eeab94d35af615aafffa04af-1791822910987",
-   "pseudonym": "Scary-Bark-Tanker",
+   "timestamp": 1792860875,
+   "title": "Will Arsenal FC win on 2026-10-24?",
+   "slug": "epl-ars-eve-2026-10-24-ars",
+   "icon": "https://polymarket-upload.s3.us-east-2.amazonaws.com/Repetitive-markets/premier+league.jpg",
+   "eventSlug": "epl-ars-eve-2026-10-24",
+   "outcome": "Yes",
+   "outcomeIndex": 0,
+   "name": "",
+   "pseudonym": "",
    "bio": "",
    "profileImage": "",
    "profileImageOptimized": "",
-   "transactionHash": "0x298e1690c899a27ff89d2103569fd9da6b4453f853e0a4e2f32f5aace735af24"
+   "transactionHash": "0xe1124ff1114fee151c47579051e201f8022f7cb100e976461f9d57d28588771a"
   }
  ]
 }

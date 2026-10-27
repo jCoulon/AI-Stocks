@@ -1002,3 +1002,56 @@ Date,Ticker,Price,ShortScore,ShortLabel,MediumScore,MediumLabel,Status,Support,S
 2026-10-23,WMT,121.1200,0.2156,Plutôt haussier,0.1582,Plutôt haussier,À surveiller,117.9992,116.7878,121.3800,2026-11-19,resultats,0.0638,0.0502,2026-10-24 00:47
 2026-10-23,WULF,11.3200,0.2940,Plutôt haussier,-0.3431,Plutôt baissier,Zone d'entrée technique,10.3500,9.7777,15.1774,2026-11-06,resultats,0.0808,0.0909,2026-10-24 00:47
 2026-10-23,XOM,178.2300,0.2188,Plutôt haussier,0.4675,Haussier,Attendre la publication,165.2492,163.3695,180.3100,2026-10-30,resultats,0.0101,0.0445,2026-10-24 00:47
+2026-10-26,AAPL,343.9100,0.0973,Neutre,0.3254,Plutôt haussier,Attendre la publication,338.7000,335.4841,345.3400,2026-11-02,resultats,0.0244,0.0321,2026-10-27 01:35
+2026-10-26,AI,12.7900,-0.2907,Plutôt baissier,0.0168,Neutre,À surveiller,10.9610,10.6576,12.8800,2026-12-02,resultats,0.0601,0.0883,2026-10-27 01:35
+2026-10-26,AIP,19.4400,0.1629,Plutôt haussier,-0.1809,Plutôt baissier,Attendre la publication,18.1500,17.4955,21.1500,2026-11-05,resultats,0.0551,0.1841,2026-10-27 01:35
+2026-10-26,AMD,531.2800,0.1941,Plutôt haussier,0.2294,Plutôt haussier,Attendre la publication,480.3300,466.9318,542.6172,2026-11-03,resultats,0.0999,0.0639,2026-10-27 01:35
+2026-10-26,AMT,188.2800,0.1386,Plutôt haussier,0.0112,Neutre,Attendre la publication,177.1000,174.2370,202.5000,2026-10-27,resultats,0.0480,0.0369,2026-10-27 01:35
+2026-10-26,AMZN,249.0900,0.1738,Plutôt haussier,0.1259,Plutôt haussier,Attendre la publication,248.6000,245.3791,255.3764,2026-10-29,resultats,0.0789,0.0704,2026-10-27 01:35
+2026-10-26,ANET,177.2400,0.3088,Plutôt haussier,0.1670,Plutôt haussier,Attendre la publication,176.7700,172.5306,188.9900,2026-11-03,resultats,0.0881,0.0683,2026-10-27 01:35
+2026-10-26,APLD,17.8300,0.3098,Plutôt haussier,-0.4249,Baissier,Zone d'entrée technique,17.6510,16.7686,21.5600,,,,,2026-10-27 01:35
+2026-10-26,ARM,223.3500,0.1911,Plutôt haussier,-0.0546,Neutre,Attendre la publication,100.0200,92.2986,226.6188,2026-11-04,resultats,0.0184,0.0762,2026-10-27 01:35
+2026-10-26,AVGO,329.1700,0.1469,Plutôt haussier,-0.1143,Neutre,Zone d'entrée technique,328.5800,322.9810,355.1649,2026-12-10,resultats,0.0944,0.0762,2026-10-27 01:35
+2026-10-26,BA,188.3100,0.0425,Neutre,-0.1090,Neutre,Attendre la publication,184.2500,181.7729,191.9000,2026-10-27,resultats,0.0480,0.0463,2026-10-27 01:35
+2026-10-26,BAC,50.5200,-0.0170,Neutre,0.2147,Plutôt haussier,Zone d'entrée technique,50.0100,49.4069,54.4600,,,,,2026-10-27 01:35
+2026-10-26,BBAI,2.1200,0.0973,Neutre,-0.3886,Baissier,Attendre la publication,2.0700,2.0011,2.5700,2026-10-27,resultats,0.0574,0.1210,2026-10-27 01:35
+2026-10-26,CAT,692.1300,-0.1299,Plutôt baissier,0.0025,Neutre,Attendre la publication,516.6267,503.3495,743.2324,2026-10-29,resultats,0.0739,0.0637,2026-10-27 01:35
+2026-10-26,CBRS,108.3700,0.2389,Plutôt haussier,-0.3623,Baissier,Zone d'entrée technique,106.1300,100.5894,177.6440,2026-11-10,lockup,,0.1078,2026-10-27 01:35
+2026-10-26,CIFR,7.7100,0.3642,Haussier,-0.3164,Plutôt baissier,Attendre la publication,7.4600,6.8930,14.8722,2026-11-02,resultats,0.2158,0.1122,2026-10-27 01:35
+2026-10-26,CORZ,13.5100,0.1146,Neutre,-0.3076,Plutôt baissier,Attendre la publication,12.3100,11.7733,16.5729,2026-11-05,resultats,0.0993,0.0840,2026-10-27 01:35
+2026-10-26,CRWV,55.1900,0.2848,Plutôt haussier,-0.3606,Baissier,Zone d'entrée technique,51.2400,48.2261,82.2661,2026-11-09,resultats,0.1805,0.0929,2026-10-27 01:35
+2026-10-26,CVX,232.0100,0.2329,Plutôt haussier,0.4413,Haussier,Attendre la publication,210.9883,208.6426,234.0800,2026-10-30,resultats,0.0049,0.0283,2026-10-27 01:35
+2026-10-26,DIS,110.4000,0.2030,Plutôt haussier,0.3371,Plutôt haussier,À surveiller,106.9662,105.9416,111.8700,2026-11-17,resultats,0.0787,0.0544,2026-10-27 01:35
+2026-10-26,FIGR,21.9100,-0.1802,Plutôt baissier,-0.3038,Plutôt baissier,À surveiller,21.7800,20.8190,28.7700,2026-11-12,resultats,0.0641,0.1246,2026-10-27 01:35
+2026-10-26,GOOGL,316.8000,0.3313,Plutôt haussier,0.1044,Neutre,Attendre la publication,254.6577,250.4910,340.9451,2026-10-28,resultats,0.0686,0.0579,2026-10-27 01:35
+2026-10-26,GS,893.2800,0.1750,Plutôt haussier,0.1748,Plutôt haussier,À surveiller,881.0000,868.7802,931.0000,,,,,2026-10-27 01:35
+2026-10-26,HD,319.3800,0.0909,Neutre,-0.0920,Neutre,À surveiller,308.9680,305.3081,331.5099,2026-11-17,resultats,0.0275,0.0473,2026-10-27 01:35
+2026-10-26,INTC,90.4700,-0.0459,Neutre,0.1262,Plutôt haussier,Attendre la publication,86.0576,83.2504,93.7000,2026-10-29,resultats,0.1348,0.0831,2026-10-27 01:35
+2026-10-26,IREN,25.4300,0.2968,Plutôt haussier,-0.3750,Baissier,Attendre la publication,23.7200,22.3895,39.1077,2026-11-05,resultats,0.0868,0.1097,2026-10-27 01:35
+2026-10-26,JNJ,266.3000,0.3266,Plutôt haussier,0.3275,Plutôt haussier,À surveiller,265.1620,261.9083,271.5500,,,,,2026-10-27 01:35
+2026-10-26,JPM,334.0400,0.0827,Neutre,0.3379,Plutôt haussier,À surveiller,326.4000,323.2838,343.6182,,,,,2026-10-27 01:35
+2026-10-26,KO,92.7000,0.1459,Plutôt haussier,0.4203,Haussier,Attendre la publication,88.9896,88.2261,94.1000,2026-10-27,resultats,0.0400,0.0297,2026-10-27 01:35
+2026-10-26,LLY,1279.1400,0.2319,Plutôt haussier,0.3302,Plutôt haussier,Attendre la publication,1188.5844,1170.0010,1292.6500,2026-10-29,resultats,0.0645,0.0594,2026-10-27 01:35
+2026-10-26,META,630.5600,0.3485,Plutôt haussier,0.0632,Neutre,À surveiller,555.6614,542.8426,631.5900,,,,,2026-10-27 01:35
+2026-10-26,MSFT,532.6000,-0.0409,Neutre,0.2194,Plutôt haussier,Attendre la publication,524.4300,518.7814,551.1500,2026-10-28,resultats,0.0740,0.0498,2026-10-27 01:35
+2026-10-26,MU,903.7000,0.1597,Plutôt haussier,0.1467,Plutôt haussier,À surveiller,902.4580,878.8840,928.4500,2026-12-16,resultats,0.0377,0.0385,2026-10-27 01:35
+2026-10-26,NBIS,153.2700,0.2637,Plutôt haussier,-0.1545,Plutôt baissier,À surveiller,73.5200,65.5454,176.1608,2026-11-10,resultats,0.1883,0.0897,2026-10-27 01:35
+2026-10-26,NEE,82.0400,0.1803,Plutôt haussier,-0.0765,Neutre,À surveiller,80.7500,79.9985,84.3800,,,,,2026-10-27 01:35
+2026-10-26,NFLX,63.9000,-0.1086,Neutre,-0.1193,Neutre,Zone d'entrée technique,62.8600,61.7692,72.1000,,,,,2026-10-27 01:35
+2026-10-26,NVDA,216.0000,0.1539,Plutôt haussier,0.2598,Plutôt haussier,À surveiller,215.9583,212.9025,222.1900,2026-11-18,resultats,0.0231,0.0528,2026-10-27 01:35
+2026-10-26,ORCL,126.0600,0.1479,Plutôt haussier,-0.2055,Plutôt baissier,À surveiller,114.0781,110.8794,141.9903,2026-12-09,resultats,0.0893,0.0957,2026-10-27 01:35
+2026-10-26,PATH,14.3000,-0.2650,Plutôt baissier,-0.0037,Neutre,À surveiller,13.2500,12.9514,14.4564,2026-12-02,resultats,0.1029,0.0985,2026-10-27 01:35
+2026-10-26,PFE,29.7900,0.2313,Plutôt haussier,0.4511,Haussier,Attendre la publication,28.3552,28.0743,30.4400,2026-11-03,resultats,0.0066,0.0382,2026-10-27 01:35
+2026-10-26,PG,159.9200,0.1261,Plutôt haussier,0.1968,Plutôt haussier,À surveiller,155.7688,154.2346,165.7527,,,,,2026-10-27 01:35
+2026-10-26,PLTR,198.8400,-0.0843,Neutre,0.1107,Neutre,Attendre la publication,185.2482,181.2179,212.9400,2026-11-02,resultats,0.0668,0.1005,2026-10-27 01:35
+2026-10-26,SHMD,2.7800,-0.0580,Neutre,-0.2947,Plutôt baissier,Zone d'entrée technique,2.7650,2.5880,3.3600,,,,,2026-10-27 01:35
+2026-10-26,SMCI,32.6900,0.2128,Plutôt haussier,-0.0993,Neutre,Attendre la publication,32.5620,31.3448,37.4500,2026-11-03,resultats,0.1837,0.0997,2026-10-27 01:35
+2026-10-26,SOUN,4.2400,0.1154,Neutre,-0.4023,Baissier,Attendre la publication,4.2000,4.0705,6.0100,2026-11-05,resultats,0.0699,0.0834,2026-10-27 01:35
+2026-10-26,TSLA,391.6200,0.2031,Plutôt haussier,-0.0081,Neutre,Zone d'entrée technique,386.1265,379.3925,498.8300,,,,,2026-10-27 01:35
+2026-10-26,TSM,424.3700,0.1957,Plutôt haussier,0.3132,Plutôt haussier,À surveiller,411.4462,405.1014,424.5411,,,,,2026-10-27 01:35
+2026-10-26,UNH,410.7000,0.1106,Neutre,0.1952,Plutôt haussier,À surveiller,387.8330,382.0883,458.7949,,,,,2026-10-27 01:35
+2026-10-26,V,404.1600,0.2000,Plutôt haussier,0.4579,Haussier,Attendre la publication,377.8664,374.5365,414.6000,2026-10-27,resultats,0.0180,0.0314,2026-10-27 01:35
+2026-10-26,VRT,199.7800,0.2899,Plutôt haussier,-0.1618,Plutôt baissier,Attendre la publication,147.7179,141.8715,220.0000,2026-10-28,resultats,0.1020,0.0992,2026-10-27 01:35
+2026-10-26,WMT,120.2900,0.1795,Plutôt haussier,0.1925,Plutôt haussier,À surveiller,118.0783,116.8460,121.3800,2026-11-19,resultats,0.0638,0.0498,2026-10-27 01:35
+2026-10-26,WULF,11.9800,0.2066,Plutôt haussier,-0.3506,Baissier,À surveiller,10.3500,9.7777,13.0600,2026-11-06,resultats,0.0808,0.0935,2026-10-27 01:35
+2026-10-26,XOM,184.5400,0.1922,Plutôt haussier,0.4870,Haussier,Attendre la publication,166.2710,164.3576,184.5900,2026-10-30,resultats,0.0101,0.0281,2026-10-27 01:35

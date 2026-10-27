@@ -1,11 +1,11 @@
 {
  "ticker": "SOUN",
- "fetched": "2026-10-24",
+ "fetched": "2026-10-27",
  "source": "Nasdaq",
  "next_earnings": {
   "date": "2026-11-05",
   "estimated": true,
-  "timing": ""
+  "timing": "apr\u00e8s cl\u00f4ture"
  },
  "past_earnings": [
   "2025-11-06",

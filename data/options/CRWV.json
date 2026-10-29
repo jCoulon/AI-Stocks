@@ -1,50 +1,50 @@
 {
  "ticker": "CRWV",
- "fetched": "2026-10-28",
+ "fetched": "2026-10-29",
  "source": "Nasdaq",
- "spot": 55.19,
+ "spot": 63.93,
  "straddles": [
   {
    "expiry": "2026-10-30",
-   "strike": 55.0,
-   "straddle": 6.305,
-   "move": 0.11424171045479253
+   "strike": 64.0,
+   "straddle": 4.4,
+   "move": 0.06882527764742688
   },
   {
    "expiry": "2026-11-06",
-   "strike": 55.0,
-   "straddle": 8.755,
-   "move": 0.15863381047291178
+   "strike": 64.0,
+   "straddle": 7.825,
+   "move": 0.1223994994525262
   },
   {
    "expiry": "2026-11-13",
-   "strike": 55.0,
-   "straddle": 11.95,
-   "move": 0.21652473274143866
+   "strike": 64.0,
+   "straddle": 11.975,
+   "move": 0.1873142499608947
   },
   {
    "expiry": "2026-11-20",
-   "strike": 55.0,
-   "straddle": 13.55,
-   "move": 0.24551549193694513
+   "strike": 64.0,
+   "straddle": 13.575,
+   "move": 0.21234162365086812
   },
   {
    "expiry": "2026-11-27",
-   "strike": 55.0,
-   "straddle": 14.3,
-   "move": 0.2591049103098388
+   "strike": 64.0,
+   "straddle": 14.5,
+   "move": 0.22681057406538402
   },
   {
    "expiry": "2026-12-04",
-   "strike": 55.0,
-   "straddle": 15.25,
-   "move": 0.2763181735821707
+   "strike": 64.0,
+   "straddle": 15.7,
+   "move": 0.24558110433286406
   },
   {
    "expiry": "2026-12-18",
-   "strike": 55.0,
-   "straddle": 17.025,
-   "move": 0.30847979706468565
+   "strike": 65.0,
+   "straddle": 17.675,
+   "move": 0.276474268731425
   }
  ]
 }

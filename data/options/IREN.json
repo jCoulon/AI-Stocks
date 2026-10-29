@@ -1,50 +1,50 @@
 {
  "ticker": "IREN",
- "fetched": "2026-10-28",
+ "fetched": "2026-10-29",
  "source": "Nasdaq",
- "spot": 25.43,
+ "spot": 28.84,
  "straddles": [
   {
    "expiry": "2026-10-30",
-   "strike": 25.5,
-   "straddle": 2.8899999999999997,
-   "move": 0.1136453008257963
+   "strike": 29.0,
+   "straddle": 2.19,
+   "move": 0.07593619972260748
   },
   {
    "expiry": "2026-11-06",
-   "strike": 25.5,
-   "straddle": 5.03,
-   "move": 0.1977978765237908
+   "strike": 29.0,
+   "straddle": 5.165,
+   "move": 0.17909153952843274
   },
   {
    "expiry": "2026-11-13",
-   "strike": 25.5,
-   "straddle": 5.815,
-   "move": 0.22866692882422338
+   "strike": 29.0,
+   "straddle": 5.925,
+   "move": 0.20544382801664354
   },
   {
    "expiry": "2026-11-20",
-   "strike": 25.0,
-   "straddle": 6.56,
-   "move": 0.25796303578450647
+   "strike": 29.0,
+   "straddle": 6.625,
+   "move": 0.22971567267683773
   },
   {
    "expiry": "2026-11-27",
-   "strike": 25.0,
-   "straddle": 7.05,
-   "move": 0.277231616201337
+   "strike": 29.0,
+   "straddle": 7.125,
+   "move": 0.24705270457697642
   },
   {
    "expiry": "2026-12-04",
-   "strike": 25.0,
-   "straddle": 7.445,
-   "move": 0.29276445143531266
+   "strike": 29.0,
+   "straddle": 7.7,
+   "move": 0.2669902912621359
   },
   {
    "expiry": "2026-12-18",
-   "strike": 25.0,
-   "straddle": 8.51,
-   "move": 0.3346441211167912
+   "strike": 29.0,
+   "straddle": 8.8,
+   "move": 0.3051317614424411
   }
  ]
 }

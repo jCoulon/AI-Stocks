@@ -1,20 +1,26 @@
 {
  "ticker": "AMT",
- "fetched": "2026-10-31",
+ "fetched": "2026-11-03",
  "source": "Nasdaq",
  "spot": 187.78,
  "straddles": [
   {
    "expiry": "2026-11-20",
    "strike": 190.0,
-   "straddle": 11.1,
-   "move": 0.05911172648844392
+   "straddle": 10.55,
+   "move": 0.056182767067845356
   },
   {
    "expiry": "2026-12-18",
    "strike": 190.0,
-   "straddle": 15.7,
-   "move": 0.08360847800617743
+   "straddle": 16.1,
+   "move": 0.08573863031206733
+  },
+  {
+   "expiry": "2027-01-15",
+   "strike": 190.0,
+   "straddle": 19.8,
+   "move": 0.10544253914154862
   }
  ]
 }

@@ -1,20 +1,26 @@
 {
  "ticker": "SHMD",
- "fetched": "2026-10-31",
+ "fetched": "2026-11-03",
  "source": "Nasdaq",
  "spot": 2.72,
  "straddles": [
   {
    "expiry": "2026-11-20",
    "strike": 2.5,
-   "straddle": 0.8,
-   "move": 0.29411764705882354
+   "straddle": 1.025,
+   "move": 0.3768382352941176
   },
   {
    "expiry": "2026-12-18",
    "strike": 2.5,
-   "straddle": 1.0,
-   "move": 0.3676470588235294
+   "straddle": 2.575,
+   "move": 0.9466911764705882
+  },
+  {
+   "expiry": "2027-01-15",
+   "strike": 2.5,
+   "straddle": 1.05,
+   "move": 0.3860294117647059
   }
  ]
 }

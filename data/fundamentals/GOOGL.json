@@ -1,10 +1,10 @@
 {
  "ticker": "GOOGL",
- "fetched": "2026-11-05",
+ "fetched": "2026-11-06",
  "source": "Nasdaq",
  "market_cap": 3552105420000.0,
  "price": null,
- "target_mean": 400.3,
+ "target_mean": 398.48,
  "target_high": 490.0,
  "target_low": 300.0,
  "analysts": 33.0,

@@ -1,10 +1,10 @@
 {
  "ticker": "LLY",
- "fetched": "2026-11-05",
+ "fetched": "2026-11-06",
  "source": "Nasdaq",
  "market_cap": 1333967046508.0,
  "price": null,
- "target_mean": 1508.7,
+ "target_mean": 1511.3,
  "target_high": 1650.0,
  "target_low": 940.0,
  "analysts": 24.0,

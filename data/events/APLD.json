@@ -1,8 +1,12 @@
 {
  "ticker": "APLD",
- "fetched": "2026-11-10",
+ "fetched": "2026-11-13",
  "source": "Nasdaq",
- "next_earnings": null,
+ "next_earnings": {
+  "date": "2027-01-06",
+  "estimated": true,
+  "timing": ""
+ },
  "past_earnings": [
   "2025-10-09",
   "2026-01-07",

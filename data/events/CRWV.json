@@ -1,16 +1,13 @@
 {
  "ticker": "CRWV",
- "fetched": "2026-11-10",
+ "fetched": "2026-11-13",
  "source": "Nasdaq",
- "next_earnings": {
-  "date": "2026-11-10",
-  "estimated": true,
-  "timing": "apr\u00e8s cl\u00f4ture"
- },
+ "next_earnings": null,
  "past_earnings": [
   "2025-11-10",
   "2026-02-26",
   "2026-05-07",
-  "2026-08-11"
+  "2026-08-11",
+  "2026-11-10"
  ]
 }

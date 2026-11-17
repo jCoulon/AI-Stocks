@@ -1,10 +1,10 @@
 {
  "ticker": "CRWV",
- "fetched": "2026-11-14",
+ "fetched": "2026-11-17",
  "source": "Nasdaq",
  "market_cap": 29546959716.0,
  "price": null,
- "target_mean": 104.89,
+ "target_mean": 104.7,
  "target_high": 200.0,
  "target_low": 39.0,
  "analysts": 28.0,

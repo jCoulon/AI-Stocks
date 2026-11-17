@@ -1,10 +1,10 @@
 {
  "ticker": "AVGO",
- "fetched": "2026-11-14",
+ "fetched": "2026-11-17",
  "source": "Nasdaq",
  "market_cap": 1656497299454.0,
  "price": null,
- "target_mean": 519.5,
+ "target_mean": 517.71,
  "target_high": 630.0,
  "target_low": 398.0,
  "analysts": 31.0,

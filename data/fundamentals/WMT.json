@@ -1,10 +1,10 @@
 {
  "ticker": "WMT",
- "fetched": "2026-11-14",
+ "fetched": "2026-11-17",
  "source": "Nasdaq",
  "market_cap": 1016233556010.0,
  "price": null,
- "target_mean": 132.26,
+ "target_mean": 132.71,
  "target_high": 155.0,
  "target_low": 110.0,
  "analysts": 31.0,

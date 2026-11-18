@@ -1,10 +1,10 @@
 {
  "ticker": "DIS",
- "fetched": "2026-11-17",
+ "fetched": "2026-11-18",
  "source": "Nasdaq",
  "market_cap": 204983635571.0,
  "price": null,
- "target_mean": 130.07,
+ "target_mean": 130.0,
  "target_high": 144.0,
  "target_low": 115.0,
  "analysts": 14.0,

@@ -1,8 +1,12 @@
 {
  "ticker": "BAC",
- "fetched": "2026-11-19",
+ "fetched": "2026-11-20",
  "source": "Nasdaq",
- "next_earnings": null,
+ "next_earnings": {
+  "date": "2027-01-13",
+  "estimated": true,
+  "timing": ""
+ },
  "past_earnings": [
   "2025-10-15",
   "2026-01-14",

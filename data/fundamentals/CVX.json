@@ -1,10 +1,10 @@
 {
  "ticker": "CVX",
- "fetched": "2026-11-19",
+ "fetched": "2026-11-20",
  "source": "Nasdaq",
  "market_cap": 404641016714.0,
  "price": null,
- "target_mean": 242.82,
+ "target_mean": 241.69,
  "target_high": 268.0,
  "target_low": 218.0,
  "analysts": 18.0,

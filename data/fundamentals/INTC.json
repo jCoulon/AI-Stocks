@@ -1,10 +1,10 @@
 {
  "ticker": "INTC",
- "fetched": "2026-11-21",
+ "fetched": "2026-11-24",
  "source": "Nasdaq",
  "market_cap": 272553200000.0,
  "price": null,
- "target_mean": 90.93,
+ "target_mean": 89.72,
  "target_high": 145.0,
  "target_low": 70.0,
  "analysts": 32.0,

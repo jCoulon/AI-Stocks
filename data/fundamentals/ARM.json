@@ -1,8 +1,8 @@
 {
  "ticker": "ARM",
- "fetched": "2026-11-24",
+ "fetched": "2026-11-25",
  "source": "Nasdaq",
- "market_cap": 161949209354.0,
+ "market_cap": 170142434795.0,
  "price": null,
  "target_mean": 290.0,
  "target_high": 480.0,

@@ -1,8 +1,12 @@
 {
  "ticker": "JNJ",
- "fetched": "2026-11-26",
+ "fetched": "2026-11-27",
  "source": "Nasdaq",
- "next_earnings": null,
+ "next_earnings": {
+  "date": "2027-01-20",
+  "estimated": true,
+  "timing": ""
+ },
  "past_earnings": [
   "2025-10-14",
   "2026-01-21",

@@ -1,10 +1,10 @@
 {
  "ticker": "TSM",
- "fetched": "2026-11-27",
+ "fetched": "2026-11-28",
  "source": "Nasdaq",
- "market_cap": 1774303327658.0,
+ "market_cap": 1834311189398.0,
  "price": null,
- "target_mean": 563.75,
+ "target_mean": 570.0,
  "target_high": 670.0,
  "target_low": 500.0,
  "analysts": 9.0,
